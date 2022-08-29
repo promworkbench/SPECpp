@@ -1,4 +1,4 @@
-package org.processmining.newpackageivy.models;
+package org.processmining.specpp.models;
 
 
 public class YourOutput {
