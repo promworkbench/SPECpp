@@ -1,0 +1,81 @@
+package org.processmining.specpp.orchestra;
+
+import org.processmining.specpp.base.AdvancedComposition;
+import org.processmining.specpp.base.impls.EventingPlaceComposerWithCIPR;
+import org.processmining.specpp.base.impls.EventingPlaceFitnessFilter;
+import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
+import org.processmining.specpp.componenting.system.GlobalComponentRepository;
+import org.processmining.specpp.composition.PlaceCollection;
+import org.processmining.specpp.config.*;
+import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.Place;
+import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
+import org.processmining.specpp.datastructures.tree.base.impls.EventingEnumeratingTree;
+import org.processmining.specpp.datastructures.tree.heuristic.DoubleScore;
+import org.processmining.specpp.datastructures.tree.heuristic.EventingHeuristicTreeExpansion;
+import org.processmining.specpp.datastructures.tree.heuristic.HeuristicUtils;
+import org.processmining.specpp.datastructures.tree.nodegen.MonotonousPlaceGenerationLogic;
+import org.processmining.specpp.datastructures.tree.nodegen.PlaceNode;
+import org.processmining.specpp.datastructures.tree.nodegen.PlaceState;
+import org.processmining.specpp.evaluation.fitness.AbsolutelyNoFrillsFitnessEvaluator;
+import org.processmining.specpp.evaluation.markings.LogHistoryMaker;
+import org.processmining.specpp.postprocessing.PlaceExporter;
+import org.processmining.specpp.postprocessing.ProMConverter;
+import org.processmining.specpp.postprocessing.ReplayBasedImplicitnessPostProcessing;
+import org.processmining.specpp.postprocessing.SelfLoopPlaceMerger;
+import org.processmining.specpp.proposal.RestartablePlaceProposer;
+import org.processmining.specpp.supervision.supervisors.AltEventCountsSupervisor;
+import org.processmining.specpp.supervision.supervisors.BaseSupervisor;
+import org.processmining.specpp.supervision.supervisors.PerformanceSupervisor;
+import org.processmining.specpp.supervision.supervisors.TerminalSupervisor;
+
+public class BaseSPECppComponentConfig implements SPECppComponentConfig {
+
+    @Override
+    public SupervisionConfiguration getSupervisionConfiguration(GlobalComponentRepository gcr) {
+        return Configurators.supervisors()
+                            .supervisor(BaseSupervisor::new)
+                            .supervisor(PerformanceSupervisor::new)
+                            .supervisor(AltEventCountsSupervisor::new)
+                            .supervisor(TerminalSupervisor::new)
+                            .build(gcr);
+    }
+
+    @Override
+    public EvaluatorConfiguration getEvaluatorConfiguration(GlobalComponentRepository gcr) {
+        return Configurators.evaluators()
+                            .evaluatorProvider(LogHistoryMaker::new)
+                            .evaluatorProvider(AbsolutelyNoFrillsFitnessEvaluator::new)
+                            .build(gcr);
+    }
+
+    @Override
+    public ProposerComposerConfiguration<Place, AdvancedComposition<Place>, PetriNet> getProposerComposerConfiguration(GlobalComponentRepository gcr) {
+        return Configurators.<Place, AdvancedComposition<Place>, PetriNet>proposerComposer()
+                            .proposer(new RestartablePlaceProposer.Builder())
+                            .composition(PlaceCollection::new)
+                            .terminalComposer(EventingPlaceComposerWithCIPR::new)
+                            .composerChain(EventingPlaceFitnessFilter::new)
+                            .build(gcr);
+    }
+
+    @Override
+    public EfficientTreeConfiguration<Place, PlaceState, PlaceNode> getEfficientTreeConfiguration(GlobalComponentRepository gcr) {
+        return Configurators.<Place, PlaceState, PlaceNode, DoubleScore>heuristicTree()
+                            .heuristic(HeuristicUtils::bfs)
+                            .heuristicExpansion(EventingHeuristicTreeExpansion::new)
+                            .tree(EventingEnumeratingTree::new)
+                            .childGenerationLogic(new MonotonousPlaceGenerationLogic.Builder())
+                            .build(gcr);
+    }
+
+    @Override
+    public PostProcessingConfiguration<PetriNet, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository gcr) {
+        return Configurators.<PetriNet>postProcessing()
+                            .processor(new ReplayBasedImplicitnessPostProcessing.Builder())
+                            .processor(SelfLoopPlaceMerger::new)
+                            .processor(new PlaceExporter.Builder())
+                            .processor(ProMConverter::new)
+                            .build(gcr);
+    }
+}
