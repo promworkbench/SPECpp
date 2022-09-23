@@ -48,7 +48,7 @@ public class EvaluatorConfiguration extends Configuration {
         }
 
 
-        public <I extends Evaluable, E extends Evaluation> Configurator evaluator(Class<I> evaluableClass, Class<E> evaluationClass, Class<Evaluator<? super I, ? extends E>> evaluatorClass) {
+        public <I extends Evaluable, E extends Evaluation> Configurator addEvaluator(Class<I> evaluableClass, Class<E> evaluationClass, Class<Evaluator<? super I, ? extends E>> evaluatorClass) {
             SimpleBuilder<ProvidesEvaluators> builder = () -> {
                 class Wrap extends AbstractGlobalComponentSystemUser implements ProvidesEvaluators {
                     public Wrap() {
@@ -61,7 +61,7 @@ public class EvaluatorConfiguration extends Configuration {
             return this;
         }
 
-        public Configurator evaluatorProvider(SimpleBuilder<? extends ProvidesEvaluators> builder) {
+        public Configurator addEvaluatorProvider(SimpleBuilder<? extends ProvidesEvaluators> builder) {
             evaluatorProviderBuilders.add(builder);
             return this;
         }

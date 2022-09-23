@@ -33,9 +33,9 @@ public class UniwiredComponentConfig extends BaseSPECppComponentConfig {
     @Override
     public EvaluatorConfiguration getEvaluatorConfiguration(GlobalComponentRepository gcr) {
         return Configurators.evaluators()
-                            .evaluatorProvider(LogHistoryMaker::new)
-                            .evaluatorProvider(new AbsolutelyNoFrillsFitnessEvaluator.Builder())
-                            .evaluatorProvider(new DirectlyFollowsHeuristic.Builder())
+                            .addEvaluatorProvider(LogHistoryMaker::new)
+                            .addEvaluatorProvider(new AbsolutelyNoFrillsFitnessEvaluator.Builder())
+                            .addEvaluatorProvider(new DirectlyFollowsHeuristic.Builder())
                             .build(gcr);
     }
 
@@ -64,7 +64,7 @@ public class UniwiredComponentConfig extends BaseSPECppComponentConfig {
         return Configurators.<PetriNet>postProcessing()
                             //.instrumentedProcessor("ReplayBasedImplicitness", new ReplayBasedImplicitnessPostProcessing.Builder())
                             //.instrumentedProcessor("SelfLoopPlaceMerger", SelfLoopPlaceMerger::new)
-                            .processor(ProMConverter::new).build(gcr);
+                            .addPostProcessor(ProMConverter::new).build(gcr);
     }
 
 }

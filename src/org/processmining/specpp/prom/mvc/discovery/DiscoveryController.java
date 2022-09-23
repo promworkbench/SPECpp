@@ -85,7 +85,7 @@ public class DiscoveryController extends AbstractStageController implements Dest
 
         specpp.start();
 
-        externalInitializer.initSelf();
+        externalInitializer.init();
 
         LocalDateTime startTime = LocalDateTime.now();
         if (timeLimits.hasDiscoveryTimeLimit())

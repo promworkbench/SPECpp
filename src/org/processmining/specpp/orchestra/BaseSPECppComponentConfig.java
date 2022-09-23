@@ -35,19 +35,19 @@ public class BaseSPECppComponentConfig implements SPECppComponentConfig {
     @Override
     public SupervisionConfiguration getSupervisionConfiguration(GlobalComponentRepository gcr) {
         return Configurators.supervisors()
-                            .supervisor(BaseSupervisor::new)
-                            .supervisor(PerformanceSupervisor::new)
-                            .supervisor(AltEventCountsSupervisor::new)
-                            .supervisor(TerminalSupervisor::new)
+                            .addSupervisor(BaseSupervisor::new)
+                            .addSupervisor(PerformanceSupervisor::new)
+                            .addSupervisor(AltEventCountsSupervisor::new)
+                            .addSupervisor(TerminalSupervisor::new)
                             .build(gcr);
     }
 
     @Override
     public EvaluatorConfiguration getEvaluatorConfiguration(GlobalComponentRepository gcr) {
         return Configurators.evaluators()
-                            .evaluatorProvider(LogHistoryMaker::new)
-                            .evaluatorProvider(new AbsolutelyNoFrillsFitnessEvaluator.Builder())
-                            .evaluatorProvider(new LPBasedImplicitnessCalculator.Builder())
+                            .addEvaluatorProvider(LogHistoryMaker::new)
+                            .addEvaluatorProvider(new AbsolutelyNoFrillsFitnessEvaluator.Builder())
+                            .addEvaluatorProvider(new LPBasedImplicitnessCalculator.Builder())
                             .build(gcr);
     }
 
@@ -74,10 +74,10 @@ public class BaseSPECppComponentConfig implements SPECppComponentConfig {
     @Override
     public PostProcessingConfiguration<PetriNet, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository gcr) {
         return Configurators.<PetriNet>postProcessing()
-                            .processor(new ReplayBasedImplicitnessPostProcessing.Builder())
-                            .processor(SelfLoopPlaceMerger::new)
-                            .processor(new PlaceExporter.Builder())
-                            .processor(ProMConverter::new)
+                            .addPostProcessor(new ReplayBasedImplicitnessPostProcessing.Builder())
+                            .addPostProcessor(SelfLoopPlaceMerger::new)
+                            .addPostProcessor(new PlaceExporter.Builder())
+                            .addPostProcessor(ProMConverter::new)
                             .build(gcr);
     }
 }

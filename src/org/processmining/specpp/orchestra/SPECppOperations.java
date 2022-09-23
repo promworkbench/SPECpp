@@ -120,7 +120,7 @@ public class SPECppOperations {
 
         specpp.init();
 
-        externalInitializer.initSelf();
+        externalInitializer.init();
 
         return specpp;
     }

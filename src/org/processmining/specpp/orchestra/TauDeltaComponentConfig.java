@@ -3,7 +3,7 @@ package org.processmining.specpp.orchestra;
 import org.processmining.specpp.base.AdvancedComposition;
 import org.processmining.specpp.base.impls.PlaceAccepter;
 import org.processmining.specpp.base.impls.PlaceFitnessFilter;
-import org.processmining.specpp.base.impls.QueueingDeltaComposer;
+import org.processmining.specpp.base.impls.DeltaComposer;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.TrackingPlaceCollection;
@@ -29,9 +29,9 @@ public class TauDeltaComponentConfig extends BaseSPECppComponentConfig {
     @Override
     public EvaluatorConfiguration getEvaluatorConfiguration(GlobalComponentRepository gcr) {
         return Configurators.evaluators()
-                            .evaluatorProvider(LogHistoryMaker::new)
-                            .evaluatorProvider(new AbsolutelyNoFrillsFitnessEvaluator.Builder())
-                            .evaluatorProvider(new ConstantDelta.Builder())
+                            .addEvaluatorProvider(LogHistoryMaker::new)
+                            .addEvaluatorProvider(new AbsolutelyNoFrillsFitnessEvaluator.Builder())
+                            .addEvaluatorProvider(new ConstantDelta.Builder())
                             .build(gcr);
     }
 
@@ -41,7 +41,7 @@ public class TauDeltaComponentConfig extends BaseSPECppComponentConfig {
                             .proposer(new ConstrainablePlaceProposer.Builder())
                             .composition(TrackingPlaceCollection::new)
                             .terminalComposer(PlaceAccepter::new)
-                            .composerChain(PlaceFitnessFilter::new, QueueingDeltaComposer::new)
+                            .composerChain(PlaceFitnessFilter::new, DeltaComposer::new)
                             .build(gcr);
     }
 

@@ -7,6 +7,7 @@ import org.processmining.specpp.config.EfficientTreeConfiguration;
 import org.processmining.specpp.config.PostProcessingConfiguration;
 import org.processmining.specpp.config.ProposerComposerConfiguration;
 import org.processmining.specpp.config.SupervisionConfiguration;
+import org.processmining.specpp.config.parameters.ParameterProvider;
 import org.processmining.specpp.datastructures.petri.PetriNet;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
@@ -21,16 +22,16 @@ public class ConfiguratorCollection implements SPECppConfigBundle, SPECppCompone
     private final EvaluatorConfiguration.Configurator evCfg;
     private final EfficientTreeConfiguration.Configurator<Place, PlaceState, PlaceNode> etCfg;
     private final PostProcessingConfiguration.Configurator<PetriNet, ProMPetrinetWrapper> ppCfg;
-    private final AdaptedAlgorithmParameterConfig parCfg;
+    private final ParameterProvider parProv;
     private final BaseDataExtractionConfig deCfg;
 
-    public ConfiguratorCollection(SupervisionConfiguration.Configurator svCfg, ProposerComposerConfiguration.Configurator<Place, AdvancedComposition<Place>, PetriNet> pcCfg, EvaluatorConfiguration.Configurator evCfg, EfficientTreeConfiguration.Configurator<Place, PlaceState, PlaceNode> etCfg, PostProcessingConfiguration.Configurator<PetriNet, ProMPetrinetWrapper> ppCfg, AdaptedAlgorithmParameterConfig parCfg) {
+    public ConfiguratorCollection(SupervisionConfiguration.Configurator svCfg, ProposerComposerConfiguration.Configurator<Place, AdvancedComposition<Place>, PetriNet> pcCfg, EvaluatorConfiguration.Configurator evCfg, EfficientTreeConfiguration.Configurator<Place, PlaceState, PlaceNode> etCfg, PostProcessingConfiguration.Configurator<PetriNet, ProMPetrinetWrapper> ppCfg, ParameterProvider parProv) {
         this.svCfg = svCfg;
         this.pcCfg = pcCfg;
         this.evCfg = evCfg;
         this.etCfg = etCfg;
         this.ppCfg = ppCfg;
-        this.parCfg = parCfg;
+        this.parProv = parProv;
         deCfg = new BaseDataExtractionConfig();
     }
 
@@ -61,7 +62,7 @@ public class ConfiguratorCollection implements SPECppConfigBundle, SPECppCompone
 
     @Override
     public void registerAlgorithmParameters(GlobalComponentRepository cr) {
-        parCfg.registerAlgorithmParameters(cr);
+        new AdaptedAlgorithmParameterConfig(parProv).registerAlgorithmParameters(cr);
     }
 
     @Override

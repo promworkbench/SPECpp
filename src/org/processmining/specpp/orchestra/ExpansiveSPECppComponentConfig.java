@@ -10,13 +10,13 @@ public class ExpansiveSPECppComponentConfig extends BaseSPECppComponentConfig {
     @Override
     public SupervisionConfiguration getSupervisionConfiguration(GlobalComponentRepository gcr) {
         return Configurators.supervisors()
-                            .supervisor(BaseSupervisor::new)
-                            .supervisor(PerformanceSupervisor::new)
-                            .supervisor(EventCountsSupervisor::new)
-                            .supervisor(DetailedHeuristicsSupervisor::new)
-                            .supervisor(DetailedTreeSupervisor::new)
-                            .supervisor(ProposalTreeSupervisor::new)
-                            .supervisor(TerminalSupervisor::new)
+                            .addSupervisor(BaseSupervisor::new)
+                            .addSupervisor(PerformanceSupervisor::new)
+                            .addSupervisor(EventCountsSupervisor::new)
+                            .addSupervisor(DetailedHeuristicsSupervisor::new)
+                            .addSupervisor(DetailedTreeSupervisor::new)
+                            .addSupervisor(ProposalTreeSupervisor::new)
+                            .addSupervisor(TerminalSupervisor::new)
                             .build(gcr);
     }
 }

@@ -61,13 +61,13 @@ public class PostProcessingConfiguration<R extends Result, F extends Result> ext
             this.list = list;
         }
 
-        public <T extends Result> Configurator<R, T> processor(SimpleBuilder<? extends PostProcessor<? super F, T>> builder) {
+        public <T extends Result> Configurator<R, T> addPostProcessor(SimpleBuilder<? extends PostProcessor<? super F, T>> builder) {
             WrappedPostProcessor.Builder<? super F, T> wB = new WrappedPostProcessor.Builder<>(builder);
             list.add(wB);
             return new Configurator<>(first, wB, list);
         }
 
-        public <T extends Result> Configurator<R, T> processorComponent(SimpleBuilder<PostProcessorComponent<? super F, T>> builder) {
+        public <T extends Result> Configurator<R, T> addPostProcessorComponent(SimpleBuilder<PostProcessorComponent<? super F, T>> builder) {
             list.add(builder);
             return new Configurator<>(first, builder, list);
         }

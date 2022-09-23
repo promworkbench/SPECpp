@@ -19,8 +19,8 @@ public class PlaceFocussedComponentConfig extends LightweightComponentConfig {
     @Override
     public PostProcessingConfiguration<PetriNet, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository gcr) {
         return Configurators.<PetriNet>postProcessing()
-                            .processor(new PlaceExporter.Builder())
-                            .processor(ProMConverter::new)
+                            .addPostProcessor(new PlaceExporter.Builder())
+                            .addPostProcessor(ProMConverter::new)
                             .build(gcr);
     }
 

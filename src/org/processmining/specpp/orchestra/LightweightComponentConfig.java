@@ -26,9 +26,9 @@ public class LightweightComponentConfig extends BaseSPECppComponentConfig {
     @Override
     public SupervisionConfiguration getSupervisionConfiguration(GlobalComponentRepository gcr) {
         return Configurators.supervisors()
-                            .supervisor(BaseSupervisor::new)
-                            .supervisor(PerformanceSupervisor::new)
-                            .supervisor(TerminalSupervisor::new)
+                            .addSupervisor(BaseSupervisor::new)
+                            .addSupervisor(PerformanceSupervisor::new)
+                            .addSupervisor(TerminalSupervisor::new)
                             .build(gcr);
     }
 

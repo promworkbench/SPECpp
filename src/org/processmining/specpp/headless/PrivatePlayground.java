@@ -5,10 +5,7 @@ import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.data.StaticDataSource;
 import org.processmining.specpp.componenting.system.AbstractGlobalComponentSystemUser;
 import org.processmining.specpp.componenting.traits.ProvidesParameters;
-import org.processmining.specpp.config.parameters.OutputPathParameters;
-import org.processmining.specpp.config.parameters.PlaceGeneratorParameters;
-import org.processmining.specpp.config.parameters.SupervisionParameters;
-import org.processmining.specpp.config.parameters.TauFitnessThresholds;
+import org.processmining.specpp.config.parameters.*;
 import org.processmining.specpp.orchestra.CustomSPECppConfigBundle;
 import org.processmining.specpp.orchestra.PlaceFocusedSPECppConfigBundle;
 import org.processmining.specpp.orchestra.PreProcessingParameters;
@@ -30,9 +27,9 @@ public class PrivatePlayground {
         SPECppOperations.configureAndExecute(() -> new CustomSPECppConfigBundle(new MyParameters(.5, 5)), InputData.loadData(PrivatePaths.toPath("temp/flatten_resources.xes"), PreProcessingParameters.getDefault()), false);
     }
 
-    private static class MyParameters extends AbstractGlobalComponentSystemUser implements ProvidesParameters {
+    private static class MyParameters extends ParameterProvider {
         public MyParameters(double tau, int treeDepth) {
-            globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(true, true))))
+            globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(SupervisionParameters.instrumentAll(true, true))))
                                    .provide(ParameterRequirements.TAU_FITNESS_THRESHOLDS.fulfilWith(StaticDataSource.of(TauFitnessThresholds.tau(tau))))
                                    .provide(ParameterRequirements.PLACE_GENERATOR_PARAMETERS.fulfilWith(StaticDataSource.of(new PlaceGeneratorParameters(treeDepth, true, false, false, false))));
         }
@@ -65,7 +62,7 @@ public class PrivatePlayground {
     private static ProvidesParameters anonymous(int configId, double tau) {
         class P extends AbstractGlobalComponentSystemUser implements ProvidesParameters {
             public P() {
-                globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(false, true))))
+                globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(SupervisionParameters.instrumentAll(false, true))))
                                        .provide(ParameterRequirements.PLACE_GENERATOR_PARAMETERS.fulfilWith(StaticDataSource.of(new PlaceGeneratorParameters(5, true, false, true, true))))
                                        .provide(ParameterRequirements.TAU_FITNESS_THRESHOLDS.fulfilWith(StaticDataSource.of(TauFitnessThresholds.tau(tau))))
                                        .provide(ParameterRequirements.OUTPUT_PATH_PARAMETERS.fulfilWith(StaticDataSource.of(OutputPathParameters.ofPrefix("cfg_id_" + configId + "$"))));

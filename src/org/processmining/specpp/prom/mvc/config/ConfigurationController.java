@@ -5,9 +5,7 @@ import org.processmining.specpp.base.IdentityPostProcessor;
 import org.processmining.specpp.base.impls.*;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
-import org.processmining.specpp.componenting.system.AbstractGlobalComponentSystemUser;
 import org.processmining.specpp.componenting.system.link.ComposerComponent;
-import org.processmining.specpp.componenting.traits.ProvidesParameters;
 import org.processmining.specpp.composition.ConstrainingPlaceCollection;
 import org.processmining.specpp.composition.DeltaComposerParameters;
 import org.processmining.specpp.composition.TrackingPlaceCollection;
@@ -29,7 +27,6 @@ import org.processmining.specpp.evaluation.heuristics.TreeHeuristicThreshold;
 import org.processmining.specpp.evaluation.implicitness.ImplicitnessTestingParameters;
 import org.processmining.specpp.evaluation.implicitness.LPBasedImplicitnessCalculator;
 import org.processmining.specpp.evaluation.markings.LogHistoryMaker;
-import org.processmining.specpp.orchestra.AdaptedAlgorithmParameterConfig;
 import org.processmining.specpp.prom.alg.FrameworkBridge;
 import org.processmining.specpp.prom.alg.LiveEvents;
 import org.processmining.specpp.prom.alg.LivePerformance;
@@ -57,21 +54,21 @@ public class ConfigurationController extends AbstractStageController {
 
         boolean logToFile = pc.logToFile;
         SupervisionConfiguration.Configurator svCfg = new SupervisionConfiguration.Configurator();
-        svCfg.supervisor(BaseSupervisor::new);
+        svCfg.addSupervisor(BaseSupervisor::new);
         boolean isSupervisingEvents = pc.supervisionSetting == ProMConfig.SupervisionSetting.PerformanceAndEvents;
         switch (pc.supervisionSetting) {
             case Nothing:
                 break;
             case PerformanceOnly:
-                svCfg.supervisor(LivePerformance::new);
+                svCfg.addSupervisor(LivePerformance::new);
                 break;
             case PerformanceAndEvents:
-                svCfg.supervisor(LivePerformance::new);
-                svCfg.supervisor(LiveEvents::new);
-                if (pc.logHeuristics) svCfg.supervisor(DetailedHeuristicsSupervisor::new);
+                svCfg.addSupervisor(LivePerformance::new);
+                svCfg.addSupervisor(LiveEvents::new);
+                if (pc.logHeuristics) svCfg.addSupervisor(DetailedHeuristicsSupervisor::new);
                 break;
         }
-        svCfg.supervisor(TerminalSupervisor::new);
+        svCfg.addSupervisor(TerminalSupervisor::new);
 
         // ** PROPOSAL, COMPOSITION ** //
 
@@ -98,7 +95,7 @@ public class ConfigurationController extends AbstractStageController {
                 pcCfg.composerChain(fitnessFilterBuilder);
                 break;
             case TauDelta:
-                pcCfg.composerChain(fitnessFilterBuilder, QueueingDeltaComposer::new);
+                pcCfg.composerChain(fitnessFilterBuilder, DeltaComposer::new);
                 break;
             case Uniwired:
                 pcCfg.composerChain(fitnessFilterBuilder, UniwiredComposer::new);
@@ -107,15 +104,15 @@ public class ConfigurationController extends AbstractStageController {
 
         // ** EVALUATION ** //
         EvaluatorConfiguration.Configurator evCfg = new EvaluatorConfiguration.Configurator();
-        evCfg.evaluatorProvider(LogHistoryMaker::new);
-        evCfg.evaluatorProvider(new LPBasedImplicitnessCalculator.Builder());
-        evCfg.evaluatorProvider(pc.concurrentReplay ? FrameworkBridge.BridgedEvaluators.ForkJoinFitness.getBridge()
-                                                                                                       .getBuilder() : FrameworkBridge.BridgedEvaluators.BaseFitness.getBridge()
-                                                                                                                                                                    .getBuilder());
+        evCfg.addEvaluatorProvider(LogHistoryMaker::new);
+        evCfg.addEvaluatorProvider(new LPBasedImplicitnessCalculator.Builder());
+        evCfg.addEvaluatorProvider(pc.concurrentReplay ? FrameworkBridge.BridgedEvaluators.ForkJoinFitness.getBridge()
+                                                                                                          .getBuilder() : FrameworkBridge.BridgedEvaluators.BaseFitness.getBridge()
+                                                                                                                                                                       .getBuilder());
         if (pc.compositionStrategy == ProMConfig.CompositionStrategy.TauDelta)
-            evCfg.evaluatorProvider(pc.deltaAdaptationFunction.getBuilder());
+            evCfg.addEvaluatorProvider(pc.deltaAdaptationFunction.getBuilder());
         else if (pc.compositionStrategy == ProMConfig.CompositionStrategy.Uniwired)
-            evCfg.evaluatorProvider(new DirectlyFollowsHeuristic.Builder());
+            evCfg.addEvaluatorProvider(new DirectlyFollowsHeuristic.Builder());
 
         EfficientTreeConfiguration.Configurator<Place, PlaceState, PlaceNode> etCfg;
         if (pc.treeExpansionSetting == ProMConfig.TreeExpansionSetting.Heuristic) {
@@ -139,7 +136,7 @@ public class ConfigurationController extends AbstractStageController {
 
         PostProcessingConfiguration.Configurator configurator = new PostProcessingConfiguration.Configurator<PetriNet, PetriNet>(IdentityPostProcessor::new);
         for (FrameworkBridge.AnnotatedPostProcessor annotatedPostProcessor : pc.ppPipeline) {
-            configurator.processor(annotatedPostProcessor.getBuilder());
+            configurator = configurator.addPostProcessor(annotatedPostProcessor.getBuilder());
         }
         PostProcessingConfiguration.Configurator<PetriNet, ProMPetrinetWrapper> ppCfg = (PostProcessingConfiguration.Configurator<PetriNet, ProMPetrinetWrapper>) configurator;//;.processor(ProMConverter::new);
 
@@ -148,7 +145,7 @@ public class ConfigurationController extends AbstractStageController {
         ExecutionParameters exp = new ExecutionParameters(new ExecutionParameters.ExecutionTimeLimits(pc.discoveryTimeLimit, null, pc.totalTimeLimit), ExecutionParameters.ParallelizationTarget.Moderate, ExecutionParameters.PerformanceFocus.Balanced);
         PlaceGeneratorParameters pgp = new PlaceGeneratorParameters(pc.depth < 0 ? Integer.MAX_VALUE : pc.depth, true, pc.respectWiring, false, false);
 
-        class CustomParameters extends AbstractGlobalComponentSystemUser implements ProvidesParameters {
+        class CustomParameters extends ParameterProvider {
             public CustomParameters() {
                 globalComponentSystem().provide(ParameterRequirements.EXTERNAL_INITIALIZATION.fulfilWithStatic(new ExternalInitializationParameters(pc.initiallyWireSelfLoops)))
                                        .provide(ParameterRequirements.EXECUTION_PARAMETERS.fulfilWithStatic(exp))
@@ -167,10 +164,7 @@ public class ConfigurationController extends AbstractStageController {
             }
         }
 
-        ProvidesParameters parameters = new CustomParameters();
-        AdaptedAlgorithmParameterConfig parCfg = new AdaptedAlgorithmParameterConfig(parameters);
-
-        return new ConfiguratorCollection(svCfg, pcCfg, evCfg, etCfg, ppCfg, parCfg);
+        return new ConfiguratorCollection(svCfg, pcCfg, evCfg, etCfg, ppCfg, new CustomParameters());
     }
 
     @Override

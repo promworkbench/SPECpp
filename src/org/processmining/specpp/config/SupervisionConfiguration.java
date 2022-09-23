@@ -30,7 +30,7 @@ public class SupervisionConfiguration extends Configuration {
             supervisorBuilders = new LinkedList<>();
         }
 
-        public Configurator supervisor(SimpleBuilder<Supervisor> builder) {
+        public Configurator addSupervisor(SimpleBuilder<Supervisor> builder) {
             supervisorBuilders.add(builder);
             return this;
         }
