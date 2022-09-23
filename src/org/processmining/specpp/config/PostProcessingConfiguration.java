@@ -2,7 +2,7 @@ package org.processmining.specpp.config;
 
 import org.processmining.specpp.base.PostProcessor;
 import org.processmining.specpp.base.Result;
-import org.processmining.specpp.base.impls.PostProcessorPipe;
+import org.processmining.specpp.base.impls.PostProcessingPipeline;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.componenting.system.link.PostProcessorComponent;
 import org.processmining.specpp.postprocessing.WrappedPostProcessor;
@@ -29,16 +29,16 @@ public class PostProcessingConfiguration<R extends Result, F extends Result> ext
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public PostProcessor<R, F> createPostProcessorPipeline() {
+    public PostProcessingPipeline<R, F> createPostProcessorPipeline() {
         if (list.isEmpty()) return null;
         Iterator<SimpleBuilder<? extends PostProcessorComponent<?, ?>>> it = list.iterator();
         if (list.size() > 1) it.next(); // skip first dummy if there are actual post processors available
-        PostProcessor curr = createPossiblyInstrumented(it.next());
+        PostProcessingPipeline<R, F> pipeline = new PostProcessingPipeline<>((PostProcessor) createPossiblyInstrumented(it.next()));
         while (it.hasNext()) {
-            SimpleBuilder<? extends PostProcessorComponent<?, ?>> next = it.next();
-            curr = new PostProcessorPipe(curr, createPossiblyInstrumented(next));
+            PostProcessorComponent next = createPossiblyInstrumented(it.next());
+            pipeline = pipeline.add(next);
         }
-        return (PostProcessor<R, F>) curr;
+        return pipeline;
     }
 
     public static class Configurator<R extends Result, F extends Result> implements ComponentInitializerBuilder<PostProcessingConfiguration<R, F>> {

@@ -2,6 +2,7 @@ package org.processmining.specpp.datastructures.tree.base.impls;
 
 import org.processmining.specpp.componenting.system.link.AbstractBaseClass;
 import org.processmining.specpp.componenting.system.link.EfficientTreeComponent;
+import org.processmining.specpp.componenting.system.link.ExpansionStrategyComponent;
 import org.processmining.specpp.datastructures.tree.base.ExpansionStrategy;
 import org.processmining.specpp.datastructures.tree.base.TreeNode;
 import org.processmining.specpp.datastructures.tree.base.traits.DelayedRooting;
@@ -34,11 +35,12 @@ public class EnumeratingTree<N extends TreeNode & LocallyExpandable<N>> extends 
     public EnumeratingTree(ExpansionStrategy<N> expansionStrategy) {
         this.expansionStrategy = expansionStrategy;
         this.leaves = new HashSet<>();
+        if (expansionStrategy instanceof ExpansionStrategyComponent)
+            registerSubComponent(((ExpansionStrategyComponent<N>) expansionStrategy));
     }
 
     public EnumeratingTree(N root, ExpansionStrategy<N> expansionStrategy) {
-        this.expansionStrategy = expansionStrategy;
-        this.leaves = new HashSet<>();
+        this(expansionStrategy);
         setRootOnce(root);
     }
 

@@ -14,7 +14,7 @@ import org.processmining.specpp.util.PathTools;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class PlaceExporter extends AbstractGlobalComponentSystemUser implements PostProcessor<PetriNet, PetriNet> {
+public class PlaceExporter extends AbstractGlobalComponentSystemUser implements PetriNetPostProcessor {
 
     public PlaceExporter(OutputPathParameters outputPathParameters) {
         this.outputPathParameters = outputPathParameters;
@@ -55,4 +55,5 @@ public class PlaceExporter extends AbstractGlobalComponentSystemUser implements 
 
         return result;
     }
+
 }

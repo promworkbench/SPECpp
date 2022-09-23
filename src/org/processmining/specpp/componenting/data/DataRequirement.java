@@ -55,6 +55,10 @@ public class DataRequirement<T> extends NoRehashing<Tuple2<String, Class<T>>> im
         return new DelegatingDataSource<>(StaticDataSource.of(defaultData));
     }
 
+    public FulfilledDataRequirement<T> fulfilWithStatic(T data) {
+        return fulfilWith(StaticDataSource.of(data));
+    }
+
     public FulfilledDataRequirement<T> fulfilWith(DataSource<T> delegate) {
         return new FulfilledDataRequirement<>(this, delegate);
     }

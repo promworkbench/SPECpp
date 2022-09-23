@@ -14,6 +14,10 @@ public abstract class AbstractQueueingComposer<C extends Candidate, I extends Co
 
     public AbstractQueueingComposer(ComposerComponent<C, I, R> childComposer) {
         super(childComposer);
+    }
+
+    @Override
+    protected void initSelf() {
         postponedCandidates = new LinkedList<>();
     }
 
@@ -25,7 +29,7 @@ public abstract class AbstractQueueingComposer<C extends Candidate, I extends Co
     protected abstract CandidateDecision reDeliberateCandidate(C candidate);
 
     @Override
-    protected boolean handlePostponedDecisions() {
+    protected boolean iteratePostponedCandidates() {
         LinkedList<C> postponedAgain = new LinkedList<>();
         for (C postponedCandidate : postponedCandidates) {
             CandidateDecision candidateDecision = reDeliberateCandidate(postponedCandidate);

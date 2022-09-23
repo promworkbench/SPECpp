@@ -7,7 +7,7 @@ import org.processmining.specpp.componenting.data.DataSourceCollection;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.componenting.traits.ProvidesParameters;
-import org.processmining.specpp.composition.PlaceCollection;
+import org.processmining.specpp.composition.TrackingPlaceCollection;
 import org.processmining.specpp.config.Configuration;
 import org.processmining.specpp.config.parameters.OutputPathParameters;
 import org.processmining.specpp.datastructures.log.Activity;
@@ -35,15 +35,15 @@ import java.util.stream.Stream;
 
 public class SPECppOperations {
 
-    public static List<SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper>> configureAndExecuteMultiple(DataSource<InputDataBundle> inputDataBundleSource, List<ProvidesParameters> parametersList, boolean doInParallel) {
+    public static List<SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper>> configureAndExecuteMultiple(DataSource<InputDataBundle> inputDataBundleSource, List<ProvidesParameters> parametersList, boolean doInParallel) {
         Stream<ProvidesParameters> stream = parametersList.stream();
         if (doInParallel) stream = stream.parallel();
         LocalDateTime start = LocalDateTime.now();
         System.out.println("# Commencing " + parametersList.size() + " Multi SpecOps" + (doInParallel ? " in parallel" : "") + " @" + start);
         System.out.println("// ========================================= //");
 
-        List<SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper>> collect = stream.map(pp -> SPECppOperations.configureAndExecute(() -> new CustomSPECppConfigBundle(pp), inputDataBundleSource, false, true, true))
-                                                                                            .collect(Collectors.toList());
+        List<SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper>> collect = stream.map(pp -> SPECppOperations.configureAndExecute(() -> new CustomSPECppConfigBundle(pp), inputDataBundleSource, false, true, true))
+                                                                                                    .collect(Collectors.toList());
         System.out.println("// ========================================= //");
         LocalDateTime end = LocalDateTime.now();
         System.out.println("# Finished Multi SpecOps in " + Duration.between(start, end)
@@ -64,16 +64,16 @@ public class SPECppOperations {
     }
 
 
-    public static SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper> configureAndExecute(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean suppressAnyOutput) {
+    public static SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> configureAndExecute(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean suppressAnyOutput) {
         return configureAndExecute(configBundleSource, inputDataBundleSource, !suppressAnyOutput, !suppressAnyOutput, !suppressAnyOutput);
     }
 
-    public static SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper> configureAndExecute(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean allowPrinting, boolean allowVisualOutput, boolean allowSaving) {
+    public static SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> configureAndExecute(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean allowPrinting, boolean allowVisualOutput, boolean allowSaving) {
         SPECppConfigBundle configBundle = configBundleSource.getData();
         InputDataBundle inputDataBundle = inputDataBundleSource.getData();
 
         preSetup(configBundle, inputDataBundle, allowPrinting);
-        SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper> specPP = setup(configBundle, inputDataBundle);
+        SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> specPP = setup(configBundle, inputDataBundle);
         postSetup(specPP, allowPrinting);
 
         execute(specPP, allowPrinting);
@@ -83,7 +83,7 @@ public class SPECppOperations {
         return specPP;
     }
 
-    private static void postSetup(SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper> specPP, boolean allowPrinting) {
+    private static void postSetup(SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> specPP, boolean allowPrinting) {
         DataSourceCollection parameters = specPP.getGlobalComponentRepository().parameters();
         String x = parameters.toString();
         OutputPathParameters outputPathParameters = parameters.askForData(ParameterRequirements.OUTPUT_PATH_PARAMETERS);
@@ -109,20 +109,23 @@ public class SPECppOperations {
     }
 
 
-    public static SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper> setup(SPECppConfigBundle configBundle, InputDataBundle dataBundle) {
+    public static SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> setup(SPECppConfigBundle configBundle, InputDataBundle dataBundle) {
         GlobalComponentRepository cr = new GlobalComponentRepository();
 
         configBundle.instantiate(cr, dataBundle);
 
         Configuration configuration = new Configuration(cr);
-        SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper> specpp = configuration.createFrom(new SPECppBuilder<>(), cr);
+        ExternalInitializer externalInitializer = configuration.createFrom(ExternalInitializer::new);
+        SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> specpp = configuration.createFrom(new SPECppBuilder<>(), cr);
 
         specpp.init();
+
+        externalInitializer.initSelf();
 
         return specpp;
     }
 
-    public static void execute(SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper> specpp, boolean allowPrinting) {
+    public static void execute(SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> specpp, boolean allowPrinting) {
         if (allowPrinting) {
             System.out.println("# Commencing SpecOps @" + LocalDateTime.now());
             System.out.println("// ========================================= //");

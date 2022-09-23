@@ -1,5 +1,8 @@
 package org.processmining.specpp.datastructures.petri;
 
+import org.processmining.acceptingpetrinet.models.AcceptingPetriNet;
+import org.processmining.acceptingpetrinet.models.impl.AcceptingPetriNetFactory;
+import org.processmining.framework.plugin.PluginContext;
 import org.processmining.models.graphbased.AttributeMap;
 import org.processmining.models.graphbased.directed.DirectedGraph;
 import org.processmining.models.graphbased.directed.DirectedGraphEdge;
@@ -14,31 +17,116 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Transition
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.specpp.base.Result;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Set;
 
-public class ProMPetrinetWrapper implements Result {
+public class ProMPetrinetWrapper implements Result, Petrinet, AcceptingPetriNet {
 
-    private final Petrinet net;
-    private final Marking initialMarking;
-    private final Marking finalMarking;
+    private AcceptingPetriNet apn;
+    private Petrinet net;
+    private Marking initialMarking;
+    private Set<Marking> finalMarkings;
+
+    public ProMPetrinetWrapper(AcceptingPetriNet apn) {
+        this.apn = apn;
+        net = apn.getNet();
+        initialMarking = apn.getInitialMarking();
+        finalMarkings = apn.getFinalMarkings();
+    }
+
+    public static ProMPetrinetWrapper of(PetriNet myPetriNet) {
+        return new ProMPetrinetWrapper(new ProMPetrinetBuilder(myPetriNet).build());
+    }
+
+    public static ProMPetrinetWrapper of(Petrinet net, Marking initialMarking, Set<Marking> finalMarkings) {
+        return new ProMPetrinetWrapper(AcceptingPetriNetFactory.createAcceptingPetriNet(net, initialMarking, finalMarkings));
+    }
+
 
     public Marking getInitialMarking() {
         return initialMarking;
     }
 
-    public Marking getFinalMarking() {
-        return finalMarking;
+    @Override
+    public Set<Marking> getFinalMarkings() {
+        return finalMarkings;
     }
 
-    public ProMPetrinetWrapper(Petrinet net, Marking initialMarking, Marking finalMarking) {
-        this.net = net;
-        this.initialMarking = initialMarking;
-        this.finalMarking = finalMarking;
+    @Override
+    public void importFromStream(PluginContext pluginContext, InputStream inputStream) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void exportToFile(PluginContext pluginContext, File file) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Transition addTransition(String s) {
+        return net.addTransition(s);
+    }
+
+    @Override
+    public Transition addTransition(String s, ExpandableSubNet expandableSubNet) {
+        return net.addTransition(s, expandableSubNet);
+    }
+
+    @Override
+    public Transition removeTransition(Transition transition) {
+        return net.removeTransition(transition);
+    }
+
+    @Override
+    public ExpandableSubNet addGroup(String s) {
+        return net.addGroup(s);
+    }
+
+    @Override
+    public ExpandableSubNet addGroup(String s, ExpandableSubNet expandableSubNet) {
+        return net.addGroup(s, expandableSubNet);
+    }
+
+    @Override
+    public ExpandableSubNet removeGroup(ExpandableSubNet expandableSubNet) {
+        return net.removeGroup(expandableSubNet);
+    }
+
+    @Override
+    public Collection<ExpandableSubNet> getGroups() {
+        return net.getGroups();
+    }
+
+
+    @Override
+    public void init(Petrinet petrinet) {
+
+    }
+
+    @Override
+    public void init(PluginContext pluginContext, Petrinet petrinet) {
+
+    }
+
+    @Override
+    public void setInitialMarking(Marking marking) {
+        initialMarking = marking;
+    }
+
+    @Override
+    public void setFinalMarkings(Set<Marking> set) {
+        finalMarkings = set;
     }
 
     public Petrinet getNet() {
         return net;
+    }
+
+    public AcceptingPetriNet asAcceptingPetrinet() {
+        return AcceptingPetriNetFactory.createAcceptingPetriNet(net, initialMarking, finalMarkings);
     }
 
     public String getLabel() {
@@ -121,7 +209,8 @@ public class ProMPetrinetWrapper implements Result {
         return net.getOutEdges(directedGraphNode);
     }
 
-    public void removeEdge(DirectedGraphEdge<? extends DirectedGraphNode, ? extends DirectedGraphNode> directedGraphEdge) {
+    @Override
+    public void removeEdge(DirectedGraphEdge directedGraphEdge) {
         net.removeEdge(directedGraphEdge);
     }
 

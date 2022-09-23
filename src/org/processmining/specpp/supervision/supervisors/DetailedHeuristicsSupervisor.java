@@ -21,10 +21,12 @@ import org.processmining.specpp.util.PathTools;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class DetailedHeuristicsSupervisor extends MonitoringSupervisor {
+public class DetailedHeuristicsSupervisor extends FileWritingMonitoringSupervisor {
 
     private final DelegatingAdHocObservable<HeuristicStatsEvent> heuristicStats = new DelegatingAdHocObservable<>();
     private final DelegatingObservable<TreeHeuristicsEvent> heuristicsEvents = new DelegatingObservable<>();
+    private CSVWriter<TreeHeuristicQueueingEvent<PlaceNode>> queueSizeExporter;
+    private CSVWriter<TimedObservation<HeuristicComputationEvent<DoubleScore>>> heuristicsExporter;
 
     public DetailedHeuristicsSupervisor() {
         globalComponentSystem().require(SupervisionRequirements.observable("heuristics.events", JavaTypingUtils.<HeuristicComputationEvent<DoubleScore>>castClass(HeuristicComputationEvent.class)), heuristicsEvents)
@@ -34,36 +36,44 @@ public class DetailedHeuristicsSupervisor extends MonitoringSupervisor {
 
     @Override
     public void instantiateObservationHandlingFullySatisfied() {
-        OutputPathParameters outputPathParameters = pathParametersSource.getData();
+        if (supervisionParametersSource.getData().isUseUseFiles()) {
+            OutputPathParameters outputPathParameters = pathParametersSource.getData();
 
-        CSVWriter<TreeHeuristicQueueingEvent<PlaceNode>> queueSizeExporter = new CSVWriter<>(outputPathParameters.getFilePath(PathTools.OutputFileType.CSV_EXPORT, "queue"), new String[]{"time", "place", "change", "queue.size delta"}, e -> new String[]{LocalDateTime.now().toString(), e.getSource()
-                                                                                                                                                                                                                                                                                             .getProperties().toString(), e.getClass().getSimpleName(), Integer.toString(e.getDelta())});
+            queueSizeExporter = new CSVWriter<>(outputPathParameters.getFilePath(PathTools.OutputFileType.CSV_EXPORT, "queue"), new String[]{"time", "place", "change", "queue.size delta"}, e -> new String[]{LocalDateTime.now().toString(), e.getSource()
+                                                                                                                                                                                                                                                .getProperties().toString(), e.getClass().getSimpleName(), Integer.toString(e.getDelta())});
 
-        CSVWriter<TimedObservation<HeuristicComputationEvent<DoubleScore>>> heuristicsExporter = new CSVWriter<>(outputPathParameters.getFilePath(PathTools.OutputFileType.CSV_EXPORT, "heuristics"), new String[]{"time", "candidate", "score"}, e -> new String[]{e.getLocalDateTime().toString(), e.getObservation()
-                                                                                                                                                                                                                                                                                                      .getSource().toString(), e.getObservation()
-                                                                                                                                                                                                                                                                                                                                .getHeuristic().toString()});
+            heuristicsExporter = new CSVWriter<>(outputPathParameters.getFilePath(PathTools.OutputFileType.CSV_EXPORT, "heuristics"), new String[]{"time", "candidate", "score"}, e -> new String[]{e.getLocalDateTime().toString(), e.getObservation()
+                                                                                                                                                                                                                                      .getSource().toString(), e.getObservation()
+                                                                                                                                                                                                                                                                .getHeuristic().toString()});
 
-        MessageLogger heuristicsLogger = PipeWorks.fileLogger("heuristics", outputPathParameters.getFilePath(PathTools.OutputFileType.SUB_LOG, "heuristics"));
+            MessageLogger heuristicsLogger = PipeWorks.fileLogger("heuristics", outputPathParameters.getFilePath(PathTools.OutputFileType.SUB_LOG, "heuristics"));
 
-        beginLaying().source(heuristicsEvents)
-                     .pipe(PipeWorks.<TreeHeuristicsEvent>concurrencyBridge())
-                     .giveBackgroundThread()
-                     .split(lp -> lp.pipe(PipeWorks.asyncBuffer())
-                                    .schedule(Duration.ofMillis(100))
-                                    .pipe(PipeWorks.unpackingPipe())
-                                    .sink(PipeWorks.loggingSink("heuristics", heuristicsLogger))
-                                    .apply())
-                     .split(lp -> lp.pipe(PipeWorks.predicatePipe(e -> e instanceof HeuristicComputationEvent))
-                                    .pipe(PipeWorks.timer())
-                                    .sink(heuristicsExporter)
-                                    .schedule(Duration.ofMillis(100))
-                                    .apply())
-                     .pipe(PipeWorks.predicatePipe(e -> e instanceof TreeHeuristicQueueingEvent))
-                     .sink(getMonitor("heuristics.queue.size"))
-                     .sink(queueSizeExporter)
-                     .schedule(Duration.ofMillis(100))
-                     .apply();
+            beginLaying().source(heuristicsEvents)
+                         .pipe(PipeWorks.<TreeHeuristicsEvent>concurrencyBridge())
+                         .giveBackgroundThread()
+                         .split(lp -> lp.pipe(PipeWorks.asyncBuffer())
+                                        .schedule(Duration.ofMillis(100))
+                                        .pipe(PipeWorks.unpackingPipe())
+                                        .sink(PipeWorks.loggingSink("heuristics", heuristicsLogger))
+                                        .apply())
+                         .split(lp -> lp.pipe(PipeWorks.predicatePipe(e -> e instanceof HeuristicComputationEvent))
+                                        .pipe(PipeWorks.timer())
+                                        .sink(heuristicsExporter)
+                                        .schedule(Duration.ofMillis(100))
+                                        .apply())
+                         .pipe(PipeWorks.predicatePipe(e -> e instanceof TreeHeuristicQueueingEvent))
+                         .sink(getMonitor("heuristics.queue.size"))
+                         .sink(queueSizeExporter)
+                         .schedule(Duration.ofMillis(100))
+                         .apply();
+        }
+    }
 
+    @Override
+    public void stop() {
+        super.stop();
+        queueSizeExporter.stop();
+        heuristicsExporter.stop();
     }
 
 }

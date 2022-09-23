@@ -1,5 +1,6 @@
 package org.processmining.specpp.base.impls;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.processmining.specpp.base.Candidate;
 import org.processmining.specpp.componenting.system.link.AbstractBaseClass;
@@ -8,6 +9,7 @@ import org.processmining.specpp.traits.ProperlyPrintable;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -32,6 +34,11 @@ public abstract class AbstractComposition<C extends Candidate, K extends Collect
     @Override
     public Set<C> toSet() {
         return ImmutableSet.copyOf(candidates);
+    }
+
+    @Override
+    public List<C> toList() {
+        return ImmutableList.copyOf(candidates);
     }
 
     @Override

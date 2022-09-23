@@ -7,7 +7,12 @@ public class PathTools {
     public static final String PATH_FOLDER_SEPARATOR = "/";
 
     public enum FolderStructure {
-        BASE_OUTPUT_FOLDER("output"), LOG_FOLDER(BASE_OUTPUT_FOLDER, "logs"), EXPORT_FOLDER(BASE_OUTPUT_FOLDER, "exports"), VIS_FOLDER(BASE_OUTPUT_FOLDER, "vis"), BASE_INPUT_FOLDER("input"), EVENT_LOG_FOLDER(BASE_INPUT_FOLDER, "event_logs");
+        BASE_OUTPUT_FOLDER("output"),
+        LOG_FOLDER(BASE_OUTPUT_FOLDER, "logs"),
+        EXPORT_FOLDER(BASE_OUTPUT_FOLDER, "exports"),
+        VIS_FOLDER(BASE_OUTPUT_FOLDER, "vis"),
+        BASE_INPUT_FOLDER("input"),
+        EVENT_LOG_FOLDER(BASE_INPUT_FOLDER, "event_logs");
 
         private final FolderStructure parent;
         private final String name;
@@ -23,7 +28,12 @@ public class PathTools {
     }
 
     public enum OutputFileType {
-        MAIN_LOG(FolderStructure.LOG_FOLDER, ".log"), SUB_LOG(FolderStructure.LOG_FOLDER, ".log"), CHART(FolderStructure.VIS_FOLDER, "chart_", "", ".png"), GRAPH(FolderStructure.VIS_FOLDER, "graph_", "", ".png"), MISC_EXPORT(FolderStructure.EXPORT_FOLDER), CSV_EXPORT(FolderStructure.EXPORT_FOLDER, ".csv");
+        MAIN_LOG(FolderStructure.LOG_FOLDER, ".log"),
+        SUB_LOG(FolderStructure.LOG_FOLDER, ".log"),
+        CHART(FolderStructure.VIS_FOLDER, "chart_", "", ".png"),
+        GRAPH(FolderStructure.VIS_FOLDER, "graph_", "", ".png"),
+        MISC_EXPORT(FolderStructure.EXPORT_FOLDER),
+        CSV_EXPORT(FolderStructure.EXPORT_FOLDER, ".csv");
 
         private final FolderStructure folder;
         private final String prefix, postfix, extension;

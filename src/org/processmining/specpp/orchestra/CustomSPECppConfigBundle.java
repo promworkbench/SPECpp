@@ -2,7 +2,7 @@ package org.processmining.specpp.orchestra;
 
 import org.processmining.specpp.componenting.traits.ProvidesParameters;
 
-public class CustomSPECppConfigBundle extends SPECppConfigBundle {
+public class CustomSPECppConfigBundle extends AbstractSPECppConfigBundle {
     @Override
     public String getTitle() {
         return "Custom Version";

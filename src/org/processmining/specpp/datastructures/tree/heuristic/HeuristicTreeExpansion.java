@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class HeuristicTreeExpansion<N extends TreeNode & Evaluable & LocallyExpandable<N>, H extends HeuristicValue<H>> extends AbstractBaseClass implements ExpansionStrategyComponent<N> {
+public class HeuristicTreeExpansion<N extends TreeNode & Evaluable & LocallyExpandable<N>, H extends HeuristicValue<? super H>> extends AbstractBaseClass implements ExpansionStrategyComponent<N> {
 
     protected final PriorityQueue<N> priorityQueue;
     protected final Map<N, H> nodeHeuristics;
@@ -22,7 +22,7 @@ public class HeuristicTreeExpansion<N extends TreeNode & Evaluable & LocallyExpa
     public HeuristicTreeExpansion(HeuristicStrategy<? super N, H> heuristicStrategy) {
         this.heuristicStrategy = heuristicStrategy;
         this.nodeHeuristics = new HashMap<>();
-        this.priorityQueue = new PriorityQueue<>(Comparator.comparing(nodeHeuristics::get));
+        this.priorityQueue = new PriorityQueue<>(Comparator.comparing(nodeHeuristics::get, heuristicStrategy.heuristicValuesComparator()));
     }
 
     public HeuristicStrategy<? super N, H> getHeuristicStrategy() {
@@ -70,8 +70,7 @@ public class HeuristicTreeExpansion<N extends TreeNode & Evaluable & LocallyExpa
 
     protected void updateNode(N node, H heuristic) {
         dequeue(node);
-        putHeuristic(node, heuristic);
-        enqueue(node);
+        addNode(node, heuristic);
     }
 
     protected void removeNode(N node) {

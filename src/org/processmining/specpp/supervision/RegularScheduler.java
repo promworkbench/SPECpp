@@ -15,13 +15,14 @@ import java.util.concurrent.TimeUnit;
 
 public class RegularScheduler implements StartStoppable, Joinable {
 
+    public static final long MAX_WAIT_ON_JOIN = 1000L;
     private final ScheduledExecutorService scheduledExecutorService;
     protected final List<Tuple2<Runnable, Duration>> tasksToSchedule;
-    protected final List<ScheduledFuture<?>> scheduledFutureList;
+    protected final List<ScheduledFuture<?>> schedulersList;
 
     protected RegularScheduler() {
         tasksToSchedule = new LinkedList<>();
-        scheduledFutureList = new LinkedList<>();
+        schedulersList = new LinkedList<>();
         scheduledExecutorService = Executors.newScheduledThreadPool(4);
     }
 
@@ -41,20 +42,20 @@ public class RegularScheduler implements StartStoppable, Joinable {
             Runnable r = tuple.getT1();
             long millis = tuple.getT2().toMillis();
             ScheduledFuture<?> scheduledFuture = scheduledExecutorService.scheduleWithFixedDelay(r, 0, millis, TimeUnit.MILLISECONDS);
-            scheduledFutureList.add(scheduledFuture);
+            schedulersList.add(scheduledFuture);
         }
     }
 
     @Override
     public void stop() {
-        scheduledFutureList.forEach(sf -> sf.cancel(false));
+        schedulersList.forEach(sf -> sf.cancel(false));
         // tasksToSchedule.forEach(p -> scheduledExecutorService.submit(p.getT1()));
         scheduledExecutorService.shutdown();
     }
 
     @Override
     public void join() throws InterruptedException {
-        scheduledExecutorService.awaitTermination(1L, TimeUnit.SECONDS);
+        scheduledExecutorService.awaitTermination(MAX_WAIT_ON_JOIN, TimeUnit.MILLISECONDS);
     }
 
 }

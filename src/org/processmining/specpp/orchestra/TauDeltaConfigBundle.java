@@ -2,7 +2,7 @@ package org.processmining.specpp.orchestra;
 
 import org.processmining.specpp.config.parameters.TauDeltaParameters;
 
-public class TauDeltaConfigBundle extends SPECppConfigBundle {
+public class TauDeltaConfigBundle extends AbstractSPECppConfigBundle {
     @Override
     public String getTitle() {
         return "Tau Delta Variant";

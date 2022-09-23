@@ -22,6 +22,7 @@ public class VariantMarkingHistories implements IndexedSpliterable<IntBuffer>, M
 
     private final IndexSubset indexSubset;
     private final IntVectorStorage markingHistories;
+    private BitMask perfectlyFitting;
 
     public VariantMarkingHistories(IndexSubset indexSubset, IntVectorStorage markingHistories) {
         this.indexSubset = indexSubset;
@@ -92,10 +93,11 @@ public class VariantMarkingHistories implements IndexedSpliterable<IntBuffer>, M
         return indexSubset.streamIndices();
     }
 
-    public BitMask computePerfectlyFitting() {
-        return BitMask.of(markingHistories.getIndexedVectors()
-                                          .filter(ii -> VMHComputations.markingBasedBooleanReplay(ii.getItem()))
-                                          .mapToInt(ii -> indexSubset.unmapIndex(ii.getIndex())));
+    public BitMask getPerfectlyFittingVariants() {
+        if (perfectlyFitting == null) perfectlyFitting = BitMask.of(markingHistories.getIndexedVectors()
+                                                                                    .filter(ii -> VMHComputations.markingBasedBooleanReplay(ii.getItem()))
+                                                                                    .mapToInt(ii -> indexSubset.unmapIndex(ii.getIndex())));
+        return perfectlyFitting;
     }
 
     @Override

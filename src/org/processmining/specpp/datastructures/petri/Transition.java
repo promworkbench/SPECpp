@@ -1,17 +1,19 @@
 package org.processmining.specpp.datastructures.petri;
 
+import org.processmining.specpp.datastructures.util.NoRehashing;
+import org.processmining.specpp.traits.ProperlyHashable;
 import org.processmining.specpp.traits.ProperlyPrintable;
 
-public class Transition implements ProperlyPrintable {
+public class Transition extends NoRehashing<String> implements ProperlyPrintable, ProperlyHashable {
 
-    private final String label;
 
     public Transition(String label) {
-        this.label = label;
+        super(label);
     }
 
     @Override
     public String toString() {
-        return label;
+        return internal;
     }
+
 }

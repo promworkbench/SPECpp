@@ -55,17 +55,17 @@ public abstract class AbstractPostponingComposer<C extends Candidate, I extends 
 
 
     /**
-     * Hook method to define one iteration of postponed decision traversal.
-     * This may be called multiple times.
+     * Hook method to define one iteration of postponed candidates traversal.
+     * It will be called repeatedly until there are no more changes.
      *
-     * @return true if the set of postponed decisions changed
+     * @return true if the set of postponed candidates changed
      */
-    protected abstract boolean handlePostponedDecisions();
+    protected abstract boolean iteratePostponedCandidates();
 
-    protected int handlePostponedDecisionsUntilNoChange() {
+    protected int iteratePostponedCandidatesUntilNoChange() {
         int limit = 100;
         int count = 0;
-        while (count++ < limit && handlePostponedDecisions()) ;
+        while (count++ < limit && iteratePostponedCandidates()) ;
         return count;
     }
 
@@ -81,12 +81,12 @@ public abstract class AbstractPostponingComposer<C extends Candidate, I extends 
 
     @Override
     public final void trigger() {
-        handlePostponedDecisionsUntilNoChange();
+        iteratePostponedCandidatesUntilNoChange();
     }
 
     @Override
     public void candidatesAreExhausted() {
-        handlePostponedDecisionsUntilNoChange();
+        iteratePostponedCandidatesUntilNoChange();
         super.candidatesAreExhausted();
     }
 

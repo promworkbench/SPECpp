@@ -18,6 +18,16 @@ public class PostProcessorPipe<R extends Result, I extends Result, F extends Res
         return second.postProcess(first.postProcess(result));
     }
 
+    @Override
+    public Class<R> getInputClass() {
+        return first.getInputClass();
+    }
+
+    @Override
+    public Class<F> getOutputClass() {
+        return second.getOutputClass();
+    }
+
     public <S extends Result> PostProcessorPipe<R, F, S> add(PostProcessor<? super F, S> next) {
         return new PostProcessorPipe<>(this, next);
     }

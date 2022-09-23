@@ -10,9 +10,10 @@ import org.processmining.specpp.componenting.delegators.DelegatingEvaluator;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.supervision.SupervisionRequirements;
 import org.processmining.specpp.componenting.system.link.ComposerComponent;
+import org.processmining.specpp.composition.DeltaComposerParameters;
 import org.processmining.specpp.config.parameters.TauFitnessThresholds;
 import org.processmining.specpp.datastructures.encoding.BitMask;
-import org.processmining.specpp.datastructures.encoding.MutatingSetOperations;
+import org.processmining.specpp.datastructures.encoding.NonMutatingSetOperations;
 import org.processmining.specpp.datastructures.encoding.WeightedBitMask;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.tree.heuristic.DoubleScore;
@@ -22,7 +23,6 @@ import org.processmining.specpp.datastructures.util.EvaluationParameterTuple2;
 import org.processmining.specpp.datastructures.util.StackedCache;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
 import org.processmining.specpp.evaluation.fitness.DetailedFitnessEvaluation;
-import org.processmining.specpp.supervision.supervisors.DebuggingSupervisor;
 import org.processmining.specpp.util.JavaTypingUtils;
 
 public class QueueingDeltaComposer<I extends AdvancedComposition<Place>, R extends Result> extends AbstractQueueingComposer<Place, I, R, CandidateConstraint<Place>> {
@@ -30,18 +30,21 @@ public class QueueingDeltaComposer<I extends AdvancedComposition<Place>, R exten
     private final DelegatingEvaluator<Place, DetailedFitnessEvaluation> fitnessEvaluator = new DelegatingEvaluator<>();
     private final DelegatingEvaluator<EvaluationParameterTuple2<Place, Integer>, DoubleScore> deltaAdaptationFunction = new DelegatingEvaluator<>();
     private final DelegatingDataSource<TauFitnessThresholds> fitnessThresholds = new DelegatingDataSource<>();
+    private final DelegatingDataSource<DeltaComposerParameters> deltaComposerParameters = new DelegatingDataSource<>();
     private final DelegatingDataSource<WeightedBitMask> currentlySupportedVariants = new DelegatingDataSource<>();
     private final DelegatingDataSource<BasicCache<Place, DetailedFitnessEvaluation>> fitnessCache = new DelegatingDataSource<>();
     private final DelegatingDataSource<IntVector> variantFrequencies = new DelegatingDataSource<>();
     private int currentTreeLevel;
     private final DelegatingDataSource<Integer> treeLevelSource = new DelegatingDataSource<>(() -> currentTreeLevel);
     private Evaluator<Place, DetailedFitnessEvaluation> cachedEvaluator;
+    private int maxQueueSize;
 
     public QueueingDeltaComposer(ComposerComponent<Place, I, R> childComposer) {
         super(childComposer);
         globalComponentSystem().require(ParameterRequirements.TAU_FITNESS_THRESHOLDS, fitnessThresholds)
                                .require(EvaluationRequirements.DETAILED_FITNESS, fitnessEvaluator)
                                .require(EvaluationRequirements.DELTA_ADAPTATION_FUNCTION, deltaAdaptationFunction)
+                               .require(ParameterRequirements.DELTA_COMPOSER_PARAMETERS, deltaComposerParameters)
                                .require(DataRequirements.VARIANT_FREQUENCIES, variantFrequencies)
                                .require(DataRequirements.dataSource("tree.current_level", Integer.class), treeLevelSource)
                                .provide(SupervisionRequirements.observable("postponing_composer.constraints", JavaTypingUtils.castClass(CandidateConstraint.class), getConstraintPublisher()));
@@ -53,6 +56,10 @@ public class QueueingDeltaComposer<I extends AdvancedComposition<Place>, R exten
 
     @Override
     public void initSelf() {
+        super.initSelf();
+        DeltaComposerParameters parameters = deltaComposerParameters.getData();
+        maxQueueSize = parameters.getMaxQueueSize();
+
         ComputingCache<Place, DetailedFitnessEvaluation> cache = new ComputingCache<>(10_000, fitnessEvaluator);
         if (fitnessCache.isEmpty()) cachedEvaluator = cache::get;
         else cachedEvaluator = new StackedCache<>(fitnessCache.getData(), cache)::get;
@@ -60,28 +67,21 @@ public class QueueingDeltaComposer<I extends AdvancedComposition<Place>, R exten
 
     @Override
     protected CandidateDecision deliberateCandidate(Place candidate) {
-
-        // TODO no
         if (candidate.size() > currentTreeLevel) {
-            DebuggingSupervisor.debug("handlePostponedDecisionsUntilNoChange", "emptying postponed candidates queue as tree level changed: " + currentTreeLevel + " to " + candidate.size());
             currentTreeLevel = candidate.size();
-            DebuggingSupervisor.debug("handlePostponedDecisionsUntilNoChange", "starting with queue of length " + postponedCandidates.size());
-            handlePostponedDecisionsUntilNoChange();
+            iteratePostponedCandidatesUntilNoChange();
         }
-
         return meetsCurrentDelta(candidate) ? CandidateDecision.Accept : CandidateDecision.Postpone;
+    }
+
+    @Override
+    protected void postponeDecision(Place candidate) {
+        if (postponedCandidates.size() < maxQueueSize) postponedCandidates.add(candidate);
     }
 
     @Override
     protected CandidateDecision reDeliberateCandidate(Place candidate) {
         return meetsCurrentDelta(candidate) ? CandidateDecision.Accept : CandidateDecision.Postpone;
-    }
-
-    @Override
-    protected int handlePostponedDecisionsUntilNoChange() {
-        int i = super.handlePostponedDecisionsUntilNoChange();
-        DebuggingSupervisor.debug("handlePostponedDecisionsUntilNoChange", "ended with queue of length " + postponedCandidates.size() + " within " + i + " iterations");
-        return i;
     }
 
     private boolean meetsCurrentDelta(Place candidate) {
@@ -91,7 +91,7 @@ public class QueueingDeltaComposer<I extends AdvancedComposition<Place>, R exten
         double adaptedTau = fitnessThresholds.getData().getFittingThreshold() * adaptedDelta.getScore();
         WeightedBitMask supportedVariants = currentlySupportedVariants.getData();
         IntVector frequencies = variantFrequencies.getData();
-        BitMask intersection = MutatingSetOperations.intersection(evaluation.getFittingVariants(), supportedVariants);
+        BitMask intersection = NonMutatingSetOperations.intersection(evaluation.getFittingVariants(), supportedVariants);
         double f = intersection.stream().mapToDouble(frequencies::getRelative).sum();
         return f >= supportedVariants.getWeight() - adaptedTau;
     }
@@ -106,6 +106,11 @@ public class QueueingDeltaComposer<I extends AdvancedComposition<Place>, R exten
 
     }
 
+    @Override
+    public void candidatesAreExhausted() {
+        currentTreeLevel = 10;
+        super.candidatesAreExhausted();
+    }
 
     @Override
     public Class<CandidateConstraint<Place>> getPublishedConstraintClass() {

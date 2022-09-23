@@ -10,15 +10,8 @@ import java.util.Set;
 
 public class FileMessageLogger extends MessageLogger {
 
-
-    public static final String DEFAULT_LOGNAME = "main", LOGFILE_SUFFIX = ".log";
-
     public static final Set<String> instantiatedLoggers = new HashSet<>();
 
-    static {
-        FileAppender fileAppender = FileUtils.createLogFileAppender(DEFAULT_LOGNAME);
-        LogManager.getLogger("SPECPP File Logger").addAppender(fileAppender);
-    }
 
     protected FileMessageLogger() {
         super(LogManager.getLogger("SPECPP File Logger"));
@@ -29,6 +22,7 @@ public class FileMessageLogger extends MessageLogger {
         fullLabel = fullLabel.replace('\\', '.');
         Logger logger = LogManager.getLogger(fullLabel);
         if (!instantiatedLoggers.contains(fullLabel)) {
+            logger.removeAllAppenders();
             FileAppender fileAppender = FileUtils.createLogFileAppender(filePath);
             logger.addAppender(fileAppender);
             instantiatedLoggers.add(fullLabel);

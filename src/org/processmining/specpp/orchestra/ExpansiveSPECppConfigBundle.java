@@ -1,6 +1,6 @@
 package org.processmining.specpp.orchestra;
 
-public class ExpansiveSPECppConfigBundle extends SPECppConfigBundle {
+public class ExpansiveSPECppConfigBundle extends AbstractSPECppConfigBundle {
     @Override
     public String getTitle() {
         return "Fully Instrumented Version";

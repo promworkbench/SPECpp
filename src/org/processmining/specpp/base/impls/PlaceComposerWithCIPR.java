@@ -20,7 +20,7 @@ public class PlaceComposerWithCIPR<I extends AdvancedComposition<Place>> extends
     private final EventSupervision<CandidateCompositionEvent<Place>> compositionEventSupervision = PipeWorks.eventSupervision();
 
     public PlaceComposerWithCIPR(I composition) {
-        super(composition, c -> new PetriNet(c.toSet()));
+        super(composition, c -> new PetriNet(c.toList()));
         globalComponentSystem()
                 .provide(SupervisionRequirements.observable("composer.events", JavaTypingUtils.castClass(CandidateCompositionEvent.class), compositionEventSupervision));
         localComponentSystem()

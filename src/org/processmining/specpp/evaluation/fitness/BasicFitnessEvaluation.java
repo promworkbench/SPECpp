@@ -27,12 +27,24 @@ public class BasicFitnessEvaluation extends EnumFractions<BasicFitnessStatus> im
         return getFraction(BasicFitnessStatus.FITTING);
     }
 
+    public double getRelativeFittingFraction() {
+        return (getFraction(BasicFitnessStatus.FITTING) - getFraction(BasicFitnessStatus.UNACTIVATED)) / getFraction(BasicFitnessStatus.ACTIVATED);
+    }
+
     public double getUnderfedFraction() {
         return getFraction(BasicFitnessStatus.UNDERFED);
     }
 
+    public double getRelativeUnderfedFraction() {
+        return getFraction(BasicFitnessStatus.UNDERFED) / getFraction(BasicFitnessStatus.ACTIVATED);
+    }
+
     public double getOverfedFraction() {
         return getFraction(BasicFitnessStatus.OVERFED);
+    }
+
+    public double getRelativeOverfedFraction() {
+        return getFraction(BasicFitnessStatus.OVERFED) / getFraction(BasicFitnessStatus.ACTIVATED);
     }
 
     @Override

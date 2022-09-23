@@ -1,6 +1,7 @@
 package org.processmining.specpp.config;
 
 import org.processmining.specpp.base.Candidate;
+import org.processmining.specpp.base.IdentityPostProcessor;
 import org.processmining.specpp.base.Result;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.link.CompositionComponent;
@@ -18,7 +19,7 @@ public class Configurators {
     }
 
     public static <R extends Result> PostProcessingConfiguration.Configurator<R, R> postProcessing() {
-        return new PostProcessingConfiguration.Configurator<>(() -> r -> r);
+        return new PostProcessingConfiguration.Configurator<>(IdentityPostProcessor::new);
     }
 
     public static <N extends TreeNode & LocallyExpandable<N>> TreeConfiguration.Configurator<N> tree() {
@@ -29,7 +30,7 @@ public class Configurators {
         return new EfficientTreeConfiguration.Configurator<>();
     }
 
-    public static <P extends NodeProperties, S extends NodeState, N extends LocalNodeWithExternalizedLogic<P, S, N>, H extends HeuristicValue<H>> HeuristicTreeConfiguration.Configurator<P, S, N, H> heuristicTree() {
+    public static <P extends NodeProperties, S extends NodeState, N extends LocalNodeWithExternalizedLogic<P, S, N>, H extends HeuristicValue<? super H>> HeuristicTreeConfiguration.Configurator<P, S, N, H> heuristicTree() {
         return new HeuristicTreeConfiguration.Configurator<>();
     }
 

@@ -2,7 +2,6 @@ package org.processmining.specpp.datastructures.petri;
 
 import org.processmining.specpp.base.Candidate;
 import org.processmining.specpp.datastructures.encoding.BitEncodedSet;
-import org.processmining.specpp.datastructures.encoding.MutatingSetOperations;
 import org.processmining.specpp.datastructures.encoding.NonMutatingSetOperations;
 import org.processmining.specpp.datastructures.encoding.SetQueries;
 import org.processmining.specpp.datastructures.tree.base.NodeProperties;
@@ -10,6 +9,9 @@ import org.processmining.specpp.datastructures.util.Pair;
 import org.processmining.specpp.traits.Copyable;
 import org.processmining.specpp.traits.ProperlyHashable;
 import org.processmining.specpp.traits.ProperlyPrintable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A class representing a Petri net place as a combination of its preset and postset.
@@ -24,7 +26,6 @@ import org.processmining.specpp.traits.ProperlyPrintable;
 public class Place implements Candidate, NodeProperties, ProperlyHashable, ProperlyPrintable, Copyable<Place>, NonMutatingSetOperations<Place>, SetQueries<Place> {
 
     private final BitEncodedSet<Transition> ingoingTransitions, outgoingTransitions;
-    private final int computedHash = -1;
 
     public Place(Pair<BitEncodedSet<Transition>> encodedSetPair) {
         this(encodedSetPair.first(), encodedSetPair.second());
@@ -47,6 +48,10 @@ public class Place implements Candidate, NodeProperties, ProperlyHashable, Prope
         return ingoingTransitions.isEmpty() && outgoingTransitions.isEmpty();
     }
 
+    public boolean isHalfEmpty() {
+        return ingoingTransitions.isEmpty() || outgoingTransitions.isEmpty();
+    }
+
     public BitEncodedSet<Transition> preset() {
         return ingoingTransitions;
     }
@@ -57,11 +62,11 @@ public class Place implements Candidate, NodeProperties, ProperlyHashable, Prope
 
 
     public Place nonSelfLoops() {
-        return new Place(MutatingSetOperations.dualSetminus(preset(), postset()));
+        return new Place(NonMutatingSetOperations.dualSetminus(preset(), postset()));
     }
 
     public Place selfLoops() {
-        return new Place(MutatingSetOperations.dualIntersection(preset(), postset()));
+        return new Place(NonMutatingSetOperations.dualIntersection(preset(), postset()));
     }
 
     @Override
@@ -135,4 +140,12 @@ public class Place implements Candidate, NodeProperties, ProperlyHashable, Prope
     public boolean isSupersetOf(Place other) {
         return preset().isSupersetOf(other.preset()) && postset().isSupersetOf(other.postset());
     }
+
+    public Set<Transition> incidentTransitions() {
+        Set<Transition> result = new HashSet<>();
+        ingoingTransitions.streamItems().forEach(result::add);
+        outgoingTransitions.streamItems().forEach(result::add);
+        return result;
+    }
+
 }

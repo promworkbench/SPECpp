@@ -55,10 +55,11 @@ public class LightweightPerformanceStatistic implements PerformanceStatistic {
     public String toPrettyString() {
         Duration sum = sum();
         long n = N();
-        int rate = (int) (1e3 * n / (double) sum.toMillis());
+        int rate = PerformanceStatistic.calcRate(sum, n);
         return "{\u03BC=" + durationToString(avg()) + "ms" + " (" + durationToString(min()) + "ms-" + durationToString(max()) + "ms), \u03A3=" + sum.toString()
                                                                                                                                                     .substring(2) + ", N=" + n + ", " + rate + "it/s" + "}";
     }
+
 
     public void record(PerformanceMeasurement performanceMeasurement) {
         nanoStats.accept(performanceMeasurement.getDuration().toNanos());

@@ -1,7 +1,6 @@
 package org.processmining.specpp.base.impls;
 
 import org.processmining.specpp.base.Candidate;
-import org.processmining.specpp.base.PostProcessor;
 import org.processmining.specpp.base.Result;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
@@ -49,10 +48,10 @@ public class SPECppBuilder<C extends Candidate, I extends CompositionComponent<C
         ProposerComposerConfiguration<C, I, R> pcConfig = pcConfigDelegator.getData();
         PostProcessingConfiguration<R, F> ppConfig = ppConfigDelegator.getData();
         EvaluatorConfiguration evConfig = evConfigDelegator.getData();
-        evConfig.createEvaluators();
+        evConfig.createPossiblyInstrumentedEvaluators();
         ProposerComponent<C> proposer = pcConfig.createPossiblyInstrumentedProposer();
         ComposerComponent<C, I, R> composer = pcConfig.createPossiblyInstrumentedComposer();
-        PostProcessor<R, F> processor = ppConfig.createPostProcessorPipeline();
+        PostProcessingPipeline<R, F> processor = ppConfig.createPostProcessorPipeline();
         SupervisionParameters svParams = svParametersDelegator.getData();
         if (svParams.shouldClassBeInstrumented(SPECpp.class))
             return new InstrumentedSPECpp<>(gcr, supervisorList, proposer, composer, processor);

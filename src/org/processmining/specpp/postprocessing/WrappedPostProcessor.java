@@ -39,6 +39,16 @@ public class WrappedPostProcessor<R extends Result, F extends Result> extends Ab
         return delegate.getLabel();
     }
 
+    @Override
+    public Class<R> getInputClass() {
+        return delegate.getInputClass();
+    }
+
+    @Override
+    public Class<F> getOutputClass() {
+        return delegate.getOutputClass();
+    }
+
     public static class Builder<R extends Result, F extends Result> extends ComponentSystemAwareBuilder<PostProcessorComponent<? super R, F>> {
         private final SimpleBuilder<? extends PostProcessor<? super R, F>> wrappedBuilder;
 

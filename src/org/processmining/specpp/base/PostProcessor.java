@@ -1,7 +1,5 @@
 package org.processmining.specpp.base;
 
-import org.processmining.specpp.base.impls.PostProcessorPipe;
-
 import java.util.function.Function;
 
 public interface PostProcessor<S extends Result, T extends Result> extends Function<S, T> {
@@ -12,9 +10,10 @@ public interface PostProcessor<S extends Result, T extends Result> extends Funct
         return getClass().getSimpleName();
     }
 
-    default <V extends Result> PostProcessor<V, T> compose(PostProcessor<V, ? extends S> before) {
-        return new PostProcessorPipe<>(before, this);
-    }
+
+    Class<S> getInputClass();
+
+    Class<T> getOutputClass();
 
     @Override
     default T apply(S s) {

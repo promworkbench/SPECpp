@@ -104,7 +104,7 @@ public class LogEncoder {
     }
 
     public static MultiEncodedLog multiEncodeLog(Log log, IntEncodings<Activity> activityEncodings, LogEncodingParameters lep) {
-        Set<Activity> activitySet = activityEncodings.combinedDomain();
+        Set<Activity> activitySet = activityEncodings.domainUnion();
         LogEncodingInfo lei = new LogEncodingInfo(activitySet);
         EncodedLog presetEncodedLog = encodeLog(log, activityEncodings.pre(), lep, lei);
         EncodedLog postsetEncodedLog = encodeLog(log, activityEncodings.post(), lep, lei);

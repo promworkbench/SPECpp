@@ -18,6 +18,7 @@ import org.processmining.specpp.datastructures.tree.constraints.ClinicallyUnderf
 import org.processmining.specpp.datastructures.util.BasicCache;
 import org.processmining.specpp.evaluation.fitness.BasicFitnessEvaluation;
 import org.processmining.specpp.evaluation.fitness.DetailedFitnessEvaluation;
+import org.processmining.specpp.evaluation.fitness.FitnessThresholder;
 import org.processmining.specpp.supervision.EventSupervision;
 import org.processmining.specpp.supervision.piping.Observable;
 import org.processmining.specpp.supervision.piping.PipeWorks;
@@ -50,14 +51,13 @@ public class PlaceFitnessFilter<I extends CompositionComponent<Place>, R extends
         DetailedFitnessEvaluation eval = fitnessEvaluator.eval(place);
         BasicFitnessEvaluation fitness = eval.getFractionalEvaluation();
         TauFitnessThresholds thresholds = fitnessThresholds.getData();
-        if (fitness.getUnderfedFraction() > thresholds.getUnderfedThreshold()) {
+        if (FitnessThresholder.isUnderfed(fitness, thresholds)) {
             constraintEvents.observe(new ClinicallyUnderfedPlace(place));
             gotFiltered(place);
-        } else if (fitness.getOverfedFraction() > thresholds.getOverfedThreshold()) {
+        } else if (FitnessThresholder.isOverfed(fitness, thresholds)) {
             constraintEvents.observe(new ClinicallyOverfedPlace(place));
             gotFiltered(place);
-        } else {
-            assert fitness.getFittingFraction() >= thresholds.getFittingThreshold();
+        } else if (FitnessThresholder.isTauFitting(fitness, thresholds)) {
             fitnessCache.put(place, eval);
             forward(place);
         }

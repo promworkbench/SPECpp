@@ -1,7 +1,7 @@
 package org.processmining.specpp.orchestra;
 
 import org.processmining.specpp.base.AdvancedComposition;
-import org.processmining.specpp.base.impls.LightweightPlaceCollection;
+import org.processmining.specpp.base.impls.BasePlaceCollection;
 import org.processmining.specpp.base.impls.PlaceAccepter;
 import org.processmining.specpp.base.impls.PlaceFitnessFilter;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
@@ -28,7 +28,7 @@ public class PlaceFocussedComponentConfig extends LightweightComponentConfig {
     public ProposerComposerConfiguration<Place, AdvancedComposition<Place>, PetriNet> getProposerComposerConfiguration(GlobalComponentRepository gcr) {
         return Configurators.<Place, AdvancedComposition<Place>, PetriNet>proposerComposer()
                             .proposer(new ConstrainablePlaceProposer.Builder())
-                            .composition(LightweightPlaceCollection::new)
+                            .composition(BasePlaceCollection::new)
                             .composer(PlaceAccepter::new)
                             .composerChain(PlaceFitnessFilter::new)
                             .build(gcr);

@@ -8,6 +8,7 @@ import org.processmining.specpp.componenting.traits.ProvidesParameters;
 public class PlaceFocusParameters extends AbstractGlobalComponentSystemUser implements ProvidesParameters {
     public PlaceFocusParameters() {
         globalComponentSystem().provide(ParameterRequirements.parameters("placegenerator.parameters", PlaceGeneratorParameters.class, StaticDataSource.of(new PlaceGeneratorParameters(5, true, false, true, true))))
-                               .provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(false))));
+                               .provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(false, true))))
+                               .provide(ParameterRequirements.TAU_FITNESS_THRESHOLDS.fulfilWith(StaticDataSource.of(new TauFitnessThresholds(0.5))));
     }
 }

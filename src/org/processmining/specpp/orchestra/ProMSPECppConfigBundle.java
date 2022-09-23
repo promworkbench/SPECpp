@@ -2,7 +2,7 @@ package org.processmining.specpp.orchestra;
 
 import org.processmining.specpp.config.parameters.ProMAlgorithmParameterConfig;
 
-public class ProMSPECppConfigBundle extends SPECppConfigBundle {
+public class ProMSPECppConfigBundle extends AbstractSPECppConfigBundle {
 
 
     public ProMSPECppConfigBundle() {

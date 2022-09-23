@@ -1,17 +1,36 @@
 package org.processmining.specpp.evaluation.markings;
 
 import org.processmining.specpp.componenting.data.DataRequirements;
+import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.system.AbstractGlobalComponentSystemUser;
+import org.processmining.specpp.componenting.system.ComponentSystemAwareBuilder;
 import org.processmining.specpp.componenting.traits.IsGlobalProvider;
 import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.log.impls.MultiEncodedLog;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
+import org.processmining.specpp.evaluation.fitness.ReplayComputationParameters;
 
 public class LogHistoryMaker extends AbstractGlobalComponentSystemUser implements ProvidesEvaluators, IsGlobalProvider {
+
+
+    public static class Builder extends ComponentSystemAwareBuilder<LogHistoryMaker> {
+
+        private final DelegatingDataSource<ReplayComputationParameters> replayComputationParametersSource = new DelegatingDataSource<>();
+
+        public Builder() {
+            globalComponentSystem().require(ParameterRequirements.REPLAY_COMPUTATION, replayComputationParametersSource);
+        }
+
+        @Override
+        protected LogHistoryMaker buildIfFullySatisfied() {
+            return new LogHistoryMaker();
+        }
+
+    }
 
     private final DelegatingDataSource<MultiEncodedLog> encodedLogSource = new DelegatingDataSource<>();
     private final DelegatingDataSource<BitMask> consideredVariantsSource = new DelegatingDataSource<>();

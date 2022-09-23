@@ -61,6 +61,10 @@ public class WiringMatrix implements WiringTester {
     @Override
     public boolean notAllowedToExpand(PlaceNode placeNode) {
         Place place = placeNode.getPlace();
+        return isWired(place);
+    }
+
+    public boolean isWired(Place place) {
         BitMask preset = place.preset().getBitMask();
         BitMask postset = place.postset().getBitMask();
         PrimitiveIterator.OfInt rowIdxIterator = preset.iterator();

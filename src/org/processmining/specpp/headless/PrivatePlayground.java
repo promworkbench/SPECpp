@@ -9,7 +9,7 @@ import org.processmining.specpp.config.parameters.OutputPathParameters;
 import org.processmining.specpp.config.parameters.PlaceGeneratorParameters;
 import org.processmining.specpp.config.parameters.SupervisionParameters;
 import org.processmining.specpp.config.parameters.TauFitnessThresholds;
-import org.processmining.specpp.orchestra.BaseSPECppConfigBundle;
+import org.processmining.specpp.orchestra.CustomSPECppConfigBundle;
 import org.processmining.specpp.orchestra.PlaceFocusedSPECppConfigBundle;
 import org.processmining.specpp.orchestra.PreProcessingParameters;
 import org.processmining.specpp.orchestra.SPECppOperations;
@@ -23,22 +23,23 @@ import java.util.List;
 public class PrivatePlayground {
 
     public static void main(String[] args) {
-        singleExecution();
+        weirdExecution();
     }
 
     public static void singleExecution() {
-        SPECppOperations.configureAndExecute(BaseSPECppConfigBundle::new, InputData.loadData(PrivatePaths.toPath(PrivatePaths.WILWILLES_REDUCED_NO_PARALELLISM), PreProcessingParameters.getDefault()), false);
+        SPECppOperations.configureAndExecute(() -> new CustomSPECppConfigBundle(new MyParameters(.5, 5)), InputData.loadData(PrivatePaths.toPath("temp/flatten_resources.xes"), PreProcessingParameters.getDefault()), false);
     }
 
-    private static class PureTauAdaptation extends AbstractGlobalComponentSystemUser implements ProvidesParameters {
-        public PureTauAdaptation(double tau) {
-            globalComponentSystem().provide(ParameterRequirements.parameters(ParameterRequirements.SUPERVISION_PARAMETERS, StaticDataSource.of(new SupervisionParameters(false))))
-                                   .provide(ParameterRequirements.parameters(ParameterRequirements.TAU_FITNESS_THRESHOLDS, StaticDataSource.of(TauFitnessThresholds.tau(tau))));
+    private static class MyParameters extends AbstractGlobalComponentSystemUser implements ProvidesParameters {
+        public MyParameters(double tau, int treeDepth) {
+            globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(true, true))))
+                                   .provide(ParameterRequirements.TAU_FITNESS_THRESHOLDS.fulfilWith(StaticDataSource.of(TauFitnessThresholds.tau(tau))))
+                                   .provide(ParameterRequirements.PLACE_GENERATOR_PARAMETERS.fulfilWith(StaticDataSource.of(new PlaceGeneratorParameters(treeDepth, true, false, false, false))));
         }
     }
 
     public static void weirdExecution() {
-        SPECppOperations.configureAndExecute(PlaceFocusedSPECppConfigBundle::new, InputData.loadData(PrivatePaths.toPath(PrivatePaths.BPI12), PreProcessingParameters.getDefault()), true);
+        SPECppOperations.configureAndExecute(PlaceFocusedSPECppConfigBundle::new, InputData.loadData(PrivatePaths.toPath("temp/Customer.xes"), PreProcessingParameters.getDefault()), false);
     }
 
     public static void multiParameterExecution() {
@@ -64,7 +65,7 @@ public class PrivatePlayground {
     private static ProvidesParameters anonymous(int configId, double tau) {
         class P extends AbstractGlobalComponentSystemUser implements ProvidesParameters {
             public P() {
-                globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(false))))
+                globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(false, true))))
                                        .provide(ParameterRequirements.PLACE_GENERATOR_PARAMETERS.fulfilWith(StaticDataSource.of(new PlaceGeneratorParameters(5, true, false, true, true))))
                                        .provide(ParameterRequirements.TAU_FITNESS_THRESHOLDS.fulfilWith(StaticDataSource.of(TauFitnessThresholds.tau(tau))))
                                        .provide(ParameterRequirements.OUTPUT_PATH_PARAMETERS.fulfilWith(StaticDataSource.of(OutputPathParameters.ofPrefix("cfg_id_" + configId + "$"))));

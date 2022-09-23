@@ -44,4 +44,9 @@ public class VariantImpl extends NoRehashing<Activity[]> implements Variant, Pro
         return Arrays.toString(activities);
     }
 
+    @Override
+    public Activity getAt(int index) {
+        assert 0 <= index && index < activities.length;
+        return activities[index];
+    }
 }

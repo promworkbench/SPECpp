@@ -1,6 +1,6 @@
 package org.processmining.specpp.orchestra;
 
-public class BaseSPECppConfigBundle extends SPECppConfigBundle {
+public class BaseSPECppConfigBundle extends AbstractSPECppConfigBundle {
     public BaseSPECppConfigBundle() {
         super(new BaseDataExtractionConfig(), new BaseSPECppComponentConfig(), new BaseAlgorithmParameterConfig());
     }

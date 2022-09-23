@@ -14,6 +14,7 @@ public class VizUtils {
         jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         jFrame.setAutoRequestFocus(requestFocus);
         jFrame.setContentPane(jComponent);
+        jFrame.pack();
         jFrame.setSize(800, 600);
         jFrame.setVisible(true);
         return jFrame;

@@ -1,5 +1,6 @@
 package org.processmining.specpp.componenting.data;
 
+import org.apache.commons.collections4.BidiMap;
 import org.processmining.specpp.base.Candidate;
 import org.processmining.specpp.base.Result;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
@@ -8,6 +9,7 @@ import org.processmining.specpp.componenting.system.link.CompositionComponent;
 import org.processmining.specpp.config.*;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;
+import org.processmining.specpp.datastructures.log.Activity;
 import org.processmining.specpp.datastructures.log.Log;
 import org.processmining.specpp.datastructures.log.impls.MultiEncodedLog;
 import org.processmining.specpp.datastructures.petri.Transition;
@@ -29,8 +31,10 @@ public class DataRequirements {
 
     public static final DataRequirement<MultiEncodedLog> ENC_LOG = dataSource("multi_enc_log", MultiEncodedLog.class);
     public static final DataRequirement<IntEncodings<Transition>> ENC_TRANS = dataSource("transition_encodings", JavaTypingUtils.castClass(IntEncodings.class));
+    public static final DataRequirement<IntEncodings<Activity>> ENC_ACT = dataSource("activity_encodings", JavaTypingUtils.castClass(IntEncodings.class));
     public static final ConfigurationRequirement<SupervisionConfiguration> SUPERVISOR_CONFIG = configuration("supervisor_config", SupervisionConfiguration.class);
     public static final ConfigurationRequirement<EvaluatorConfiguration> EVALUATOR_CONFIG = configuration("evaluator_config", EvaluatorConfiguration.class);
+    public static final DataRequirement<BidiMap<Activity, Transition>> ACT_TRANS_MAPPING = dataSource("act_trans_mapping", JavaTypingUtils.castClass(BidiMap.class));
 
     public static <C extends Candidate, I extends CompositionComponent<C>, R extends Result> ConfigurationRequirement<ProposerComposerConfiguration<C, I, R>> proposerComposerConfiguration() {
         return configuration("proposer_composer_config", JavaTypingUtils.castClass(ProposerComposerConfiguration.class));
@@ -50,6 +54,10 @@ public class DataRequirements {
 
     public static <T> DataRequirement<T> dataSource(String label, Class<T> type) {
         return new DataRequirement<>(label, type);
+    }
+
+    public static <T> FulfilledDataRequirement<T> staticDataSource(String label, Class<T> type, T data) {
+        return dataSource(label, type).fulfilWith(StaticDataSource.of(data));
     }
 
     public static <T> FulfilledDataRequirement<T> dataSource(String label, Class<T> type, DataSource<T> dataSource) {

@@ -16,11 +16,12 @@ import org.processmining.specpp.util.PathTools;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class DetailedTreeSupervisor extends MonitoringSupervisor {
+public class DetailedTreeSupervisor extends FileWritingMonitoringSupervisor {
 
     private final DelegatingObservable<TreeEvent> treeEvents = new DelegatingObservable<>();
     private final DelegatingObservable<EventCountStatistics> treeCounts = new DelegatingObservable<>();
     private final DelegatingAdHocObservable<TreeStatsEvent> treeStats = new DelegatingAdHocObservable<>();
+    private CSVWriter<LeafEvent<PlaceNode>> leafCountChangesWriter;
 
     public DetailedTreeSupervisor() {
         globalComponentSystem().require(SupervisionRequirements.observable("tree.events", TreeEvent.class), treeEvents)
@@ -30,22 +31,28 @@ public class DetailedTreeSupervisor extends MonitoringSupervisor {
 
     @Override
     protected void instantiateObservationHandlingFullySatisfied() {
+        if (supervisionParametersSource.getData().isUseUseFiles()) {
 
-        CSVWriter<LeafEvent<PlaceNode>> leafCountChanges = new CSVWriter<>(pathParametersSource.getData()
-                                                                                               .getFilePath(PathTools.OutputFileType.CSV_EXPORT, "tree"), new String[]{"time", "place", "change", "tree.leaves.count delta"}, e -> new String[]{LocalDateTime.now().toString(), e.getSource()
-                                                                                                                                                                                                                                                                                 .getProperties().toString(), e.getClass().getSimpleName(), Integer.toString(e.getDelta())});
+            leafCountChangesWriter = new CSVWriter<>(pathParametersSource.getData()
+                                                                         .getFilePath(PathTools.OutputFileType.CSV_EXPORT, "tree"), new String[]{"time", "place", "change", "tree.leaves.count delta"}, e -> new String[]{LocalDateTime.now().toString(), e.getSource()
+                                                                                                                                                                                                                                                           .getProperties().toString(), e.getClass().getSimpleName(), Integer.toString(e.getDelta())});
 
 
-        beginLaying().source(treeEvents)
-                     .pipe(PipeWorks.concurrencyBridge())
-                     .giveBackgroundThread()
-                     .pipe(PipeWorks.predicatePipe(e -> e instanceof LeafEvent))
-                     .sink(getMonitor("tree.leaves.count"))
-                     .sink(leafCountChanges)
-                     .schedule(Duration.ofMillis(100))
-                     .apply();
+            beginLaying().source(treeEvents)
+                         .pipe(PipeWorks.concurrencyBridge())
+                         .giveBackgroundThread()
+                         .pipe(PipeWorks.predicatePipe(e -> e instanceof LeafEvent))
+                         .sink(getMonitor("tree.leaves.count"))
+                         .sink(leafCountChangesWriter)
+                         .schedule(Duration.ofMillis(100))
+                         .apply();
 
+        }
     }
 
-
+    @Override
+    public void join() {
+        super.join();
+        leafCountChangesWriter.stop();
+    }
 }

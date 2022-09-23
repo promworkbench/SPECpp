@@ -5,7 +5,7 @@ import org.processmining.specpp.base.impls.SPECpp;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.DataSource;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
-import org.processmining.specpp.composition.PlaceCollection;
+import org.processmining.specpp.composition.TrackingPlaceCollection;
 import org.processmining.specpp.config.SimpleBuilder;
 import org.processmining.specpp.datastructures.log.Log;
 import org.processmining.specpp.datastructures.petri.PetriNet;
@@ -21,7 +21,7 @@ import org.processmining.specpp.orchestra.SPECppConfigBundle;
 import org.processmining.specpp.orchestra.SPECppOperations;
 import org.processmining.specpp.preprocessing.InputData;
 import org.processmining.specpp.preprocessing.InputDataBundle;
-import org.processmining.specpp.util.NaivePlacemaker;
+import org.processmining.specpp.util.NaivePlaceMaker;
 import org.processmining.specpp.util.PublicPaths;
 
 import java.util.Arrays;
@@ -29,12 +29,12 @@ import java.util.Arrays;
 public class Playground {
 
     public static void main(String[] args) {
-        play(BaseSPECppConfigBundle::new, InputData.loadData(PublicPaths.SAMPLE_EVENTLOG_3, PreProcessingParameters.getDefault()));
+        play(BaseSPECppConfigBundle::new, InputData.loadData(PublicPaths.SAMPLE_EVENTLOG_2, PreProcessingParameters.getDefault()));
     }
 
 
     public static void play(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource) {
-        SPECpp<Place, PlaceCollection, PetriNet, ProMPetrinetWrapper> specPP = SPECppOperations.configureAndExecute(configBundleSource, inputDataBundleSource, true);
+        SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> specPP = SPECppOperations.configureAndExecute(configBundleSource, inputDataBundleSource, true);
 
         System.out.println("// ========================================= //");
         System.out.println("POST EXECUTION");
@@ -56,7 +56,7 @@ public class Playground {
     }
 
 
-    public static void playAround(GlobalComponentRepository cr, NaivePlacemaker placemaker, Evaluator<Place, VariantMarkingHistories> markingHistoriesEvaluator, Evaluator<Place, BasicFitnessEvaluation> basicFitnessFractionsEvaluator, Evaluator<Place, DetailedFitnessEvaluation> fullBasicFitnessEvaluator) {
+    public static void playAround(GlobalComponentRepository cr, NaivePlaceMaker placemaker, Evaluator<Place, VariantMarkingHistories> markingHistoriesEvaluator, Evaluator<Place, BasicFitnessEvaluation> basicFitnessFractionsEvaluator, Evaluator<Place, DetailedFitnessEvaluation> fullBasicFitnessEvaluator) {
 
         Log data = cr.dataSources().askForData(DataRequirements.RAW_LOG);
         System.out.println("Log");
@@ -88,15 +88,15 @@ public class Playground {
         System.out.println(fullBasicFitnessEvaluator.eval(p1));
         System.out.println(fullBasicFitnessEvaluator.eval(p2));
 
-        SimpleBuilder<PlaceCollection> createComposition = cr.dataSources()
-                                                             .askForData(DataRequirements.<Place, PlaceCollection, PetriNet>proposerComposerConfiguration())::createComposition;
-        PlaceCollection comp1 = createComposition.get();
+        SimpleBuilder<TrackingPlaceCollection> createComposition = cr.dataSources()
+                                                                     .askForData(DataRequirements.<Place, TrackingPlaceCollection, PetriNet>proposerComposerConfiguration())::createComposition;
+        TrackingPlaceCollection comp1 = createComposition.get();
         comp1.accept(p1);
         System.out.println(comp1.rateImplicitness(p2));
         comp1.accept(p2);
         System.out.println(comp1);
 
-        PlaceCollection comp2 = createComposition.get();
+        TrackingPlaceCollection comp2 = createComposition.get();
         comp2.accept(p2);
         System.out.println(comp2.rateImplicitness(p1));
         comp2.accept(p1);

@@ -11,12 +11,12 @@ import org.processmining.specpp.supervision.piping.AsyncAdHocObservableWrapper;
 import org.processmining.specpp.supervision.piping.PipeWorks;
 import org.processmining.specpp.util.JavaTypingUtils;
 
-public class EventingHeuristicTreeExpansion<N extends TreeNode & Evaluable & LocallyExpandable<N>, H extends HeuristicValue<H>> extends HeuristicTreeExpansion<N, H> {
+public class EventingHeuristicTreeExpansion<N extends TreeNode & Evaluable & LocallyExpandable<N>, H extends HeuristicValue<? super H>> extends HeuristicTreeExpansion<N, H> {
 
-    private final EventSupervision<TreeHeuristicsEvent> eventSupervision = PipeWorks.eventSupervision();
+    protected final EventSupervision<TreeHeuristicsEvent> eventSupervision = PipeWorks.eventSupervision();
 
 
-    public EventingHeuristicTreeExpansion(HeuristicStrategy<N, H> heuristicStrategy) {
+    public EventingHeuristicTreeExpansion(HeuristicStrategy<? super N, H> heuristicStrategy) {
         super(heuristicStrategy);
         globalComponentSystem().provide(SupervisionRequirements.observable("heuristics.events", JavaTypingUtils.castClass(HeuristicComputationEvent.class), eventSupervision))
                                .provide(SupervisionRequirements.adHocObservable("heuristics.stats", HeuristicStatsEvent.class, AsyncAdHocObservableWrapper.wrap(() -> new HeuristicStatsEvent(priorityQueue.size()))));
@@ -31,19 +31,19 @@ public class EventingHeuristicTreeExpansion<N extends TreeNode & Evaluable & Loc
     @Override
     protected void enqueue(N node) {
         super.enqueue(node);
-        eventSupervision.observe(new EnqueueNodeEvent<>(node));
+        eventSupervision.observe(new EnqueuedNodeEvent<>(node));
     }
 
     @Override
     protected void dequeue(N node) {
         super.dequeue(node);
-        eventSupervision.observe(new DequeueNodeEvent<>(node));
+        eventSupervision.observe(new DequeuedNodeEvent<>(node));
     }
 
     @Override
     protected N dequeueFirst() {
         N n = super.dequeueFirst();
-        eventSupervision.observe(new DequeueNodeEvent<>(n));
+        eventSupervision.observe(new DequeuedNodeEvent<>(n));
         return n;
     }
 

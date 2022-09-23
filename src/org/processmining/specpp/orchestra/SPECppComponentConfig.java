@@ -27,14 +27,14 @@ public interface SPECppComponentConfig {
         dc.register(DataRequirements.efficientTreeConfiguration(), StaticDataSource.of(getEfficientTreeConfiguration(cr)));
     }
 
-    EvaluatorConfiguration getEvaluatorConfiguration(GlobalComponentRepository csa);
+    EvaluatorConfiguration getEvaluatorConfiguration(GlobalComponentRepository gcr);
 
-    SupervisionConfiguration getSupervisionConfiguration(GlobalComponentRepository csa);
+    SupervisionConfiguration getSupervisionConfiguration(GlobalComponentRepository gcr);
 
-    ProposerComposerConfiguration<Place, AdvancedComposition<Place>, PetriNet> getProposerComposerConfiguration(GlobalComponentRepository csa);
+    ProposerComposerConfiguration<Place, AdvancedComposition<Place>, PetriNet> getProposerComposerConfiguration(GlobalComponentRepository gcr);
 
-    PostProcessingConfiguration<PetriNet, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository csa);
+    PostProcessingConfiguration<PetriNet, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository gcr);
 
-    EfficientTreeConfiguration<Place, PlaceState, PlaceNode> getEfficientTreeConfiguration(GlobalComponentRepository csa);
+    EfficientTreeConfiguration<Place, PlaceState, PlaceNode> getEfficientTreeConfiguration(GlobalComponentRepository gcr);
 
 }

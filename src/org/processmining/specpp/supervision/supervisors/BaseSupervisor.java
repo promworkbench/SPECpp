@@ -7,7 +7,6 @@ import org.processmining.specpp.componenting.supervision.SupervisionRequirements
 import org.processmining.specpp.config.parameters.OutputPathParameters;
 import org.processmining.specpp.config.parameters.SupervisionParameters;
 import org.processmining.specpp.supervision.AbstractSupervisor;
-import org.processmining.specpp.supervision.MessageLogger;
 import org.processmining.specpp.supervision.observations.LogMessage;
 import org.processmining.specpp.supervision.piping.Observer;
 import org.processmining.specpp.supervision.piping.PipeWorks;
@@ -30,15 +29,19 @@ public class BaseSupervisor extends AbstractSupervisor {
     @Override
     public void initSelf() {
         if (supervisionParameters.isSet()) {
-            Observer<LogMessage> observer = o -> {
+            Observer<LogMessage> consoleLogger = o -> {
             };
-            if (supervisionParameters.getData().isUseConsole()) observer = PipeWorks.consoleLogger();
-            globalComponentSystem().provide(SupervisionRequirements.observer(CONSOLE_LOGGER_REQUIREMENT, observer));
-        }
-        if (outputPathParameters.isSet()) {
-            OutputPathParameters parameters = outputPathParameters.getData();
-            String filePath = parameters.getFilePath(PathTools.OutputFileType.MAIN_LOG, "main");
-            MessageLogger fileLogger = PipeWorks.fileLogger("main", filePath);
+            SupervisionParameters supervisionParams = supervisionParameters.getData();
+            if (supervisionParams.isUseConsole()) consoleLogger = PipeWorks.consoleLogger();
+
+            globalComponentSystem().provide(SupervisionRequirements.observer(CONSOLE_LOGGER_REQUIREMENT, consoleLogger));
+            Observer<LogMessage> fileLogger = o -> {
+            };
+            if (outputPathParameters.isSet() && supervisionParams.isUseUseFiles()) {
+                OutputPathParameters parameters = outputPathParameters.getData();
+                String filePath = parameters.getFilePath(PathTools.OutputFileType.MAIN_LOG, "main");
+                fileLogger = PipeWorks.fileLogger("main", filePath);
+            }
             globalComponentSystem().provide(SupervisionRequirements.observer(FILE_LOGGER_REQUIREMENT, fileLogger));
         }
     }

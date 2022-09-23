@@ -18,8 +18,13 @@ public abstract class MonitoringSupervisor extends SubSupervisor implements Moni
     }
 
     @SuppressWarnings("unchecked")
-    protected <O extends Observation, R> Monitor<O, R> getMonitor(String label) {
+    public <O extends Observation, R> Monitor<O, R> getMonitor(String label) {
         return (Monitor<O, R>) monitorMap.get(label);
+    }
+
+    public <O extends Observation, R, T extends Monitor<O, R>> T getMonitor(String label, Class<T> type) {
+        Monitor<?, ?> monitor = monitorMap.get(label);
+        return type.isAssignableFrom(monitor.getClass()) ? type.cast(monitor) : null;
     }
 
     protected <O extends Observation, R> void createMonitor(String label, Monitor<O, R> monitor) {

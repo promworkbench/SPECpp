@@ -20,4 +20,5 @@ public class PerformanceStatisticsMonitor implements ComputingMonitor<Performanc
     public String computeResult() {
         return last.toPrettyString();
     }
+
 }

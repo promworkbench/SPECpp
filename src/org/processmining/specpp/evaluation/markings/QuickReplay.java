@@ -23,4 +23,5 @@ public class QuickReplay {
     public static VariantMarkingHistories makeHistory(MultiEncodedLog data, Place input) {
         return makeHistoryOn(data.variantIndices(), data, input);
     }
+
 }

@@ -7,6 +7,6 @@ import org.processmining.specpp.componenting.traits.ProvidesParameters;
 
 public class LightweightParameters extends AbstractGlobalComponentSystemUser implements ProvidesParameters {
     public LightweightParameters() {
-        globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(false))));
+        globalComponentSystem().provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(new SupervisionParameters(false, false))));
     }
 }

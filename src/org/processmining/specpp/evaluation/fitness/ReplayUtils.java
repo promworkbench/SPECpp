@@ -43,8 +43,10 @@ public class ReplayUtils {
     }
 
     public static void updateCounts(int[] counts, int count, boolean activated, boolean wentUnder, boolean wentOver, boolean notZeroAtEnd) {
-        if (!activated) counts[ReplayOutcomes.NOT_ACTIVATED.ordinal()] += count;
-        else {
+        if (!activated) {
+            counts[ReplayOutcomes.NOT_ACTIVATED.ordinal()] += count;
+            counts[ReplayOutcomes.FITTING.ordinal()] += count;
+        } else {
             counts[ReplayOutcomes.ACTIVATED.ordinal()] += count;
             if (!wentUnder && !notZeroAtEnd) counts[ReplayOutcomes.FITTING.ordinal()] += count;
             if (wentOver) counts[ReplayOutcomes.UNSAFE.ordinal()] += count;
@@ -54,7 +56,7 @@ public class ReplayUtils {
     }
 
     public static EnumSet<ReplayOutcomes> getReplayOutcomeEnumSet(boolean activated, boolean wentUnder, boolean wentOver, boolean notZeroAtEnd) {
-        if (!activated) return EnumSet.of(ReplayOutcomes.NOT_ACTIVATED);
+        if (!activated) return EnumSet.of(ReplayOutcomes.NOT_ACTIVATED, ReplayOutcomes.FITTING);
         else {
             EnumSet<ReplayOutcomes> enumSet = EnumSet.of(ReplayOutcomes.ACTIVATED);
             if (!wentUnder && !notZeroAtEnd) enumSet.add(ReplayOutcomes.FITTING);

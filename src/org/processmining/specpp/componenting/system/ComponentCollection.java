@@ -59,6 +59,7 @@ public class ComponentCollection implements RequiresComponents, ProvisionsCompon
     }
 
     public <R extends Requirement<?, R>> ComponentCollection require(Requirement<?, R> r, Container<?> delegator) {
+        assert delegator != null;
         componentRequirements.put(r.componentType(), r, delegator);
         return this;
     }

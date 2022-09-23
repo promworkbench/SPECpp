@@ -4,7 +4,7 @@ import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;
 import org.processmining.specpp.datastructures.log.Activity;
 import org.processmining.specpp.datastructures.util.IndexedItem;
-import org.processmining.specpp.datastructures.util.Tuple2;
+import org.processmining.specpp.datastructures.util.Pair;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
 import org.processmining.specpp.datastructures.vectorization.spliteration.IndexedSpliterable;
 import org.processmining.specpp.datastructures.vectorization.spliteration.Spliteration;
@@ -14,7 +14,7 @@ import java.nio.IntBuffer;
 import java.util.Spliterator;
 import java.util.stream.IntStream;
 
-public class MultiEncodedLog implements IndexedSpliterable<Tuple2<IntBuffer, IntBuffer>> {
+public class MultiEncodedLog implements IndexedSpliterable<Pair<IntBuffer>> {
 
     private final EncodedLog presetEncodedLog;
     private final EncodedLog postsetEncodedLog;
@@ -70,12 +70,12 @@ public class MultiEncodedLog implements IndexedSpliterable<Tuple2<IntBuffer, Int
     }
 
     @Override
-    public Spliterator<IndexedItem<Tuple2<IntBuffer, IntBuffer>>> indexedSpliterator() {
+    public Spliterator<IndexedItem<Pair<IntBuffer>>> indexedSpliterator() {
         return Spliteration.joinIndexedSpliterators(presetEncodedLog.indexedSpliterator(), postsetEncodedLog.indexedSpliterator());
     }
 
     @Override
-    public Spliterator<IndexedItem<Tuple2<IntBuffer, IntBuffer>>> indexedSpliterator(BitMask bitMask) {
+    public Spliterator<IndexedItem<Pair<IntBuffer>>> indexedSpliterator(BitMask bitMask) {
         return Spliteration.joinIndexedSpliterators(presetEncodedLog.indexedSpliterator(bitMask), postsetEncodedLog.indexedSpliterator(bitMask));
     }
 

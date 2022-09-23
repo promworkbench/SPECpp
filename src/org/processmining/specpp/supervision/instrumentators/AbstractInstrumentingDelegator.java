@@ -2,7 +2,7 @@ package org.processmining.specpp.supervision.instrumentators;
 
 import org.processmining.specpp.componenting.delegators.AbstractFCSUDelegator;
 import org.processmining.specpp.componenting.system.FullComponentSystemUser;
-import org.processmining.specpp.supervision.piping.TimeStopper;
+import org.processmining.specpp.supervision.observations.performance.TimeStopper;
 
 public class AbstractInstrumentingDelegator<T extends FullComponentSystemUser> extends AbstractFCSUDelegator<T> {
 

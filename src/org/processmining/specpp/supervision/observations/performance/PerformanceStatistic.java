@@ -15,6 +15,10 @@ public interface PerformanceStatistic extends Statistic, Mergeable<PerformanceSt
         return decimalFormat.format((double) duration.toNanos() / 1e6);
     }
 
+    static int calcRate(Duration sum, long n) {
+        return (int) (1e3 * n / (double) sum.toMillis());
+    }
+
     void record(PerformanceMeasurement measurement);
 
     Duration min();
@@ -36,5 +40,9 @@ public interface PerformanceStatistic extends Statistic, Mergeable<PerformanceSt
     @Override
     default void observe(PerformanceMeasurement observation) {
         record(observation);
+    }
+
+    default int rate() {
+        return calcRate(sum(), N());
     }
 }

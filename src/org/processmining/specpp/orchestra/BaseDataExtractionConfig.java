@@ -1,5 +1,6 @@
 package org.processmining.specpp.orchestra;
 
+import org.apache.commons.collections4.BidiMap;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.DataSourceCollection;
 import org.processmining.specpp.componenting.data.StaticDataSource;
@@ -13,15 +14,13 @@ import org.processmining.specpp.datastructures.log.impls.MultiEncodedLog;
 import org.processmining.specpp.datastructures.petri.Transition;
 import org.processmining.specpp.preprocessing.InputDataBundle;
 
-import java.util.Map;
-
 public class BaseDataExtractionConfig implements DataExtractionConfig {
 
     @Override
     public void registerDataSources(GlobalComponentRepository cr, InputDataBundle bundle) {
         Log log = bundle.getLog();
         IntEncodings<Transition> transitionEncodings = bundle.getTransitionEncodings();
-        Map<Activity, Transition> mapping = bundle.getMapping();
+        BidiMap<Activity, Transition> mapping = bundle.getMapping();
 
         DataSourceCollection dc = cr.dataSources();
         dc.register(DataRequirements.RAW_LOG, StaticDataSource.of(log));
@@ -31,7 +30,9 @@ public class BaseDataExtractionConfig implements DataExtractionConfig {
         BitMask data = multiEncodedLog.variantIndices();
         dc.register(DataRequirements.CONSIDERED_VARIANTS, StaticDataSource.of(data));
         dc.register(DataRequirements.VARIANT_FREQUENCIES, StaticDataSource.of(multiEncodedLog.variantFrequencies()));
+        dc.register(DataRequirements.ENC_ACT, StaticDataSource.of(multiEncodedLog.getEncodings()));
         dc.register(DataRequirements.ENC_TRANS, StaticDataSource.of(transitionEncodings));
+        dc.register(DataRequirements.ACT_TRANS_MAPPING, StaticDataSource.of(mapping));
     }
 
 }

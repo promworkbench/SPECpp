@@ -2,7 +2,7 @@ package org.processmining.specpp.orchestra;
 
 import org.processmining.specpp.config.parameters.PlaceFocusParameters;
 
-public class PlaceFocusedSPECppConfigBundle extends SPECppConfigBundle {
+public class PlaceFocusedSPECppConfigBundle extends AbstractSPECppConfigBundle {
     @Override
     public String getTitle() {
         return "Place Focused Variant";

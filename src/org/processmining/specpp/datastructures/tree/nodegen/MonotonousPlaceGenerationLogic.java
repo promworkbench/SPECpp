@@ -48,7 +48,7 @@ public class MonotonousPlaceGenerationLogic extends PlaceGenerationLogic {
 
     public static class Builder extends ComponentSystemAwareBuilder<PlaceGenerationLogic> {
 
-        protected final DelegatingDataSource<IntEncodings<Transition>> transitionEncodings = DataRequirements.ENC_TRANS.emptyDelegator();
+        protected final DelegatingDataSource<IntEncodings<Transition>> transitionEncodings = new DelegatingDataSource<>();
         protected final DelegatingDataSource<PlaceGeneratorParameters> parameters = new DelegatingDataSource<>();
 
 

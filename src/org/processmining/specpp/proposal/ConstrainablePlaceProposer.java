@@ -62,7 +62,8 @@ public class ConstrainablePlaceProposer extends AbstractBaseClass implements Con
     public ConstrainablePlaceProposer(ChildGenerationLogicComponent<Place, PlaceState, PlaceNode> cgl, SimpleBuilder<EfficientTreeComponent<PlaceNode>> treeBuilder) {
         this.cgl = cgl;
         this.treeBuilder = treeBuilder;
-        globalComponentSystem().provide(SupervisionRequirements.observable("proposer.constraints", getPublishedConstraintClass(), getConstraintPublisher()));
+        globalComponentSystem().provide(SupervisionRequirements.observable("proposer.constraints", getPublishedConstraintClass(), getConstraintPublisher()))
+                               .require(SupervisionRequirements.observable(SupervisionRequirements.regex("external\\.constraints.*"), getAcceptedConstraintClass()), ContainerUtils.observeResults(this));
         localComponentSystem().require(SupervisionRequirements.observable(SupervisionRequirements.regex("composer\\.constraints.*"), getAcceptedConstraintClass()), ContainerUtils.observeResults(this))
                               .require(SupervisionRequirements.observable(SupervisionRequirements.regex("composition\\.constraints.*"), getAcceptedConstraintClass()), ContainerUtils.observeResults(this))
                               .provide(SupervisionRequirements.observable("proposer.constraints", getPublishedConstraintClass(), getConstraintPublisher()));

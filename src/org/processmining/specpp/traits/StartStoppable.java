@@ -1,9 +1,8 @@
 package org.processmining.specpp.traits;
 
-public interface StartStoppable {
+public interface StartStoppable extends Stoppable {
 
     void start();
 
-    void stop();
 
 }

@@ -1,12 +1,13 @@
 package org.processmining.specpp.supervision.observations;
 
+import org.processmining.specpp.traits.Copyable;
 import org.processmining.specpp.traits.Mergeable;
 import org.processmining.specpp.traits.PrettyPrintable;
 import org.processmining.specpp.traits.ProperlyPrintable;
 
 import java.util.*;
 
-public class Statistics<K extends StatisticKey, S extends Statistic> implements Observation, Mergeable<Statistics<? extends K, ? extends S>>, ProperlyPrintable, PrettyPrintable {
+public class Statistics<K extends StatisticKey, S extends Statistic> implements Observation, Copyable<Statistics<K, S>>, Mergeable<Statistics<? extends K, ? extends S>>, ProperlyPrintable, PrettyPrintable {
 
     private final Map<K, S> internal;
 
@@ -61,5 +62,11 @@ public class Statistics<K extends StatisticKey, S extends Statistic> implements 
                 }
             }
         }
+    }
+
+
+    @Override
+    public Statistics<K, S> copy() {
+        return new Statistics<>(internal);
     }
 }

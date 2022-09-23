@@ -76,7 +76,7 @@ public class IndexSubset implements SetQueries<IndexSubset>, Copyable<IndexSubse
     }
 
     public BitMask indexIntersection(IndexSubset other) {
-        return MutatingSetOperations.intersection(subset, other.subset);
+        return NonMutatingSetOperations.intersection(subset, other.subset);
     }
 
     @Override

@@ -45,4 +45,14 @@ public class InstrumentedPostProcessor<R extends Result, F extends Result> exten
         timeStopper.stop(task);
         return f;
     }
+
+    @Override
+    public Class<R> getInputClass() {
+        return delegate.getInputClass();
+    }
+
+    @Override
+    public Class<F> getOutputClass() {
+        return delegate.getOutputClass();
+    }
 }

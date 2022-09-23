@@ -7,7 +7,10 @@ import org.processmining.specpp.componenting.supervision.GlobalSupervisorCollect
 
 public enum ComponentType {
 
-    Evaluation(EvaluatorCollection.class), Data(DataSourceCollection.class), Supervision(GlobalSupervisorCollection.class), Parameters(ParameterSourceCollection.class);
+    Evaluation(EvaluatorCollection.class),
+    Data(DataSourceCollection.class),
+    Supervision(GlobalSupervisorCollection.class),
+    Parameters(ParameterSourceCollection.class);
 
     private final Class<? extends FulfilledRequirementsCollection<?>> collectionClass;
 

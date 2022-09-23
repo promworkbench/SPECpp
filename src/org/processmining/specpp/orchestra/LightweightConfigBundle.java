@@ -2,7 +2,7 @@ package org.processmining.specpp.orchestra;
 
 import org.processmining.specpp.config.parameters.LightweightParameters;
 
-public class LightweightConfigBundle extends SPECppConfigBundle {
+public class LightweightConfigBundle extends AbstractSPECppConfigBundle {
     public LightweightConfigBundle() {
         super(new BaseDataExtractionConfig(), new LightweightComponentConfig(), new AdaptedAlgorithmParameterConfig(new LightweightParameters()));
     }
