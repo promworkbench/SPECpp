@@ -134,7 +134,7 @@ public class SwingFactory {
     public static DefaultTableModel readOnlyTableModel(String[] columnNames, Multimap<Class<?>, Integer> types) {
         Class<?>[] columnClasses = new Class[columnNames.length];
         Arrays.fill(columnClasses, Object.class);
-        types.forEach((c, i) -> columnClasses[i] = c);
+        types.entries().forEach(e -> columnClasses[e.getValue()] = e.getKey());
         return new DefaultTableModel(columnNames, 0) {
 
             @Override

@@ -1,6 +1,6 @@
 package org.processmining.specpp.datastructures.encoding;
 
-import com.google.common.collect.Streams;
+import org.apache.commons.collections.MultiMap;
 import org.processmining.specpp.datastructures.util.ImmutableTuple2;
 import org.processmining.specpp.datastructures.util.Tuple2;
 import org.processmining.specpp.traits.Immutable;
@@ -20,7 +20,7 @@ public interface Encoding<K, V> extends Immutable {
     K decode(V value);
 
     default Stream<Tuple2<K, V>> pairs() {
-        return Streams.zip(domain(), domain().map(this::encode), ImmutableTuple2::new);
+        return domain().map(k -> new ImmutableTuple2<>(k, encode(k)));
     }
 
     int size();

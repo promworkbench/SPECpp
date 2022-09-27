@@ -1,16 +1,16 @@
 package org.processmining.specpp.datastructures.log.impls;
 
-import com.google.common.collect.Streams;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.log.Log;
 import org.processmining.specpp.datastructures.log.Variant;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
 import org.processmining.specpp.traits.ProperlyPrintable;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class LogImpl implements Log, ProperlyPrintable {
 
@@ -32,7 +32,20 @@ public class LogImpl implements Log, ProperlyPrintable {
 
     @Override
     public Stream<IndexedVariant> stream() {
-        return Streams.zip(streamIndices().boxed(), Arrays.stream(variants), IndexedVariant::new);
+        PrimitiveIterator.OfInt indices = streamIndices().iterator();
+        Spliterators.AbstractSpliterator<IndexedVariant> spliterator = new Spliterators.AbstractSpliterator<IndexedVariant>(variants.length, Spliterator.SIZED | Spliterator.ORDERED | Spliterator.NONNULL) {
+
+            int i = 0;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super IndexedVariant> action) {
+                if (i < variants.length)
+                    action.accept(new IndexedVariant(indices.nextInt(), variants[i]));
+                return ++i < variants.length;
+            }
+
+        };
+        return StreamSupport.stream(spliterator, false);
     }
 
     @Override

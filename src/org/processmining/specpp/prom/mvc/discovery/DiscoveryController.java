@@ -96,7 +96,7 @@ public class DiscoveryController extends AbstractStageController implements Dest
 
         ListenableFuture<PetriNet> future = getExecutor().submit(specpp::executeDiscovery);
         ongoingDiscoveryComputation.setComputationFuture(future);
-        future.addListener(this::discoveryFinished, MoreExecutors.directExecutor());
+        future.addListener(this::discoveryFinished, MoreExecutors.sameThreadExecutor());
 
         if (timeLimits.hasDiscoveryTimeLimit()) {
             Timer cancellationTimer = new Timer((int) timeLimits.getDiscoveryTimeLimit()
@@ -138,7 +138,7 @@ public class DiscoveryController extends AbstractStageController implements Dest
             ongoingPostProcessingComputation.incStage();
         }));
         ongoingPostProcessingComputation.setComputationFuture(postProcessingFuture);
-        postProcessingFuture.addListener(this::postProcessingFinished, MoreExecutors.directExecutor());
+        postProcessingFuture.addListener(this::postProcessingFinished, MoreExecutors.sameThreadExecutor());
 
         if (timeLimits.hasPostProcessingTimeLimit()) {
             Timer cancellationTimer = new Timer(((int) timeLimits.getPostProcessingTimeLimit()

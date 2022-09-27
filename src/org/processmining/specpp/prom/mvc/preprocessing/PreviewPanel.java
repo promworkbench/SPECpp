@@ -61,7 +61,6 @@ public class PreviewPanel extends AbstractStagePanel<PreProcessingController> {
 
 
     public Pair<Set<Activity>> collectSelectedActivities() {
-        // TODO this can be called before the update method below, yielding empty selections.. !
         return new ImmutablePair<>(new HashSet<>(presetList.getSelectedValuesList()), new HashSet<>(postsetList.getSelectedValuesList()));
     }
 

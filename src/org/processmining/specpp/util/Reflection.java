@@ -1,10 +1,7 @@
 package org.processmining.specpp.util;
 
-import com.google.common.collect.Streams;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 
 @SuppressWarnings("unchecked")
 public class Reflection {
@@ -13,9 +10,10 @@ public class Reflection {
         for (Constructor<?> constructor : aClass.getConstructors()) {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             if (parameterTypes.length == args.length) {
-                if (Streams.zip(Arrays.stream(parameterTypes), Arrays.stream(args)
-                                                                     .map(Object::getClass), Class::isAssignableFrom)
-                           .allMatch(b -> b)) return constructor;
+                for (int i = 0; i < parameterTypes.length; i++) {
+                    if (!parameterTypes[i].isAssignableFrom(args[i].getClass())) return null;
+                }
+                return constructor;
             }
         }
         return null;

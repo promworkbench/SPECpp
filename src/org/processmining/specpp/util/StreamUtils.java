@@ -1,7 +1,5 @@
 package org.processmining.specpp.util;
 
-import com.google.common.collect.Streams;
-
 import java.util.Objects;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
@@ -90,7 +88,11 @@ public class StreamUtils {
     }
 
     public static boolean streamsEqual(IntStream leftStream, IntStream rightStream) {
-        return Streams.zip(leftStream.boxed(), rightStream.boxed(), Integer::equals).allMatch(b -> b);
+        PrimitiveIterator.OfInt leftIt = leftStream.iterator(), rightIt = rightStream.iterator();
+        while (leftIt.hasNext() && rightIt.hasNext()) {
+            if (leftIt.nextInt() != rightIt.nextInt()) return false;
+        }
+        return !leftIt.hasNext() && !rightIt.hasNext();
     }
 
 }

@@ -14,7 +14,7 @@ public class LogMessage implements Observation {
 
 
     public LogMessage(String source, String message) {
-        this(source, message, Level.DEBUG, LocalDateTime.now());
+        this(source, message, Level.INFO, LocalDateTime.now());
     }
 
     public LogMessage(String source, String message, Level logLevel, LocalDateTime time) {

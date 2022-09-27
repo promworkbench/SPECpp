@@ -1,5 +1,6 @@
 package org.processmining.specpp.supervision.supervisors;
 
+import org.apache.log4j.Level;
 import org.processmining.specpp.supervision.MessageLogger;
 import org.processmining.specpp.supervision.observations.DebugEvent;
 import org.processmining.specpp.supervision.observations.LogMessage;
@@ -24,7 +25,7 @@ public class DebuggingSupervisor extends SubSupervisor {
     }
 
     public static void debug(DebugEvent e) {
-        getDebugLogger().observe(Transformers.toLogMessage().apply(e));
+        getDebugLogger().observe(Transformers.toLogMessage(Level.DEBUG).apply(e));
     }
 
     private static Observer<LogMessage> getDebugLogger() {

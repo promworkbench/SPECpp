@@ -1,6 +1,7 @@
 package org.processmining.specpp.supervision.transformers;
 
 import com.google.common.collect.Lists;
+import org.apache.log4j.Level;
 import org.processmining.specpp.supervision.observations.LogMessage;
 import org.processmining.specpp.supervision.observations.Observation;
 import org.processmining.specpp.supervision.observations.TimedObservation;
@@ -22,12 +23,16 @@ public class Transformers {
         return o -> new LogMessage(o.getClass().getSimpleName(), o.toString());
     }
 
-    public static <O extends Observation> ObservationTransformer<O, O> idTransform() {
-        return o -> o;
-    }
-
     public static <O extends Observation> ObservationTransformer<O, LogMessage> toLogMessage(String source) {
         return o -> new LogMessage(source, o.toString());
+    }
+
+    public static <O extends Observation> ObservationTransformer<O, LogMessage> toLogMessage(Level level) {
+        return o -> new LogMessage(o.getClass().getSimpleName(), o.toString(), level, LocalDateTime.now());
+    }
+
+    public static <O extends Observation> ObservationTransformer<O, O> idTransform() {
+        return o -> o;
     }
 
     public static <O extends Observation> ObservationSummarizer<O, Observations<O>> listCollator() {
