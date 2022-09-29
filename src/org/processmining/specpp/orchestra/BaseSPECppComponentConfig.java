@@ -5,9 +5,9 @@ import org.processmining.specpp.base.impls.EventingPlaceComposerWithCIPR;
 import org.processmining.specpp.base.impls.EventingPlaceFitnessFilter;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
-import org.processmining.specpp.composition.TrackingPlaceCollection;
+import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.config.*;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.tree.base.impls.EventingEnumeratingTree;
@@ -52,10 +52,10 @@ public class BaseSPECppComponentConfig implements SPECppComponentConfig {
     }
 
     @Override
-    public ProposerComposerConfiguration<Place, AdvancedComposition<Place>, PetriNet> getProposerComposerConfiguration(GlobalComponentRepository gcr) {
-        return Configurators.<Place, AdvancedComposition<Place>, PetriNet>proposerComposer()
+    public ProposerComposerConfiguration<Place, AdvancedComposition<Place>, CollectionOfPlaces> getProposerComposerConfiguration(GlobalComponentRepository gcr) {
+        return Configurators.<Place, AdvancedComposition<Place>, CollectionOfPlaces>proposerComposer()
                             .proposer(new RestartablePlaceProposer.Builder())
-                            .composition(TrackingPlaceCollection::new)
+                            .composition(StatefulPlaceComposition::new)
                             .terminalComposer(EventingPlaceComposerWithCIPR::new)
                             .composerChain(EventingPlaceFitnessFilter::new)
                             .build(gcr);
@@ -72,8 +72,8 @@ public class BaseSPECppComponentConfig implements SPECppComponentConfig {
     }
 
     @Override
-    public PostProcessingConfiguration<PetriNet, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository gcr) {
-        return Configurators.<PetriNet>postProcessing()
+    public PostProcessingConfiguration<CollectionOfPlaces, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository gcr) {
+        return Configurators.<CollectionOfPlaces>postProcessing()
                             .addPostProcessor(new ReplayBasedImplicitnessPostProcessing.Builder())
                             .addPostProcessor(SelfLoopPlaceMerger::new)
                             .addPostProcessor(new PlaceExporter.Builder())

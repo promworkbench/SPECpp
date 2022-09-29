@@ -10,7 +10,7 @@ import org.processmining.specpp.config.EfficientTreeConfiguration;
 import org.processmining.specpp.config.PostProcessingConfiguration;
 import org.processmining.specpp.config.ProposerComposerConfiguration;
 import org.processmining.specpp.config.SupervisionConfiguration;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.tree.nodegen.PlaceNode;
@@ -31,9 +31,9 @@ public interface SPECppComponentConfig {
 
     SupervisionConfiguration getSupervisionConfiguration(GlobalComponentRepository gcr);
 
-    ProposerComposerConfiguration<Place, AdvancedComposition<Place>, PetriNet> getProposerComposerConfiguration(GlobalComponentRepository gcr);
+    ProposerComposerConfiguration<Place, AdvancedComposition<Place>, CollectionOfPlaces> getProposerComposerConfiguration(GlobalComponentRepository gcr);
 
-    PostProcessingConfiguration<PetriNet, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository gcr);
+    PostProcessingConfiguration<CollectionOfPlaces, ProMPetrinetWrapper> getPostProcessingConfiguration(GlobalComponentRepository gcr);
 
     EfficientTreeConfiguration<Place, PlaceState, PlaceNode> getEfficientTreeConfiguration(GlobalComponentRepository gcr);
 

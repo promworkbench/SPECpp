@@ -5,7 +5,7 @@ import org.processmining.specpp.componenting.delegators.DelegatingEvaluator;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.NonMutatingSetOperations;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.util.ImmutableTuple2;
 import org.processmining.specpp.datastructures.util.Tuple2;
@@ -45,7 +45,7 @@ public class ReplayBasedImplicitnessPostProcessing extends ImplicitnessPostProce
     }
 
     @Override
-    public PetriNet postProcess(PetriNet result) {
+    public CollectionOfPlaces postProcess(CollectionOfPlaces result) {
         Set<Place> places = new HashSet<>(result.getPlaces());
 
         Map<Place, VariantMarkingHistories> histories = places.stream()
@@ -90,7 +90,7 @@ public class ReplayBasedImplicitnessPostProcessing extends ImplicitnessPostProce
         }
 
         places.removeAll(exclusionZone);
-        return new PetriNet(places);
+        return new CollectionOfPlaces(places);
     }
 
 }

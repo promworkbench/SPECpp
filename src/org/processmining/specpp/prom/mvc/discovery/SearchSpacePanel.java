@@ -6,7 +6,7 @@ import org.processmining.specpp.base.impls.SPECpp;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.petri.Transition;
@@ -17,13 +17,13 @@ import java.math.BigInteger;
 
 public class SearchSpacePanel extends JPanel implements Destructible {
 
-    private final SPECpp<Place, AdvancedComposition<Place>, PetriNet, ProMPetrinetWrapper> specpp;
+    private final SPECpp<Place, AdvancedComposition<Place>, CollectionOfPlaces, ProMPetrinetWrapper> specpp;
     private final int maxTreeDepth;
     private final BigInteger maxCandidates;
     private final Timer updateTimer;
 
 
-    public SearchSpacePanel(SPECpp<Place, AdvancedComposition<Place>, PetriNet, ProMPetrinetWrapper> specpp) {
+    public SearchSpacePanel(SPECpp<Place, AdvancedComposition<Place>, CollectionOfPlaces, ProMPetrinetWrapper> specpp) {
         this.specpp = specpp;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 

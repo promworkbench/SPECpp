@@ -7,7 +7,7 @@ import org.processmining.specpp.componenting.system.ComponentSystemAwareBuilder;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.evaluation.implicitness.ImplicitnessTestingParameters;
 
-public abstract class ImplicitnessPostProcessor implements PetriNetPostProcessor {
+public abstract class ImplicitnessPostProcessor implements CollectionOfPlacesPostProcessor {
 
     protected final BitMask consideredVariants;
     protected final ImplicitnessTestingParameters parameters;

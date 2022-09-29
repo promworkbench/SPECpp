@@ -6,7 +6,7 @@ import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
 import org.processmining.specpp.componenting.system.AbstractGlobalComponentSystemUser;
 import org.processmining.specpp.componenting.system.ComponentSystemAwareBuilder;
 import org.processmining.specpp.config.parameters.OutputPathParameters;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.util.FileUtils;
 import org.processmining.specpp.util.PathTools;
@@ -14,14 +14,14 @@ import org.processmining.specpp.util.PathTools;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class PlaceExporter extends AbstractGlobalComponentSystemUser implements PetriNetPostProcessor {
+public class PlaceExporter extends AbstractGlobalComponentSystemUser implements CollectionOfPlacesPostProcessor {
 
     public PlaceExporter(OutputPathParameters outputPathParameters) {
         this.outputPathParameters = outputPathParameters;
     }
 
 
-    public static class Builder extends ComponentSystemAwareBuilder<PostProcessor<PetriNet, PetriNet>> {
+    public static class Builder extends ComponentSystemAwareBuilder<PostProcessor<CollectionOfPlaces, CollectionOfPlaces>> {
 
         private final DelegatingDataSource<OutputPathParameters> outputPathParameters = new DelegatingDataSource<>();
 
@@ -30,7 +30,7 @@ public class PlaceExporter extends AbstractGlobalComponentSystemUser implements 
         }
 
         @Override
-        protected PostProcessor<PetriNet, PetriNet> buildIfFullySatisfied() {
+        protected PostProcessor<CollectionOfPlaces, CollectionOfPlaces> buildIfFullySatisfied() {
             return new PlaceExporter(outputPathParameters.getData());
         }
     }
@@ -39,7 +39,7 @@ public class PlaceExporter extends AbstractGlobalComponentSystemUser implements 
 
 
     @Override
-    public PetriNet postProcess(PetriNet result) {
+    public CollectionOfPlaces postProcess(CollectionOfPlaces result) {
         String filePath = outputPathParameters.getFilePath(PathTools.OutputFileType.MISC_EXPORT, "places", ".txt");
 
         try (FileWriter fileWriter = FileUtils.createOutputFileWriter(filePath)) {

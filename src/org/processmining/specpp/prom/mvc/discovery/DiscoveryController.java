@@ -13,7 +13,7 @@ import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.config.Configuration;
 import org.processmining.specpp.config.parameters.ExecutionParameters;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.orchestra.ExternalInitializer;
@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
 
 public class DiscoveryController extends AbstractStageController implements Destructible {
 
-    private final SPECpp<Place, AdvancedComposition<Place>, PetriNet, ProMPetrinetWrapper> specpp;
+    private final SPECpp<Place, AdvancedComposition<Place>, CollectionOfPlaces, ProMPetrinetWrapper> specpp;
     private final DelegatingDataSource<Runnable> gracefulCancellationDelegate;
     private final OngoingComputation ongoingDiscoveryComputation;
     private final OngoingStagedComputation ongoingPostProcessingComputation;
@@ -76,7 +76,7 @@ public class DiscoveryController extends AbstractStageController implements Dest
         startDiscovery();
     }
 
-    public SPECpp<Place, AdvancedComposition<Place>, PetriNet, ProMPetrinetWrapper> getSpecpp() {
+    public SPECpp<Place, AdvancedComposition<Place>, CollectionOfPlaces, ProMPetrinetWrapper> getSpecpp() {
         return specpp;
     }
 
@@ -94,7 +94,7 @@ public class DiscoveryController extends AbstractStageController implements Dest
             ongoingDiscoveryComputation.setTimeLimit(timeLimits.getTotalTimeLimit());
         ongoingDiscoveryComputation.setStart(startTime);
 
-        ListenableFuture<PetriNet> future = getExecutor().submit(specpp::executeDiscovery);
+        ListenableFuture<CollectionOfPlaces> future = getExecutor().submit(specpp::executeDiscovery);
         ongoingDiscoveryComputation.setComputationFuture(future);
         future.addListener(this::discoveryFinished, MoreExecutors.sameThreadExecutor());
 

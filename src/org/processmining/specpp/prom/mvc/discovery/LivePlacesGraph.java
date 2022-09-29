@@ -1,7 +1,7 @@
 package org.processmining.specpp.prom.mvc.discovery;
 
 import org.processmining.graphvisualizers.algorithms.GraphVisualizerAlgorithm;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetBuilder;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
@@ -23,7 +23,7 @@ public class LivePlacesGraph implements LivePlacesVisualizer {
 
     @Override
     public void update(List<Place> places) {
-        ProMPetrinetBuilder pnb = new ProMPetrinetBuilder(new PetriNet(places));
+        ProMPetrinetBuilder pnb = new ProMPetrinetBuilder(new CollectionOfPlaces(places));
         ProMPetrinetWrapper wrapper = pnb.build();
         update(wrapper);
     }

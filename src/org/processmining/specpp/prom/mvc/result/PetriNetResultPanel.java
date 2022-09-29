@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import org.processmining.framework.util.ui.widgets.ProMTable;
 import org.processmining.specpp.base.Evaluator;
 import org.processmining.specpp.datastructures.encoding.BitMask;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.util.ImmutableTuple2;
@@ -33,7 +33,7 @@ public class PetriNetResultPanel extends JSplitPane {
     private final boolean addOriginalIdColumn;
     private final ImmutableMultimap<Class<?>, Integer> columnTypeMap;
 
-    public PetriNetResultPanel(PetriNet petriNet, Evaluator<Place, DetailedFitnessEvaluation> evaluator, IntVector variantFrequencies, boolean addOriginalIdColumn) {
+    public PetriNetResultPanel(CollectionOfPlaces collectionOfPlaces, Evaluator<Place, DetailedFitnessEvaluation> evaluator, IntVector variantFrequencies, boolean addOriginalIdColumn) {
         super(JSplitPane.HORIZONTAL_SPLIT);
         this.variantFrequencies = variantFrequencies;
         this.addOriginalIdColumn = addOriginalIdColumn;
@@ -73,7 +73,7 @@ public class PetriNetResultPanel extends JSplitPane {
         JPanel right = new JPanel(new BorderLayout());
         right.add(proMTable, BorderLayout.CENTER);
         HorizontalJPanel bottomLine = new HorizontalJPanel();
-        bottomLine.add(SlickerFactory.instance().createLabel(String.format("Count: %d", petriNet.size())));
+        bottomLine.add(SlickerFactory.instance().createLabel(String.format("Count: %d", collectionOfPlaces.size())));
         infoLabel = SlickerFactory.instance().createLabel("not yet computed");
         bottomLine.addSpaced(infoLabel);
         right.add(bottomLine, BorderLayout.PAGE_END);
@@ -85,7 +85,7 @@ public class PetriNetResultPanel extends JSplitPane {
             @Override
             protected JComponent doInBackground() throws Exception {
                 LivePlacesGraph graph = new LivePlacesGraph();
-                graph.update(ProMPetrinetWrapper.of(petriNet));
+                graph.update(ProMPetrinetWrapper.of(collectionOfPlaces));
                 return graph.getComponent();
             }
 
@@ -104,10 +104,10 @@ public class PetriNetResultPanel extends JSplitPane {
 
             @Override
             protected List<Tuple2<Place, DetailedFitnessEvaluation>> doInBackground() throws Exception {
-                return petriNet.getPlaces()
-                               .stream()
-                               .map(p -> new ImmutableTuple2<>(p, evaluator.apply(p)))
-                               .collect(Collectors.toList());
+                return collectionOfPlaces.getPlaces()
+                                         .stream()
+                                         .map(p -> new ImmutableTuple2<>(p, evaluator.apply(p)))
+                                         .collect(Collectors.toList());
             }
 
             @Override

@@ -4,7 +4,7 @@ import org.processmining.specpp.base.IdentityPostProcessor;
 import org.processmining.specpp.base.PostProcessor;
 import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
 import org.processmining.specpp.config.SimpleBuilder;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.tree.base.HeuristicStrategy;
 import org.processmining.specpp.datastructures.tree.heuristic.HeuristicUtils;
@@ -63,12 +63,13 @@ public class FrameworkBridge {
     }
 
     public enum BridgedPostProcessors {
-        Identity(new AnnotatedPostProcessor("Identity", PetriNet.class, PetriNet.class, () -> IdentityPostProcessor::new)),
-        ReplayBasedImplicitPlaceRemoval(new AnnotatedPostProcessor("Replay-Based Implicit Place Removal", PetriNet.class, PetriNet.class, ReplayBasedImplicitnessPostProcessing.Builder::new)),
-        LPBasedImplicitPlaceRemoval(new AnnotatedPostProcessor("LP-Based Implicit Place Removal", PetriNet.class, PetriNet.class, LPBasedImplicitnessPostProcessing.Builder::new)),
-        SelfLoopPlacesMerging(new AnnotatedPostProcessor("Self-Loop Places Merging", PetriNet.class, PetriNet.class, () -> SelfLoopPlaceMerger::new)),
-        UniwiredSelfLoopAddition(new AnnotatedPostProcessor("Uniwired Self-Loop Addition", PetriNet.class, PetriNet.class, UniwiredSelfLoopAdditionPostProcessing.Builder::new)),
-        ProMPetrinetConversion(new AnnotatedPostProcessor("Conversion to ProM Petri net", PetriNet.class, ProMPetrinetWrapper.class, () -> ProMConverter::new));
+        Identity(new AnnotatedPostProcessor("Identity", CollectionOfPlaces.class, CollectionOfPlaces.class, () -> IdentityPostProcessor::new)),
+        ReplayBasedImplicitPlaceRemoval(new AnnotatedPostProcessor("Replay-Based Implicit Place Removal", CollectionOfPlaces.class, CollectionOfPlaces.class, ReplayBasedImplicitnessPostProcessing.Builder::new)),
+        LPBasedImplicitPlaceRemoval(new AnnotatedPostProcessor("LP-Based Implicit Place Removal", CollectionOfPlaces.class, CollectionOfPlaces.class, LPBasedImplicitnessPostProcessing.Builder::new)),
+        SelfLoopPlacesMerging(new AnnotatedPostProcessor("Self-Loop Places Merging", CollectionOfPlaces.class, CollectionOfPlaces.class, () -> SelfLoopPlaceMerger::new)),
+        UniwiredSelfLoopAddition(new AnnotatedPostProcessor("Uniwired Self-Loop Addition", CollectionOfPlaces.class, CollectionOfPlaces.class, UniwiredSelfLoopAdditionPostProcessing.Builder::new)),
+        DanglingTransitionsAddition(new AnnotatedPostProcessor("Dangling Transitions Addition", ProMPetrinetWrapper.class, ProMPetrinetWrapper.class, AddDanglingTransitionPostProcessing.Builder::new)),
+        ProMPetrinetConversion(new AnnotatedPostProcessor("Conversion to ProM Petri net", CollectionOfPlaces.class, ProMPetrinetWrapper.class, () -> ProMConverter::new));
         private final AnnotatedPostProcessor bpp;
 
         BridgedPostProcessors(AnnotatedPostProcessor bpp) {

@@ -5,13 +5,12 @@ import org.processmining.specpp.base.impls.PlaceComposerWithCIPR;
 import org.processmining.specpp.base.impls.PlaceFitnessFilter;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
-import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.ConstrainingPlaceCollection;
-import org.processmining.specpp.composition.TrackingPlaceCollection;
+import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.config.*;
 import org.processmining.specpp.config.parameters.ParameterProvider;
 import org.processmining.specpp.config.parameters.SupervisionParameters;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.tree.base.impls.EnumeratingTree;
@@ -64,9 +63,9 @@ public class ConfiguratorFactory {
 
         // ** Proposal & Composition ** //
 
-        ProposerComposerConfiguration.Configurator<Place, AdvancedComposition<Place>, PetriNet> pcConfig = Configurators.<Place, AdvancedComposition<Place>, PetriNet>proposerComposer()
-                                                                                                                        .nestedComposition(TrackingPlaceCollection::new, ConstrainingPlaceCollection::new)
-                                                                                                                        .proposer(new ConstrainablePlaceProposer.Builder());
+        ProposerComposerConfiguration.Configurator<Place, AdvancedComposition<Place>, CollectionOfPlaces> pcConfig = Configurators.<Place, AdvancedComposition<Place>, CollectionOfPlaces>proposerComposer()
+                                                                                                                                  .nestedComposition(StatefulPlaceComposition::new, ConstrainingPlaceCollection::new)
+                                                                                                                                  .proposer(new ConstrainablePlaceProposer.Builder());
 
         pcConfig.terminalComposer(PlaceComposerWithCIPR::new);
         // without concurrent implicit place removal
@@ -77,12 +76,12 @@ public class ConfiguratorFactory {
 
         // ** Post Processing ** //
 
-        PostProcessingConfiguration.Configurator<PetriNet, PetriNet> temp_ppConfig = Configurators.postProcessing();
+        PostProcessingConfiguration.Configurator<CollectionOfPlaces, CollectionOfPlaces> temp_ppConfig = Configurators.postProcessing();
         // ppConfig.processor(new UniwiredSelfLoopAdditionPostProcessing.Builder());
         // ppConfig.processor(SelfLoopPlaceMerger::new);
         temp_ppConfig.addPostProcessor(new ReplayBasedImplicitnessPostProcessing.Builder())
                      .addPostProcessor(new LPBasedImplicitnessPostProcessing.Builder());
-        PostProcessingConfiguration.Configurator<PetriNet, ProMPetrinetWrapper> ppConfig = temp_ppConfig.addPostProcessor(ProMConverter::new);
+        PostProcessingConfiguration.Configurator<CollectionOfPlaces, ProMPetrinetWrapper> ppConfig = temp_ppConfig.addPostProcessor(ProMConverter::new);
 
         // ** Parameters ** //
 

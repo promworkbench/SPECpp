@@ -8,10 +8,10 @@ import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.link.ComposerComponent;
 import org.processmining.specpp.composition.ConstrainingPlaceCollection;
 import org.processmining.specpp.composition.DeltaComposerParameters;
-import org.processmining.specpp.composition.TrackingPlaceCollection;
+import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.config.*;
 import org.processmining.specpp.config.parameters.*;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.tree.base.impls.EnumeratingTree;
@@ -72,24 +72,24 @@ public class ConfigurationController extends AbstractStageController {
 
         // ** PROPOSAL, COMPOSITION ** //
 
-        ProposerComposerConfiguration.Configurator<Place, AdvancedComposition<Place>, PetriNet> pcCfg = new ProposerComposerConfiguration.Configurator<>();
+        ProposerComposerConfiguration.Configurator<Place, AdvancedComposition<Place>, CollectionOfPlaces> pcCfg = new ProposerComposerConfiguration.Configurator<>();
         if (pc.supportRestart) pcCfg.proposer(new RestartablePlaceProposer.Builder());
         else pcCfg.proposer(new ConstrainablePlaceProposer.Builder());
         boolean compositionConstraintsRequired = pc.respectWiring || pc.compositionStrategy == ProMConfig.CompositionStrategy.Uniwired;
         boolean compositionStateRequired = pc.compositionStrategy == ProMConfig.CompositionStrategy.TauDelta;
         if (compositionStateRequired) {
             if (compositionConstraintsRequired)
-                pcCfg.nestedComposition(TrackingPlaceCollection::new, ConstrainingPlaceCollection::new);
-            else pcCfg.composition(TrackingPlaceCollection::new);
+                pcCfg.nestedComposition(StatefulPlaceComposition::new, ConstrainingPlaceCollection::new);
+            else pcCfg.composition(StatefulPlaceComposition::new);
         } else {
             if (compositionConstraintsRequired)
-                pcCfg.nestedComposition(LightweightPlaceCollection::new, ConstrainingPlaceCollection::new);
-            else pcCfg.composition(LightweightPlaceCollection::new);
+                pcCfg.nestedComposition(LightweightPlaceComposition::new, ConstrainingPlaceCollection::new);
+            else pcCfg.composition(LightweightPlaceComposition::new);
         }
         if (pc.ciprVariant != ProMConfig.CIPRVariant.None)
             pcCfg.terminalComposer(isSupervisingEvents ? EventingPlaceComposerWithCIPR::new : PlaceComposerWithCIPR::new);
         else pcCfg.terminalComposer(PlaceAccepter::new);
-        InitializingBuilder<? extends ComposerComponent<Place, AdvancedComposition<Place>, PetriNet>, ComposerComponent<Place, AdvancedComposition<Place>, PetriNet>> fitnessFilterBuilder = isSupervisingEvents ? EventingPlaceFitnessFilter::new : PlaceFitnessFilter::new;
+        InitializingBuilder<? extends ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>, ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>> fitnessFilterBuilder = isSupervisingEvents ? EventingPlaceFitnessFilter::new : PlaceFitnessFilter::new;
         switch (pc.compositionStrategy) {
             case Standard:
                 pcCfg.composerChain(fitnessFilterBuilder);
@@ -134,11 +134,11 @@ public class ConfigurationController extends AbstractStageController {
 
         // ** Post Processing ** //
 
-        PostProcessingConfiguration.Configurator configurator = new PostProcessingConfiguration.Configurator<PetriNet, PetriNet>(IdentityPostProcessor::new);
+        PostProcessingConfiguration.Configurator configurator = new PostProcessingConfiguration.Configurator<CollectionOfPlaces, CollectionOfPlaces>(IdentityPostProcessor::new);
         for (FrameworkBridge.AnnotatedPostProcessor annotatedPostProcessor : pc.ppPipeline) {
             configurator = configurator.addPostProcessor(annotatedPostProcessor.getBuilder());
         }
-        PostProcessingConfiguration.Configurator<PetriNet, ProMPetrinetWrapper> ppCfg = (PostProcessingConfiguration.Configurator<PetriNet, ProMPetrinetWrapper>) configurator;//;.processor(ProMConverter::new);
+        PostProcessingConfiguration.Configurator<CollectionOfPlaces, ProMPetrinetWrapper> ppCfg = (PostProcessingConfiguration.Configurator<CollectionOfPlaces, ProMPetrinetWrapper>) configurator;//;.processor(ProMConverter::new);
 
         // ** PARAMETERS ** //
 

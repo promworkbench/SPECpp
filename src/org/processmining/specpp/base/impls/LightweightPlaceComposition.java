@@ -10,15 +10,15 @@ import org.processmining.specpp.util.JavaTypingUtils;
 
 import java.util.Collection;
 
-public class LightweightPlaceCollection extends BasePlaceCollection {
+public class LightweightPlaceComposition extends BasePlaceComposition implements OffersImplicitness {
     protected DelegatingEvaluator<EvaluationParameterTuple2<Place, Collection<Place>>, BooleanImplicitness> calculator = new DelegatingEvaluator<>();
 
-    public LightweightPlaceCollection() {
+    public LightweightPlaceComposition() {
         globalComponentSystem().require(EvaluationRequirements.evaluator(JavaTypingUtils.castClass(EvaluationParameterTuple2.class), BooleanImplicitness.class), calculator);
         localComponentSystem().provide(EvaluationRequirements.PLACE_IMPLICITNESS.fulfilWith(this::rateImplicitness));
     }
 
-    private ImplicitnessRating rateImplicitness(Place place) {
+    public ImplicitnessRating rateImplicitness(Place place) {
         return calculator.eval(new EvaluationParameterTuple2<>(place, candidates));
     }
 

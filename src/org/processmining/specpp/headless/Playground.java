@@ -5,10 +5,10 @@ import org.processmining.specpp.base.impls.SPECpp;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.DataSource;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
-import org.processmining.specpp.composition.TrackingPlaceCollection;
+import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.config.SimpleBuilder;
 import org.processmining.specpp.datastructures.log.Log;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
@@ -34,7 +34,7 @@ public class Playground {
 
 
     public static void play(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource) {
-        SPECpp<Place, TrackingPlaceCollection, PetriNet, ProMPetrinetWrapper> specPP = SPECppOperations.configureAndExecute(configBundleSource, inputDataBundleSource, true);
+        SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specPP = SPECppOperations.configureAndExecute(configBundleSource, inputDataBundleSource, true);
 
         System.out.println("// ========================================= //");
         System.out.println("POST EXECUTION");
@@ -88,15 +88,15 @@ public class Playground {
         System.out.println(fullBasicFitnessEvaluator.eval(p1));
         System.out.println(fullBasicFitnessEvaluator.eval(p2));
 
-        SimpleBuilder<TrackingPlaceCollection> createComposition = cr.dataSources()
-                                                                     .askForData(DataRequirements.<Place, TrackingPlaceCollection, PetriNet>proposerComposerConfiguration())::createComposition;
-        TrackingPlaceCollection comp1 = createComposition.get();
+        SimpleBuilder<StatefulPlaceComposition> createComposition = cr.dataSources()
+                                                                      .askForData(DataRequirements.<Place, StatefulPlaceComposition, CollectionOfPlaces>proposerComposerConfiguration())::createComposition;
+        StatefulPlaceComposition comp1 = createComposition.get();
         comp1.accept(p1);
         System.out.println(comp1.rateImplicitness(p2));
         comp1.accept(p2);
         System.out.println(comp1);
 
-        TrackingPlaceCollection comp2 = createComposition.get();
+        StatefulPlaceComposition comp2 = createComposition.get();
         comp2.accept(p2);
         System.out.println(comp2.rateImplicitness(p1));
         comp2.accept(p1);

@@ -16,13 +16,13 @@ import java.util.Set;
 
 public class ProMPetrinetBuilder {
 
-    private final PetriNet petriNet;
+    private final CollectionOfPlaces collectionOfPlaces;
     private final Map<org.processmining.specpp.datastructures.petri.Transition, Transition> transitionMap;
     private final Map<Place, org.processmining.models.graphbased.directed.petrinet.elements.Place> placeMap;
     private final Petrinet net;
 
-    public ProMPetrinetBuilder(PetriNet petriNet) {
-        this.petriNet = petriNet;
+    public ProMPetrinetBuilder(CollectionOfPlaces collectionOfPlaces) {
+        this.collectionOfPlaces = collectionOfPlaces;
         transitionMap = new HashMap<>();
         placeMap = new HashMap<>();
         net = PetrinetFactory.newPetrinet("Model");
@@ -43,7 +43,7 @@ public class ProMPetrinetBuilder {
         uniqueEndPlace.getAttributeMap().put(AttributeMap.SHOWLABEL, "true");
         Marking initialMarking = new Marking(ImmutableSet.of(uniqueStartPlace)), finalMarking = new Marking(ImmutableSet.of(uniqueEndPlace));
         Set<org.processmining.specpp.datastructures.petri.Transition> hasStartConnection = new HashSet<>(), hasEndConnection = new HashSet<>();
-        for (Place p : petriNet.getPlaces()) {
+        for (Place p : collectionOfPlaces.getPlaces()) {
             org.processmining.models.graphbased.directed.petrinet.elements.Place correspondingPlace = net.addPlace(p.toString());
             for (org.processmining.specpp.datastructures.petri.Transition t : p.preset()) {
                 if (t instanceof Initial && !hasStartConnection.contains(t)) {

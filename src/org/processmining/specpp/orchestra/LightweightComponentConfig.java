@@ -4,12 +4,12 @@ import org.processmining.specpp.base.AdvancedComposition;
 import org.processmining.specpp.base.impls.PlaceComposerWithCIPR;
 import org.processmining.specpp.base.impls.PlaceFitnessFilter;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
-import org.processmining.specpp.composition.TrackingPlaceCollection;
+import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.config.Configurators;
 import org.processmining.specpp.config.EfficientTreeConfiguration;
 import org.processmining.specpp.config.ProposerComposerConfiguration;
 import org.processmining.specpp.config.SupervisionConfiguration;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.tree.base.impls.EnumeratingTree;
 import org.processmining.specpp.datastructures.tree.base.impls.VariableExpansion;
@@ -33,10 +33,10 @@ public class LightweightComponentConfig extends BaseSPECppComponentConfig {
     }
 
     @Override
-    public ProposerComposerConfiguration<Place, AdvancedComposition<Place>, PetriNet> getProposerComposerConfiguration(GlobalComponentRepository gcr) {
-        return Configurators.<Place, AdvancedComposition<Place>, PetriNet>proposerComposer()
+    public ProposerComposerConfiguration<Place, AdvancedComposition<Place>, CollectionOfPlaces> getProposerComposerConfiguration(GlobalComponentRepository gcr) {
+        return Configurators.<Place, AdvancedComposition<Place>, CollectionOfPlaces>proposerComposer()
                             .proposer(new ConstrainablePlaceProposer.Builder())
-                            .composition(TrackingPlaceCollection::new)
+                            .composition(StatefulPlaceComposition::new)
                             .composer(PlaceComposerWithCIPR::new)
                             .composerChain(PlaceFitnessFilter::new)
                             .build(gcr);

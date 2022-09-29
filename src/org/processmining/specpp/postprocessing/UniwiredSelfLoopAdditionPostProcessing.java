@@ -9,7 +9,7 @@ import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.system.ComponentSystemAwareBuilder;
 import org.processmining.specpp.config.parameters.TauFitnessThresholds;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.Transition;
 import org.processmining.specpp.datastructures.tree.base.HeuristicStrategy;
@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class UniwiredSelfLoopAdditionPostProcessing implements PetriNetPostProcessor {
+public class UniwiredSelfLoopAdditionPostProcessing implements CollectionOfPlacesPostProcessor {
 
     private final Evaluator<Place, BasicFitnessEvaluation> fitnessEvaluator;
     private final HeuristicStrategy<Place, CandidateScore> candidateScorer;
@@ -62,7 +62,7 @@ public class UniwiredSelfLoopAdditionPostProcessing implements PetriNetPostProce
 
 
     @Override
-    public PetriNet postProcess(PetriNet result) {
+    public CollectionOfPlaces postProcess(CollectionOfPlaces result) {
         WiringMatrix theWired = new WiringMatrix(transitionIntEncodings);
         result.getPlaces().forEach(theWired::wire);
 
@@ -82,7 +82,7 @@ public class UniwiredSelfLoopAdditionPostProcessing implements PetriNetPostProce
             }
         }
 
-        return new PetriNet(extended);
+        return new CollectionOfPlaces(extended);
     }
 
     private static Place extendWithSelfLoop(Place input, Transition transition) {

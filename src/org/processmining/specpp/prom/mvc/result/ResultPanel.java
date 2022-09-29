@@ -3,7 +3,7 @@ package org.processmining.specpp.prom.mvc.result;
 import com.fluxicon.slickerbox.components.SlickerTabbedPane;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 import org.processmining.specpp.base.Result;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.prom.mvc.AbstractStagePanel;
 import org.processmining.specpp.prom.mvc.error.MessagePanel;
@@ -29,8 +29,8 @@ public class ResultPanel extends AbstractStagePanel<ResultController> {
         for (int i = 0; i < intermediatePostProcessingResults.size(); i++) {
             Result r = intermediatePostProcessingResults.get(i);
             JComponent comp;
-            if (r instanceof PetriNet) {
-                comp = new PetriNetResultPanel(((PetriNet) r), controller.getFitnessEvaluator(), controller.getVariantFrequencies(), i == 0);
+            if (r instanceof CollectionOfPlaces) {
+                comp = new PetriNetResultPanel(((CollectionOfPlaces) r), controller.getFitnessEvaluator(), controller.getVariantFrequencies(), i == 0);
             } else if (r instanceof ProMPetrinetWrapper) {
                 comp = new ProMPetrinetResultPanel((ProMPetrinetWrapper) r);
             } else {

@@ -1,6 +1,6 @@
 package org.processmining.specpp.postprocessing;
 
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 
 import java.util.HashSet;
@@ -8,9 +8,9 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 
-public class SelfLoopPlaceMerger implements PetriNetPostProcessor {
+public class SelfLoopPlaceMerger implements CollectionOfPlacesPostProcessor {
     @Override
-    public PetriNet postProcess(PetriNet input) {
+    public CollectionOfPlaces postProcess(CollectionOfPlaces input) {
         Set<Place> result = new HashSet<>();
 
         LinkedList<Place> todo = new LinkedList<>(input.getPlaces());
@@ -28,7 +28,7 @@ public class SelfLoopPlaceMerger implements PetriNetPostProcessor {
         }
         if (!todo.isEmpty()) result.add(todo.remove());
 
-        return new PetriNet(result);
+        return new CollectionOfPlaces(result);
     }
 
 }

@@ -8,19 +8,19 @@ import org.processmining.specpp.composition.events.CandidateAcceptanceRevoked;
 import org.processmining.specpp.composition.events.CandidateAccepted;
 import org.processmining.specpp.composition.events.CandidateCompositionEvent;
 import org.processmining.specpp.composition.events.CandidateRejected;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.evaluation.implicitness.*;
 import org.processmining.specpp.supervision.EventSupervision;
 import org.processmining.specpp.supervision.piping.PipeWorks;
 import org.processmining.specpp.util.JavaTypingUtils;
 
-public class PlaceComposerWithCIPR<I extends AdvancedComposition<Place>> extends AbstractComposer<Place, I, PetriNet> {
+public class PlaceComposerWithCIPR<I extends AdvancedComposition<Place>> extends AbstractComposer<Place, I, CollectionOfPlaces> {
     protected final DelegatingEvaluator<Place, ImplicitnessRating> implicitnessEvaluator = new DelegatingEvaluator<>(p -> BooleanImplicitness.NOT_IMPLICIT);
     private final EventSupervision<CandidateCompositionEvent<Place>> compositionEventSupervision = PipeWorks.eventSupervision();
 
     public PlaceComposerWithCIPR(I composition) {
-        super(composition, c -> new PetriNet(c.toList()));
+        super(composition, c -> new CollectionOfPlaces(c.toList()));
         globalComponentSystem()
                 .provide(SupervisionRequirements.observable("composer.events", JavaTypingUtils.castClass(CandidateCompositionEvent.class), compositionEventSupervision));
         localComponentSystem()

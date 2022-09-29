@@ -6,10 +6,10 @@ import org.processmining.specpp.base.Result;
 
 import java.util.Collection;
 
-public class PetriNet implements Result {
+public class CollectionOfPlaces implements Result {
     private final ImmutableCollection<Place> places;
 
-    public PetriNet(Collection<Place> places) {
+    public CollectionOfPlaces(Collection<Place> places) {
         this.places = ImmutableList.copyOf(places);
     }
 
@@ -19,7 +19,7 @@ public class PetriNet implements Result {
 
     @Override
     public String toString() {
-        return "PetriNet{" + "places=" + places + '}';
+        return "CollectionOfPlaces{" + places + '}';
     }
 
     public int size() {

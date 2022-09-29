@@ -5,7 +5,7 @@ import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
 import org.processmining.specpp.componenting.system.ComponentSystemAwareBuilder;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.Transition;
 import org.processmining.specpp.datastructures.util.Tuple2;
@@ -14,7 +14,7 @@ import org.processmining.specpp.evaluation.implicitness.LPBasedImplicitnessCalcu
 import java.util.ArrayList;
 import java.util.List;
 
-public class LPBasedImplicitnessPostProcessing implements PetriNetPostProcessor {
+public class LPBasedImplicitnessPostProcessing implements CollectionOfPlacesPostProcessor {
 
     public static class Builder extends ComponentSystemAwareBuilder<LPBasedImplicitnessPostProcessing> {
 
@@ -37,10 +37,10 @@ public class LPBasedImplicitnessPostProcessing implements PetriNetPostProcessor 
     }
 
     @Override
-    public PetriNet postProcess(PetriNet petriNet) {
+    public CollectionOfPlaces postProcess(CollectionOfPlaces collectionOfPlaces) {
         //compute all the stuff needed for the LPP
 
-        List<Place> places = new ArrayList<>(petriNet.getPlaces());
+        List<Place> places = new ArrayList<>(collectionOfPlaces.getPlaces());
         List<Place> survivors = new ArrayList<>();
 
         Tuple2<List<BitMask>, List<int[]>> matrices = calculator.computeIncidenceMatrices(places);
@@ -70,7 +70,7 @@ public class LPBasedImplicitnessPostProcessing implements PetriNetPostProcessor 
             }
         }
 
-        return new PetriNet(survivors);
+        return new CollectionOfPlaces(survivors);
     }
 
 

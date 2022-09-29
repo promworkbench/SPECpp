@@ -16,14 +16,18 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.specpp.base.Result;
+import org.processmining.specpp.traits.Copyable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class ProMPetrinetWrapper implements Result, Petrinet, AcceptingPetriNet {
+public class ProMPetrinetWrapper implements Result, Petrinet, AcceptingPetriNet, Copyable<ProMPetrinetWrapper> {
 
     private AcceptingPetriNet apn;
     private Petrinet net;
@@ -37,8 +41,8 @@ public class ProMPetrinetWrapper implements Result, Petrinet, AcceptingPetriNet 
         finalMarkings = apn.getFinalMarkings();
     }
 
-    public static ProMPetrinetWrapper of(PetriNet myPetriNet) {
-        return new ProMPetrinetWrapper(new ProMPetrinetBuilder(myPetriNet).build());
+    public static ProMPetrinetWrapper of(CollectionOfPlaces myCollectionOfPlaces) {
+        return new ProMPetrinetWrapper(new ProMPetrinetBuilder(myCollectionOfPlaces).build());
     }
 
     public static ProMPetrinetWrapper of(Petrinet net, Marking initialMarking, Set<Marking> finalMarkings) {
@@ -243,6 +247,37 @@ public class ProMPetrinetWrapper implements Result, Petrinet, AcceptingPetriNet 
 
     public int compareTo(DirectedGraph<PetrinetNode, PetrinetEdge<? extends PetrinetNode, ? extends PetrinetNode>> o) {
         return net.compareTo(o);
+    }
+
+    public ProMPetrinetWrapper copy() {
+        AcceptingPetriNet apn = AcceptingPetriNetFactory.createAcceptingPetriNet();
+        Petrinet newNet = apn.getNet();
+        Map<Transition, Transition> transMap = new HashMap<>();
+        Map<Place, Place> placeMap = new HashMap<>();
+        for (Transition t : getTransitions()) {
+            transMap.put(t, newNet.addTransition(t.getLabel()));
+        }
+        for (Place place : getPlaces()) {
+            Place newPlace = newNet.addPlace(place.getLabel());
+            placeMap.put(place, newPlace);
+            getInEdges(place).stream()
+                             .map(e -> (Transition) e.getSource())
+                             .forEach(t -> newNet.addArc(transMap.get(t), newPlace));
+            getOutEdges(place).stream()
+                              .map(e -> (Transition) e.getTarget())
+                              .forEach(t -> newNet.addArc(newPlace, transMap.get(t)));
+        }
+        apn.setInitialMarking(mapMarking(getInitialMarking(), placeMap));
+        apn.setFinalMarkings(getFinalMarkings().stream()
+                                               .map(m -> mapMarking(m, placeMap))
+                                               .collect(Collectors.toSet()));
+        return new ProMPetrinetWrapper(apn);
+    }
+
+    private Marking mapMarking(Marking input, Map<Place, Place> map) {
+        Marking m = new Marking();
+        input.stream().map(map::get).forEach(m::add);
+        return m;
     }
 
 }

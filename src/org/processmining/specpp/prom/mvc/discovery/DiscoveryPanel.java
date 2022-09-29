@@ -3,7 +3,7 @@ package org.processmining.specpp.prom.mvc.discovery;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 import org.processmining.specpp.base.AdvancedComposition;
 import org.processmining.specpp.base.impls.SPECpp;
-import org.processmining.specpp.datastructures.petri.PetriNet;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.prom.alg.LiveEvents;
@@ -20,7 +20,7 @@ import java.awt.*;
 
 public class DiscoveryPanel extends AbstractStagePanel<DiscoveryController> {
 
-    private final SPECpp<Place, AdvancedComposition<Place>, PetriNet, ProMPetrinetWrapper> specpp;
+    private final SPECpp<Place, AdvancedComposition<Place>, CollectionOfPlaces, ProMPetrinetWrapper> specpp;
 
     public DiscoveryPanel(DiscoveryController discoveryController) {
         super(discoveryController, new BorderLayout());

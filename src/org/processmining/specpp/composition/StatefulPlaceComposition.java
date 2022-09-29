@@ -1,8 +1,9 @@
 package org.processmining.specpp.composition;
 
 import org.processmining.specpp.base.Evaluator;
-import org.processmining.specpp.base.impls.BasePlaceCollection;
-import org.processmining.specpp.base.impls.PlaceCollectionLocalInfo;
+import org.processmining.specpp.base.impls.BasePlaceComposition;
+import org.processmining.specpp.base.impls.OffersImplicitness;
+import org.processmining.specpp.base.impls.OffersPlaceCompositionState;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.data.StaticDataSource;
@@ -32,7 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class TrackingPlaceCollection extends BasePlaceCollection implements PlaceCollectionLocalInfo {
+public class StatefulPlaceComposition extends BasePlaceComposition implements OffersPlaceCompositionState, OffersImplicitness {
     public static final TaskDescription REPLAY_BASED_CONCURRENT_IMPLICITNESS = new TaskDescription("Concurrent Replay Based Implicitness");
     protected final Evaluator<Place, VariantMarkingHistories> historyMaker;
     protected final Map<Place, VariantMarkingHistories> histories;
@@ -47,7 +48,7 @@ public class TrackingPlaceCollection extends BasePlaceCollection implements Plac
 
     protected final TimeStopper timeStopper = new TimeStopper();
 
-    public TrackingPlaceCollection() {
+    public StatefulPlaceComposition() {
         histories = new HashMap<>();
         locallySupportedVariants = new HashMap<>();
         DelegatingEvaluator<Place, VariantMarkingHistories> pureEvaluator = new DelegatingEvaluator<>();
