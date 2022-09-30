@@ -6,7 +6,7 @@ import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.annotations.*;
 import org.processmining.log.utils.XUtils;
 
-@Plugin(name = "Interactive SPECpp Plugin", parameterLabels = {"Event Log", "Config"}, level = PluginLevel.NightlyBuild, quality = PluginQuality.Fair, icon = "specpp_icon.png", returnLabels = {"Interactive SPECpp"}, returnTypes = {SPECppSession.class}, help = SPECppPlugin.HELP, categories = {PluginCategory.Discovery}, keywords = {"eST", "model discovery", "interactive"})
+@Plugin(name = "Interactive SPECpp Plugin", url = "https://www.pads.rwth-aachen.de/go/id/pnbx/", parameterLabels = {"Event Log", "Config"}, level = PluginLevel.NightlyBuild, quality = PluginQuality.Fair, icon = "specpp_icon.png", returnLabels = {"Interactive SPECpp"}, returnTypes = {SPECppSession.class}, help = SPECppPlugin.HELP, categories = {PluginCategory.Discovery}, keywords = {"eST", "model discovery", "interactive"})
 public class InteractiveSPECppPlugin {
 
 
