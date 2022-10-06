@@ -21,4 +21,9 @@ public class ReplayComputationParameters implements Parameters {
     public boolean isClipMarkingAtZero() {
         return clipMarkingAtZero;
     }
+
+    @Override
+    public String toString() {
+        return "ReplayComputationParameters{" + "clipMarkingAtZero=" + clipMarkingAtZero + '}';
+    }
 }

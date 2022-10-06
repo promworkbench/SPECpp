@@ -35,8 +35,9 @@ import java.util.stream.Stream;
 
 public class SPECppOperations {
 
-    public static List<SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper>> configureAndExecuteMultiple(DataSource<InputDataBundle> inputDataBundleSource, List<ProvidesParameters> parametersList, boolean doInParallel) {
-        Stream<ProvidesParameters> stream = parametersList.stream();
+    @Deprecated
+    public static List<SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper>> configureAndExecuteMultiple(DataSource<InputDataBundle> inputDataBundleSource, List<? extends ProvidesParameters> parametersList, boolean doInParallel) {
+        Stream<? extends ProvidesParameters> stream = parametersList.stream();
         if (doInParallel) stream = stream.parallel();
         LocalDateTime start = LocalDateTime.now();
         System.out.println("# Commencing " + parametersList.size() + " Multi SpecOps" + (doInParallel ? " in parallel" : "") + " @" + start);
@@ -64,11 +65,11 @@ public class SPECppOperations {
     }
 
 
-    public static SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> configureAndExecute(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean suppressAnyOutput) {
+    public static SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> configureAndExecute(DataSource<? extends SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean suppressAnyOutput) {
         return configureAndExecute(configBundleSource, inputDataBundleSource, !suppressAnyOutput, !suppressAnyOutput, !suppressAnyOutput);
     }
 
-    public static SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> configureAndExecute(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean allowPrinting, boolean allowVisualOutput, boolean allowSaving) {
+    public static SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> configureAndExecute(DataSource<? extends SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean allowPrinting, boolean allowVisualOutput, boolean allowSaving) {
         SPECppConfigBundle configBundle = configBundleSource.getData();
         InputDataBundle inputDataBundle = inputDataBundleSource.getData();
 

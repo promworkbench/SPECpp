@@ -6,6 +6,7 @@ import org.processmining.specpp.evaluation.fitness.AbstractBasicFitnessEvaluator
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SupervisionParameters implements Parameters {
 
@@ -75,6 +76,6 @@ public class SupervisionParameters implements Parameters {
 
     @Override
     public String toString() {
-        return "SupervisionParameters{" + "useConsole=" + useConsole + ", useFiles=" + useFiles + ", classesToInstrument=" + classesToInstrument + '}';
+        return "SupervisionParameters{" + "useConsole=" + useConsole + ", useFiles=" + useFiles + ", classesToInstrument=" + classesToInstrument.stream().map(Class::getSimpleName).collect(Collectors.toList()) + '}';
     }
 }

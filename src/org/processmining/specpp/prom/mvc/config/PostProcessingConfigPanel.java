@@ -4,6 +4,8 @@ import com.fluxicon.slickerbox.factory.SlickerFactory;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.util.ui.widgets.ProMList;
 import org.processmining.framework.util.ui.widgets.ProMTable;
+import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
+import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.prom.alg.FrameworkBridge;
 import org.processmining.specpp.prom.alg.ProMPostProcessor;
 import org.processmining.specpp.prom.mvc.swing.HorizontalJPanel;
@@ -47,8 +49,8 @@ public class PostProcessingConfigPanel extends JPanel {
         JList<FrameworkBridge.AnnotatedPostProcessor> outList = new JList<>(availablePostProcessorsListModel);
         ProMTable proMTable = SwingFactory.proMTable(tableModel);
         proMTable.setColumnSelectionAllowed(false);
-        proMTable.getColumnModel().getColumn(0).setMaxWidth(150);
-        proMTable.getColumnModel().getColumn(1).setMaxWidth(150);
+        proMTable.getColumnModel().getColumn(0).setMaxWidth(175);
+        proMTable.getColumnModel().getColumn(1).setMaxWidth(175);
         proMTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         proMTable.getTable().setTransferHandler(new TransferHandler() {
             @Override
@@ -233,10 +235,10 @@ public class PostProcessingConfigPanel extends JPanel {
 
             private void updateValidationStatus() {
                 if (ConfigurationPanel.validatePostProcessingPipeline(ppPipelineModel)) {
-                    ppTypesOkay.setText("input, intermediate & output types match \"[PetriNet => ProMPetrinetWrapper]\"");
+                    ppTypesOkay.setText(String.format("input, intermediate & output types match [%s => %s]", CollectionOfPlaces.class.getSimpleName(), ProMPetrinetWrapper.class.getSimpleName()));
                     ppTypesOkay.setIcon(Iconic.checkmark);
                 } else {
-                    ppTypesOkay.setText("input & output types are incompatible \"[PetriNet =/> ProMPetrinetWrapper]\"");
+                    ppTypesOkay.setText(String.format("input & output types are incompatible [%s => %s]", CollectionOfPlaces.class.getSimpleName(), ProMPetrinetWrapper.class.getSimpleName()));
                     ppTypesOkay.setIcon(Iconic.red_cross);
                 }
             }

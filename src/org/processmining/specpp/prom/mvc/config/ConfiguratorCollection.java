@@ -3,6 +3,7 @@ package org.processmining.specpp.prom.mvc.config;
 import org.processmining.specpp.base.AdvancedComposition;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
+import org.processmining.specpp.componenting.traits.ProvidesParameters;
 import org.processmining.specpp.config.EfficientTreeConfiguration;
 import org.processmining.specpp.config.PostProcessingConfiguration;
 import org.processmining.specpp.config.ProposerComposerConfiguration;
@@ -86,4 +87,9 @@ public class ConfiguratorCollection implements SPECppConfigBundle, SPECppCompone
         registerConfigurations(cr);
         registerAlgorithmParameters(cr);
     }
+
+    public ConfiguratorCollection reparameterize(ParameterProvider newParProv) {
+        return new ConfiguratorCollection(svCfg, pcCfg, evCfg, etCfg, ppCfg, newParProv);
+    }
+
 }

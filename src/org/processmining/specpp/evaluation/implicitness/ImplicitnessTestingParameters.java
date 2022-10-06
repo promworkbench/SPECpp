@@ -32,4 +32,11 @@ public class ImplicitnessTestingParameters implements Parameters {
         None, FittingOnAcceptedPlacesAndEvaluatedPlace, MerelyFittingOnEvaluatedPair
     }
 
+    @Override
+    public String toString() {
+        return "ImplicitnessTestingParameters{" +
+                "subLogRestriction=" + subLogRestriction +
+                ", version=" + version +
+                '}';
+    }
 }

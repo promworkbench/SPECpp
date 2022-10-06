@@ -2,7 +2,9 @@ package org.processmining.specpp.prom.plugins;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
+import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.connections.ConnectionManager;
+import org.processmining.framework.plugin.annotations.*;
 import org.processmining.models.connections.petrinets.behavioral.FinalMarkingConnection;
 import org.processmining.models.connections.petrinets.behavioral.InitialMarkingConnection;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;

@@ -39,7 +39,7 @@ public class FrameworkBridge {
                                                                          .map(BridgedDeltaAdaptationFunctions::getBridge)
                                                                          .collect(Collectors.toList());
 
-    public static final List<AnnotatedPostProcessor> POST_PROCESSORS = Arrays.asList(BridgedPostProcessors.ReplayBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.LPBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.SelfLoopPlacesMerging.getBridge(), BridgedPostProcessors.ProMPetrinetConversion.getBridge());
+    public static final List<AnnotatedPostProcessor> POST_PROCESSORS = Arrays.asList(BridgedPostProcessors.ReplayBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.LPBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.SelfLoopPlacesMerging.getBridge(), BridgedPostProcessors.DanglingTransitionsAddition.getBridge(), BridgedPostProcessors.ProMPetrinetConversion.getBridge());
 
     public enum BridgedHeuristics {
         PlaceInterestingness(new AnnotatedTreeHeuristic("Place Interestingness", EventuallyFollowsTreeHeuristic.Builder::new)),
