@@ -1,13 +1,13 @@
 package org.processmining.specpp.prom.mvc.config;
 
 import org.processmining.specpp.base.AdvancedComposition;
-import org.processmining.specpp.base.IdentityPostProcessor;
-import org.processmining.specpp.base.impls.*;
+import org.processmining.specpp.base.impls.IdentityPostProcessor;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.link.ComposerComponent;
 import org.processmining.specpp.composition.ConstrainingPlaceCollection;
-import org.processmining.specpp.composition.DeltaComposerParameters;
+import org.processmining.specpp.composition.LightweightPlaceComposition;
+import org.processmining.specpp.composition.composers.*;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.config.*;
 import org.processmining.specpp.config.parameters.*;

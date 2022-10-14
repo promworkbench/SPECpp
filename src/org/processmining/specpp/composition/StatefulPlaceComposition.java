@@ -1,9 +1,6 @@
 package org.processmining.specpp.composition;
 
 import org.processmining.specpp.base.Evaluator;
-import org.processmining.specpp.base.impls.BasePlaceComposition;
-import org.processmining.specpp.base.impls.OffersImplicitness;
-import org.processmining.specpp.base.impls.OffersPlaceCompositionState;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.data.StaticDataSource;

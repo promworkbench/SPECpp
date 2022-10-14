@@ -1,6 +1,7 @@
-package org.processmining.specpp.base.impls;
+package org.processmining.specpp.composition.composers;
 
 import org.processmining.specpp.base.AdvancedComposition;
+import org.processmining.specpp.base.impls.AbstractComposer;
 import org.processmining.specpp.componenting.delegators.DelegatingEvaluator;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.supervision.SupervisionRequirements;

@@ -18,6 +18,8 @@ import java.util.Objects;
 public class ResultPanel extends AbstractStagePanel<ResultController> {
 
     private final List<String> tabTitles;
+    private final ResultExportPanel resultExportPanel;
+    private final ResultEvaluationPanel resultEvaluationPanel;
 
     public ResultPanel(ResultController controller, ProMPetrinetWrapper result, List<Result> intermediatePostProcessingResults) {
         super(controller, new GridBagLayout());
@@ -47,12 +49,12 @@ public class ResultPanel extends AbstractStagePanel<ResultController> {
         }
 
         TitledBorderPanel infoPanel = new TitledBorderPanel("Final Result Info");
-        ResultEvaluationPanel resultEvaluationPanel = new ResultEvaluationPanel(controller, result);
+        resultEvaluationPanel = new ResultEvaluationPanel(controller, result);
         infoPanel.append(resultEvaluationPanel);
         infoPanel.completeWithWhitespace();
 
         TitledBorderPanel exportPanel = new TitledBorderPanel("Export Panel");
-        ResultExportPanel resultExportPanel = new ResultExportPanel(controller);
+        resultExportPanel = new ResultExportPanel(controller);
         exportPanel.append(resultExportPanel);
         exportPanel.completeWithWhitespace();
 
@@ -75,6 +77,5 @@ public class ResultPanel extends AbstractStagePanel<ResultController> {
         String last = tabTitles.get(tabTitles.size() - 1);
         tabbedPane.selectTab(last);
     }
-
 
 }

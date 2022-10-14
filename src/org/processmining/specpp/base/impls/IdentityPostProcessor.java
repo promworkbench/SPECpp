@@ -1,5 +1,7 @@
-package org.processmining.specpp.base;
+package org.processmining.specpp.base.impls;
 
+import org.processmining.specpp.base.PostProcessor;
+import org.processmining.specpp.base.Result;
 import org.processmining.specpp.util.JavaTypingUtils;
 
 public class IdentityPostProcessor<R extends Result> implements PostProcessor<R, R> {

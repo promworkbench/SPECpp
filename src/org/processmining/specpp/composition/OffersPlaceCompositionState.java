@@ -1,4 +1,4 @@
-package org.processmining.specpp.base.impls;
+package org.processmining.specpp.composition;
 
 import org.processmining.specpp.datastructures.encoding.BitMask;
 

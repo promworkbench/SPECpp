@@ -1,6 +1,6 @@
 package org.processmining.specpp.componenting.data;
 
-import org.processmining.specpp.composition.DeltaComposerParameters;
+import org.processmining.specpp.composition.composers.DeltaComposerParameters;
 import org.processmining.specpp.config.ExternalInitializationParameters;
 import org.processmining.specpp.config.parameters.*;
 import org.processmining.specpp.evaluation.fitness.ReplayComputationParameters;

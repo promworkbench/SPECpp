@@ -4,7 +4,9 @@ import org.processmining.specpp.prom.util.Iconic;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class StageProgressionPanel extends JPanel {
 
@@ -22,6 +24,8 @@ public class StageProgressionPanel extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = 1;
         c.weighty = 1;
+        c.gridx = 0;
+        c.gridy = 0;
         c.anchor = GridBagConstraints.NORTH;
         c.fill = GridBagConstraints.NONE;
 
@@ -40,7 +44,7 @@ public class StageProgressionPanel extends JPanel {
                 if (stage != currentStage) parentController.setPluginStage(stage);
             });
             stageButtons.add(jButton);
-            c.gridy = 0;
+            c.gridx++;
             add(jButton, c);
         }
 
@@ -49,16 +53,28 @@ public class StageProgressionPanel extends JPanel {
     private void highlighted(JButton button) {
         button.setIcon(Iconic.chevron_pink);
         button.setEnabled(true);
+        updateUnderline(button, true);
     }
 
     private void unlocked(JButton button) {
         button.setIcon(Iconic.chevron_blue);
         button.setEnabled(true);
+        updateUnderline(button, false);
     }
 
     private void locked(JButton button) {
         button.setIcon(Iconic.chevron_white);
         button.setEnabled(false);
+        updateUnderline(button, false);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void updateUnderline(JButton button, boolean on) {
+        Font buttonFont = button.getFont();
+        Map map = buttonFont.getAttributes();
+        if (on) map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+        else map.put(TextAttribute.UNDERLINE, null);
+        button.setFont(buttonFont.deriveFont(map));
     }
 
     public void updateCurrentStage(SPECppController.PluginStage stage) {

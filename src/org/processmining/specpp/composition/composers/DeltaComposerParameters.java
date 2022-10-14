@@ -1,4 +1,4 @@
-package org.processmining.specpp.composition;
+package org.processmining.specpp.composition.composers;
 
 import org.processmining.specpp.config.parameters.Parameters;
 

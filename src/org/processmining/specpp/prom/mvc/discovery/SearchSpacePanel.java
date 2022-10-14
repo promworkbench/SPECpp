@@ -40,7 +40,8 @@ public class SearchSpacePanel extends JPanel implements Destructible {
                                               .subtract(BigInteger.valueOf(1 + postSize));
         maxCandidates = possiblePlaces;
         add(SlickerFactory.instance()
-                          .createLabel("#Possible Combinations: 2^(#Preset Transitions) + 2^(#Postset Transitions) = " + combinations));
+                          .createLabel("#Possible Combinations: 2^(#Preset Transitions) * 2^(#Postset Transitions) = " + combinations));
+        // TODO calculate this properly
         add(SlickerFactory.instance()
                           .createLabel("#Candidate Places: #Possible Combinations/2^2 - 1 - #Postset Transitions = " + possiblePlaces));
         maxTreeDepth = Math.min(specpp.getGlobalComponentRepository()

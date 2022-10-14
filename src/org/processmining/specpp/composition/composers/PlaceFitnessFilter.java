@@ -1,7 +1,9 @@
-package org.processmining.specpp.base.impls;
+package org.processmining.specpp.composition.composers;
 
 import org.processmining.specpp.base.ConstrainingComposer;
 import org.processmining.specpp.base.Result;
+import org.processmining.specpp.base.impls.CandidateConstraint;
+import org.processmining.specpp.base.impls.FilteringComposer;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.data.StaticDataSource;

@@ -1,8 +1,10 @@
-package org.processmining.specpp.base.impls;
+package org.processmining.specpp.composition.composers;
 
 import org.processmining.specpp.base.AdvancedComposition;
 import org.processmining.specpp.base.Evaluator;
 import org.processmining.specpp.base.Result;
+import org.processmining.specpp.base.impls.AbstractQueueingComposer;
+import org.processmining.specpp.base.impls.CandidateConstraint;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
@@ -10,7 +12,7 @@ import org.processmining.specpp.componenting.delegators.DelegatingEvaluator;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.supervision.SupervisionRequirements;
 import org.processmining.specpp.componenting.system.link.ComposerComponent;
-import org.processmining.specpp.composition.DeltaComposerParameters;
+import org.processmining.specpp.composition.composers.DeltaComposerParameters;
 import org.processmining.specpp.config.parameters.TauFitnessThresholds;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.NonMutatingSetOperations;

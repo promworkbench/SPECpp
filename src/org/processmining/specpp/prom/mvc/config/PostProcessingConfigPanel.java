@@ -35,8 +35,9 @@ public class PostProcessingConfigPanel extends JPanel {
     private final DefaultTableModel tableModel;
     private final List<FrameworkBridge.AnnotatedPostProcessor> availablePostProcessors;
     private static final String DRAG_DROP_HELP_TEXT = "use drag & drop to add, remove and reorder the desired post processing steps";
-    private static final int width = 475;
-    private static final int height = 225;
+    private static final int TABLE_WIDTH = 500, LIST_WIDTH = 475;
+    private static final int TABLE_HEIGHT = 225;
+    private static final String HELP_BUTTON_HTML_TEXT = String.format("The left table lists all available post processing step implementations.<br>The right list contains the currently configured post processing pipeline.<br>Use drag & drop to add, remove and reorder the postprocessing steps as desired.<br>The pipeline is executed in top-to-bottom, so all in & output types need to be compatible. A type check is displayed below the list.<br>A technical note on the types \"%s\" and \"%s\": this plugin internally uses the former class for discovery and provides the latter for <it>theoretical</it> interoperability with arbitrary ProM plugins used as post processors.", CollectionOfPlaces.class.getSimpleName(), ProMPetrinetWrapper.class.getSimpleName());
 
     public PostProcessingConfigPanel(PluginContext pc, MyListModel<FrameworkBridge.AnnotatedPostProcessor> ppPipelineModel) {
         super(new GridBagLayout());
@@ -46,11 +47,13 @@ public class PostProcessingConfigPanel extends JPanel {
         tableModel = SwingFactory.readOnlyTableModel("Input", "Output", "Name");
         FrameworkBridge.POST_PROCESSORS.forEach(this::addAvailablePostProcessor);
 
-        JList<FrameworkBridge.AnnotatedPostProcessor> outList = new JList<>(availablePostProcessorsListModel);
         ProMTable proMTable = SwingFactory.proMTable(tableModel);
         proMTable.setColumnSelectionAllowed(false);
         proMTable.getColumnModel().getColumn(0).setMaxWidth(175);
+        proMTable.getColumnModel().getColumn(0).setPreferredWidth(130);
         proMTable.getColumnModel().getColumn(1).setMaxWidth(175);
+        proMTable.getColumnModel().getColumn(1).setPreferredWidth(130);
+        proMTable.getColumnModel().getColumn(2).setPreferredWidth(TABLE_WIDTH - 1130 - 130);
         proMTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         proMTable.getTable().setTransferHandler(new TransferHandler() {
             @Override
@@ -80,7 +83,7 @@ public class PostProcessingConfigPanel extends JPanel {
         proMTable.getTable().setDropMode(DropMode.INSERT);
 
         GridBagConstraints ppc = new GridBagConstraints();
-        ppc.insets = new Insets(10, 15, 10, 15);
+        ppc.insets = new Insets(10, 5, 10, 5);
         ppc.gridx = 0;
         ppc.gridy = 0;
         ppc.weightx = 1;
@@ -89,13 +92,13 @@ public class PostProcessingConfigPanel extends JPanel {
         JLabel leftHeaderLabel = SwingFactory.createHeader("Available Post Processors");
         HorizontalJPanel leftHeader = new HorizontalJPanel();
         leftHeader.add(leftHeaderLabel);
-        leftHeader.add(SwingFactory.help(null, SwingFactory.html("The left table lists all available post processing step implementations.<br>The right list contains the currently configured post processing pipeline.<br>Use drag & drop to add, remove and reorder the postprocessing steps as desired.<br>The pipeline is executed in top-to-bottom, so all in & output types need to be compatible. A type check is displayed below the list.<br>A technical note on the types \"PetriNet\" and \"ProMPetrinetWrapper\": this plugin internally uses the former class for discovery and provides the latter for <it>theoretical</it> interoperability with arbitrary ProM plugins used as post processors.")));
+        leftHeader.add(SwingFactory.help(null, SwingFactory.html(HELP_BUTTON_HTML_TEXT)));
         add(leftHeader, ppc);
         ppc.fill = GridBagConstraints.BOTH;
         ppc.weighty = 1;
         ppc.gridy++;
-        proMTable.setMaximumSize(new Dimension(width, height));
-        proMTable.setPreferredSize(new Dimension(width, height));
+        proMTable.setMaximumSize(new Dimension(TABLE_WIDTH, TABLE_HEIGHT));
+        proMTable.setPreferredSize(new Dimension(TABLE_WIDTH, TABLE_HEIGHT));
         add(proMTable, ppc);
         ppc.fill = GridBagConstraints.NONE;
         ProMList<FrameworkBridge.AnnotatedPostProcessor> proMList = new ProMList<>("Selected Post Processing Steps", ppPipelineModel);
@@ -216,8 +219,8 @@ public class PostProcessingConfigPanel extends JPanel {
         //JScrollPane inListScrollPane = new JScrollPane(inList);
         //inListScrollPane.setMaximumSize(new Dimension(500, 300));
         //inListScrollPane.setPreferredSize(new Dimension(500, 300));
-        proMList.setMaximumSize(new Dimension(width, height));
-        proMList.setPreferredSize(new Dimension(width, height));
+        proMList.setMaximumSize(new Dimension(LIST_WIDTH, TABLE_HEIGHT));
+        proMList.setPreferredSize(new Dimension(LIST_WIDTH, TABLE_HEIGHT));
         add(proMList, ppc);
         JButton importPostProcessorButton = SlickerFactory.instance().createButton("import from ProM");
         importPostProcessorButton.addActionListener(e -> ProMPostProcessor.createPluginFinderWindow(pc, this::importAnnotatedPostProcessor));

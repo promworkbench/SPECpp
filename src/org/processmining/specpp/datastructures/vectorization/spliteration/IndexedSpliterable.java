@@ -15,6 +15,10 @@ public interface IndexedSpliterable<T> {
         return StreamSupport.stream(indexedSpliterator(), parallel);
     }
 
+    default Stream<IndexedItem<T>> indexedStream() {
+        return StreamSupport.stream(indexedSpliterator(), false);
+    }
+
     Spliterator<IndexedItem<T>> indexedSpliterator(BitMask bitMask);
 
     default Stream<IndexedItem<T>> indexedStream(BitMask bitMask, boolean parallel) {

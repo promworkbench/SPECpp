@@ -1,7 +1,7 @@
 package org.processmining.specpp.config;
 
 import org.processmining.specpp.base.Candidate;
-import org.processmining.specpp.base.IdentityPostProcessor;
+import org.processmining.specpp.base.impls.IdentityPostProcessor;
 import org.processmining.specpp.base.Result;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.link.CompositionComponent;

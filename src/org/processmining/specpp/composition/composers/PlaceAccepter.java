@@ -1,6 +1,7 @@
-package org.processmining.specpp.base.impls;
+package org.processmining.specpp.composition.composers;
 
 import org.processmining.specpp.base.AdvancedComposition;
+import org.processmining.specpp.base.impls.AcceptingComposer;
 import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
 

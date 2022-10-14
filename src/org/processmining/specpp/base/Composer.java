@@ -18,4 +18,6 @@ public interface Composer<C extends Candidate, I extends Composition<C>, R exten
 
     R generateResult();
 
+    @Override
+    void accept(C c);
 }

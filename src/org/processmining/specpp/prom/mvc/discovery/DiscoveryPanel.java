@@ -26,7 +26,7 @@ public class DiscoveryPanel extends AbstractStagePanel<DiscoveryController> {
         super(discoveryController, new BorderLayout());
         specpp = discoveryController.getSpecpp();
 
-        TitledBorderPanel executionPanel = new TitledBorderPanel("Execution");
+        TitledBorderPanel executionPanel = new TitledBorderPanel("Execution Progress");
         ComputationListeningPanel<OngoingComputation> discoveryListeningPanel = new ComputationListeningPanel<>("Discovery", discoveryController.getOngoingDiscoveryComputation());
         OngoingStagedComputation ongoingPostProcessingComputation = discoveryController.getOngoingPostProcessingComputation();
         ComputationListeningPanel<OngoingStagedComputation> postProcessingListeningPanel = new StagedComputationListeningPanel<>("Post Processing", ongoingPostProcessingComputation);

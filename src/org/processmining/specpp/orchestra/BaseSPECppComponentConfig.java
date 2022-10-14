@@ -1,8 +1,8 @@
 package org.processmining.specpp.orchestra;
 
 import org.processmining.specpp.base.AdvancedComposition;
-import org.processmining.specpp.base.impls.EventingPlaceComposerWithCIPR;
-import org.processmining.specpp.base.impls.EventingPlaceFitnessFilter;
+import org.processmining.specpp.composition.composers.EventingPlaceComposerWithCIPR;
+import org.processmining.specpp.composition.composers.EventingPlaceFitnessFilter;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.StatefulPlaceComposition;

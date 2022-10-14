@@ -1,9 +1,9 @@
 package org.processmining.specpp.orchestra;
 
 import org.processmining.specpp.base.AdvancedComposition;
-import org.processmining.specpp.base.impls.PlaceAccepter;
-import org.processmining.specpp.base.impls.PlaceFitnessFilter;
-import org.processmining.specpp.base.impls.UniwiredComposer;
+import org.processmining.specpp.composition.composers.PlaceAccepter;
+import org.processmining.specpp.composition.composers.PlaceFitnessFilter;
+import org.processmining.specpp.composition.composers.UniwiredComposer;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.ConstrainingPlaceCollection;

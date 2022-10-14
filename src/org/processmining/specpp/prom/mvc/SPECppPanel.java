@@ -43,7 +43,7 @@ public class SPECppPanel extends JPanel {
             if (mainContent != null) mainContentPanel.removeAll();
             mainContent = stagePanel;
             mainContentPanel.add(mainContent, BorderLayout.CENTER);
-            revalidate();
+            mainContent.revalidate();
         });
     }
 }

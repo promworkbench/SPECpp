@@ -1,7 +1,9 @@
-package org.processmining.specpp.base.impls;
+package org.processmining.specpp.composition.composers;
 
 import org.processmining.specpp.base.AdvancedComposition;
 import org.processmining.specpp.base.Result;
+import org.processmining.specpp.base.impls.AbstractPostponingComposer;
+import org.processmining.specpp.base.impls.CandidateConstraint;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.delegators.ContainerUtils;
 import org.processmining.specpp.componenting.delegators.DelegatingDataSource;

@@ -1,6 +1,6 @@
 package org.processmining.specpp.prom.alg;
 
-import org.processmining.specpp.base.IdentityPostProcessor;
+import org.processmining.specpp.base.impls.IdentityPostProcessor;
 import org.processmining.specpp.base.PostProcessor;
 import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
 import org.processmining.specpp.config.SimpleBuilder;
@@ -39,7 +39,7 @@ public class FrameworkBridge {
                                                                          .map(BridgedDeltaAdaptationFunctions::getBridge)
                                                                          .collect(Collectors.toList());
 
-    public static final List<AnnotatedPostProcessor> POST_PROCESSORS = Arrays.asList(BridgedPostProcessors.ReplayBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.LPBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.SelfLoopPlacesMerging.getBridge(), BridgedPostProcessors.DanglingTransitionsAddition.getBridge(), BridgedPostProcessors.ProMPetrinetConversion.getBridge());
+    public static final List<AnnotatedPostProcessor> POST_PROCESSORS = Arrays.asList(BridgedPostProcessors.ReplayBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.LPBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.SelfLoopPlacesMerging.getBridge(), BridgedPostProcessors.DanglingTransitionsAddition.getBridge(), BridgedPostProcessors.PlaceTxtExport.getBridge(), BridgedPostProcessors.ProMPetrinetConversion.getBridge());
 
     public enum BridgedHeuristics {
         PlaceInterestingness(new AnnotatedTreeHeuristic("Place Interestingness", EventuallyFollowsTreeHeuristic.Builder::new)),
@@ -69,6 +69,7 @@ public class FrameworkBridge {
         SelfLoopPlacesMerging(new AnnotatedPostProcessor("Self-Loop Places Merging", CollectionOfPlaces.class, CollectionOfPlaces.class, () -> SelfLoopPlaceMerger::new)),
         UniwiredSelfLoopAddition(new AnnotatedPostProcessor("Uniwired Self-Loop Addition", CollectionOfPlaces.class, CollectionOfPlaces.class, UniwiredSelfLoopAdditionPostProcessing.Builder::new)),
         DanglingTransitionsAddition(new AnnotatedPostProcessor("Dangling Transitions Addition", ProMPetrinetWrapper.class, ProMPetrinetWrapper.class, AddDanglingTransitionPostProcessing.Builder::new)),
+        PlaceTxtExport(new AnnotatedPostProcessor("Basic txt based Place Export", CollectionOfPlaces.class, CollectionOfPlaces.class, PlaceExporter.Builder::new)),
         ProMPetrinetConversion(new AnnotatedPostProcessor("Conversion to ProM Petri net", CollectionOfPlaces.class, ProMPetrinetWrapper.class, () -> ProMConverter::new));
         private final AnnotatedPostProcessor bpp;
 

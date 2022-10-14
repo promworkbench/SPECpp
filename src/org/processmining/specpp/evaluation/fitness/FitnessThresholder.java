@@ -8,6 +8,10 @@ public class FitnessThresholder {
         return evaluation.getFittingFraction() >= thresholds.getFittingThreshold();
     }
 
+    public static boolean isTauFitting(double fitness, TauFitnessThresholds thresholds) {
+        return fitness >= thresholds.getFittingThreshold();
+    }
+
     public static boolean isUnderfed(BasicFitnessEvaluation evaluation, TauFitnessThresholds thresholds) {
         return evaluation.getUnderfedFraction() > thresholds.getUnderfedThreshold();
     }

@@ -1,8 +1,8 @@
 package org.processmining.specpp.headless;
 
 import org.processmining.specpp.base.AdvancedComposition;
-import org.processmining.specpp.base.impls.PlaceComposerWithCIPR;
-import org.processmining.specpp.base.impls.PlaceFitnessFilter;
+import org.processmining.specpp.composition.composers.PlaceComposerWithCIPR;
+import org.processmining.specpp.composition.composers.PlaceFitnessFilter;
 import org.processmining.specpp.componenting.data.DataSource;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
@@ -37,7 +37,7 @@ import org.processmining.specpp.supervision.supervisors.BaseSupervisor;
 import org.processmining.specpp.supervision.supervisors.EventCountsSupervisor;
 import org.processmining.specpp.supervision.supervisors.PerformanceSupervisor;
 import org.processmining.specpp.supervision.supervisors.TerminalSupervisor;
-import org.processmining.specpp.util.PrivatePaths;
+import org.processmining.specpp.util.PublicPaths;
 
 public class CodeDefinedConfiguration {
 
@@ -103,7 +103,7 @@ public class CodeDefinedConfiguration {
 
         DataSource<ConfiguratorCollection> confSource = () -> new ConfiguratorCollection(svConfig, pcConfig, evConfig, htConfig, ppConfig, parProv);
 
-        String path = PrivatePaths.toAbsolutePath(PrivatePaths.WILWILLES_REDUCED_NO_PARALELLISM);
+        String path = PublicPaths.SAMPLE_EVENTLOG_2;
         PreProcessingParameters prePar = PreProcessingParameters.getDefault();
         DataSource<InputDataBundle> dataSource = InputData.loadData(path, prePar);
         SPECppOperations.configureAndExecute(confSource, dataSource, false);
