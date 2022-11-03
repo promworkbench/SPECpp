@@ -7,8 +7,8 @@ import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.link.ComposerComponent;
 import org.processmining.specpp.composition.ConstrainingPlaceCollection;
 import org.processmining.specpp.composition.LightweightPlaceComposition;
-import org.processmining.specpp.composition.composers.*;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
+import org.processmining.specpp.composition.composers.*;
 import org.processmining.specpp.config.*;
 import org.processmining.specpp.config.parameters.*;
 import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
@@ -106,13 +106,12 @@ public class ConfigurationController extends AbstractStageController {
         EvaluatorConfiguration.Configurator evCfg = new EvaluatorConfiguration.Configurator();
         evCfg.addEvaluatorProvider(LogHistoryMaker::new);
         evCfg.addEvaluatorProvider(new LPBasedImplicitnessCalculator.Builder());
+        evCfg.addEvaluatorProvider(new DirectlyFollowsHeuristic.Builder());
         evCfg.addEvaluatorProvider(pc.concurrentReplay ? FrameworkBridge.BridgedEvaluators.ForkJoinFitness.getBridge()
                                                                                                           .getBuilder() : FrameworkBridge.BridgedEvaluators.BaseFitness.getBridge()
                                                                                                                                                                        .getBuilder());
         if (pc.compositionStrategy == ProMConfig.CompositionStrategy.TauDelta)
             evCfg.addEvaluatorProvider(pc.deltaAdaptationFunction.getBuilder());
-        else if (pc.compositionStrategy == ProMConfig.CompositionStrategy.Uniwired)
-            evCfg.addEvaluatorProvider(new DirectlyFollowsHeuristic.Builder());
 
         EfficientTreeConfiguration.Configurator<Place, PlaceState, PlaceNode> etCfg;
         if (pc.treeExpansionSetting == ProMConfig.TreeExpansionSetting.Heuristic) {
@@ -128,7 +127,7 @@ public class ConfigurationController extends AbstractStageController {
         } else {
             etCfg = new EfficientTreeConfiguration.Configurator<>();
             etCfg.tree(isSupervisingEvents ? EventingEnumeratingTree::new : EnumeratingTree::new);
-            etCfg.expansionStrategy(pc.treeExpansionSetting == ProMConfig.TreeExpansionSetting.BFS ? VariableExpansion::bfs : VariableExpansion::dfs);
+            etCfg.expansionStrategy(pc.treeExpansionSetting == ProMConfig.TreeExpansionSetting.BFS ? () -> VariableExpansion.<PlaceNode>bfs() : () -> VariableExpansion.<PlaceNode>dfs());
             etCfg.childGenerationLogic(new MonotonousPlaceGenerationLogic.Builder());
         }
 

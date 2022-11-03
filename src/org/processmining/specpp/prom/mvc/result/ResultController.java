@@ -1,13 +1,20 @@
 package org.processmining.specpp.prom.mvc.result;
 
 import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.extension.std.XConceptExtension;
+import org.deckfour.xes.factory.XFactoryNaiveImpl;
+import org.deckfour.xes.model.XAttributeMap;
+import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
+import org.deckfour.xes.model.XTrace;
+import org.processmining.log.utils.XUtils;
 import org.processmining.specpp.base.Evaluator;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.datastructures.log.Log;
+import org.processmining.specpp.datastructures.log.impls.Factory;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
@@ -32,6 +39,7 @@ public class ResultController extends AbstractStageController {
     private final Evaluator<Place, VariantMarkingHistories> logHistoryMaker;
     private final Log log;
     private final XLog rawLog;
+    private XLog evalLog;
     private IntVector variantFrequencies;
 
     public ResultController(SPECppController parentController) {
@@ -84,6 +92,27 @@ public class ResultController extends AbstractStageController {
 
     public XLog getRawLog() {
         return rawLog;
+    }
+
+    public XLog getEvalLog() {
+        if (evalLog == null)
+            if (parentController.getPreProcessingParameters() != null && parentController.getPreProcessingParameters()
+                                                                                         .isAddStartEndTransitions()) {
+                XFactoryNaiveImpl xFactorY = new XFactoryNaiveImpl();
+                XAttributeMap attributeMap = xFactorY.createAttributeMap();
+                attributeMap.put("concept:name", xFactorY.createAttributeLiteral("concept:name", Factory.UNIQUE_START_LABEL, XConceptExtension.instance()));
+                XEvent startEvent = xFactorY.createEvent(attributeMap);
+                attributeMap = xFactorY.createAttributeMap();
+                attributeMap.put("concept:name", xFactorY.createAttributeLiteral("concept:name", Factory.UNIQUE_END_LABEL, XConceptExtension.instance()));
+                XEvent endEvent = xFactorY.createEvent(attributeMap);
+                XLog copiedLog = XUtils.cloneLogWithoutGlobalsAndClassifiers(getRawLog());
+                for (XTrace trace : copiedLog) {
+                    trace.add(0, startEvent);
+                    trace.add(endEvent);
+                }
+                evalLog = copiedLog;
+            } else evalLog = rawLog;
+        return evalLog;
     }
 
     public IntVector getVariantFrequencies() {

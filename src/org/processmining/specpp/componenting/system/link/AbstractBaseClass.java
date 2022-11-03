@@ -9,6 +9,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * An abstract base class for any object that may want to make use of the component system.
+ * It contains the component system connection objects ({@code ComponentRepository}s).
+ * Additionally, it structures an initialization sequence for registered subcomponents, e.g. nested objects.
+ * A main aspect of that is transitive local component system requirement resolution, i.e. if a nested subcomponent provides something that this class requires, it will be matched.
+ */
 public abstract class AbstractBaseClass implements FullComponentSystemUser {
 
     private final LocalComponentRepository lcr = new LocalComponentRepository();
@@ -48,7 +54,9 @@ public abstract class AbstractBaseClass implements FullComponentSystemUser {
         return collect;
     }
 
-
+    /**
+     * Structures the initialization of subcomponents and calls the hook for self initialization {@code initSelf()}.
+     */
     @Override
     public final void init() {
         preSubComponentInit();
@@ -65,6 +73,11 @@ public abstract class AbstractBaseClass implements FullComponentSystemUser {
     protected void preSubComponentInit() {
     }
 
+    /**
+     * Hook for subclasses to initialize themselves after the initial constructor call.
+     * At the time this is called, all fulfillable local & global component system requests will be fulfilled.
+     * Unless advanced interaction with the underlying systems is required, this is the only relevant hook for user-defined subclasses.
+     */
     protected abstract void initSelf();
 
 

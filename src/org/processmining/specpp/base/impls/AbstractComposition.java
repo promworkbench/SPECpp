@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+/**
+ * The abstract base class for compositions.
+ * @param <C> candidate type
+ * @param <K> type of the internally managed collection
+ */
 public abstract class AbstractComposition<C extends Candidate, K extends Collection<C>> extends AbstractBaseClass implements CompositionComponent<C>, ProperlyPrintable {
 
     protected final K candidates;

@@ -1,6 +1,7 @@
 package org.processmining.specpp.prom.mvc.discovery;
 
 import com.google.common.collect.ImmutableMap;
+import org.processmining.framework.util.ui.widgets.ProMScrollPane;
 import org.processmining.framework.util.ui.widgets.ProMTable;
 import org.processmining.specpp.composition.events.CandidateAcceptanceRevoked;
 import org.processmining.specpp.composition.events.CandidateAccepted;
@@ -66,6 +67,8 @@ public class EventTable extends JPanel implements Destructible, Observer<Computa
         };
         ProMTable table = SwingFactory.proMTable(model);
         table.setAutoCreateRowSorter(true);
+        ProMScrollPane pane = (ProMScrollPane) table.getComponent(1);
+        pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         add(table, BorderLayout.CENTER);
 
         if (liveEvents != null) {
@@ -96,7 +99,7 @@ public class EventTable extends JPanel implements Destructible, Observer<Computa
 
     @Override
     public void observe(ComputationEvent event) {
-        if (event instanceof ComputationEnded) updateTimer.stop();
+        if (event instanceof ComputationEnded && updateTimer != null) updateTimer.stop();
     }
 
 }

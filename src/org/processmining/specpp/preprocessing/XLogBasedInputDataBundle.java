@@ -31,6 +31,7 @@ public class XLogBasedInputDataBundle implements DataSource<InputDataBundle> {
     private final Class<? extends ActivityOrderingStrategy> transitionEncodingsBuilderClass;
     private final boolean introduceStartEndTransitions;
     private final XEventClassifier eventClassifier;
+    private InputDataBundle idb;
 
     protected XLogBasedInputDataBundle(XLog xLog, PreProcessingParameters parameters) {
         this.xLog = xLog;
@@ -128,10 +129,13 @@ public class XLogBasedInputDataBundle implements DataSource<InputDataBundle> {
 
     @Override
     public InputDataBundle getData() {
-        Tuple2<Log, Map<String, Activity>> tuple = convertLog(xLog, eventClassifier, introduceStartEndTransitions);
-        Pair<Comparator<Activity>> orderings = createOrderings(tuple.getT1(), tuple.getT2(), transitionEncodingsBuilderClass);
-        Tuple2<IntEncodings<Transition>, BidiMap<Activity, Transition>> derivedTransitions = deriveTransitions(orderings, tuple.getT1(), tuple.getT2());
-        return new InputDataBundle(tuple.getT1(), derivedTransitions.getT1(), derivedTransitions.getT2());
+        if (idb == null) {
+            Tuple2<Log, Map<String, Activity>> tuple = convertLog(xLog, eventClassifier, introduceStartEndTransitions);
+            Pair<Comparator<Activity>> orderings = createOrderings(tuple.getT1(), tuple.getT2(), transitionEncodingsBuilderClass);
+            Tuple2<IntEncodings<Transition>, BidiMap<Activity, Transition>> derivedTransitions = deriveTransitions(orderings, tuple.getT1(), tuple.getT2());
+            idb = new InputDataBundle(tuple.getT1(), derivedTransitions.getT1(), derivedTransitions.getT2());
+        }
+        return idb;
     }
 
     private static class InputLoadingException extends RuntimeException {

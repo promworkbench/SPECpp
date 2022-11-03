@@ -18,7 +18,6 @@ public abstract class SubSupervisor extends SchedulingSupervisor {
         globalComponentSystem().require(BaseSupervisor.FILE_LOGGER_REQUIREMENT, fileLogger)
                                .require(BaseSupervisor.CONSOLE_LOGGER_REQUIREMENT, consoleLogger)
                                .require(ParameterRequirements.SUPERVISION_PARAMETERS, supervisionParametersSource);
-        ;
     }
 
 

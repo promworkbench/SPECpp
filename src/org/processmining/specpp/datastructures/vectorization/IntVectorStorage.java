@@ -20,6 +20,13 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * Datastructure for storing a (fixed-size) vector of (fixed-, but not necessarily equal, -sized) vectors of integers in contingent memory.
+ * Provides vector wise access, efficient mapping and comparison (e.g. ordering relation) operations.
+ * Additionally, this implementation is spliterable over the vectors with or without their index.
+ * <p>
+ * Used as a representation of encoded (activities to integers) log variants as well as variant marking histories.
+ */
 public class IntVectorStorage implements Copyable<IntVectorStorage>, Mathable<IntVectorStorage>, Mappable<IntUnaryOperator>, PartiallyOrdered<IntVectorStorage> {
 
 

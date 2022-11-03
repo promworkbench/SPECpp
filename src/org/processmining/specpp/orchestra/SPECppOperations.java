@@ -1,5 +1,6 @@
 package org.processmining.specpp.orchestra;
 
+import org.processmining.specpp.base.Result;
 import org.processmining.specpp.base.impls.SPECpp;
 import org.processmining.specpp.base.impls.SPECppBuilder;
 import org.processmining.specpp.componenting.data.DataSource;
@@ -42,8 +43,8 @@ public class SPECppOperations {
         LocalDateTime start = LocalDateTime.now();
         System.out.println("# Commencing " + parametersList.size() + " Multi SpecOps" + (doInParallel ? " in parallel" : "") + " @" + start);
         System.out.println("// ========================================= //");
-
-        List<SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper>> collect = stream.map(pp -> SPECppOperations.configureAndExecute(() -> new CustomSPECppConfigBundle(pp), inputDataBundleSource, false, true, true))
+        InputDataBundle data = inputDataBundleSource.getData();
+        List<SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper>> collect = stream.map(pp -> SPECppOperations.configureAndExecute(new CustomSPECppConfigBundle(pp), data, false, true, true))
                                                                                                                .collect(Collectors.toList());
         System.out.println("// ========================================= //");
         LocalDateTime end = LocalDateTime.now();
@@ -65,14 +66,11 @@ public class SPECppOperations {
     }
 
 
-    public static SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> configureAndExecute(DataSource<? extends SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean suppressAnyOutput) {
-        return configureAndExecute(configBundleSource, inputDataBundleSource, !suppressAnyOutput, !suppressAnyOutput, !suppressAnyOutput);
+    public static SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> configureAndExecute(SPECppConfigBundle configBundle, InputDataBundle inputDataBundle, boolean suppressAnyOutput) {
+        return configureAndExecute(configBundle, inputDataBundle, !suppressAnyOutput, !suppressAnyOutput, !suppressAnyOutput);
     }
 
-    public static SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> configureAndExecute(DataSource<? extends SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource, boolean allowPrinting, boolean allowVisualOutput, boolean allowSaving) {
-        SPECppConfigBundle configBundle = configBundleSource.getData();
-        InputDataBundle inputDataBundle = inputDataBundleSource.getData();
-
+    public static SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> configureAndExecute(SPECppConfigBundle configBundle, InputDataBundle inputDataBundle, boolean allowPrinting, boolean allowVisualOutput, boolean allowSaving) {
         preSetup(configBundle, inputDataBundle, allowPrinting);
         SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specPP = setup(configBundle, inputDataBundle);
         postSetup(specPP, allowPrinting);
@@ -84,12 +82,17 @@ public class SPECppOperations {
         return specPP;
     }
 
-    private static void postSetup(SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specPP, boolean allowPrinting) {
-        DataSourceCollection parameters = specPP.getGlobalComponentRepository().parameters();
+    public static String saveParameters(SPECpp<?,?,?,?> specpp) {
+        DataSourceCollection parameters = specpp.getGlobalComponentRepository().parameters();
         String x = parameters.toString();
         OutputPathParameters outputPathParameters = parameters.askForData(ParameterRequirements.OUTPUT_PATH_PARAMETERS);
         String filePath = outputPathParameters.getFilePath(PathTools.OutputFileType.MISC_EXPORT, "parameters", ".txt");
         FileUtils.saveString(filePath, x);
+        return x;
+    }
+
+    private static void postSetup(SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specPP, boolean allowPrinting) {
+        String x = saveParameters(specPP);
         if (allowPrinting) System.out.println(x);
     }
 
@@ -126,23 +129,42 @@ public class SPECppOperations {
         return specpp;
     }
 
-    public static void execute(SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specpp, boolean allowPrinting) {
-        if (allowPrinting) {
-            System.out.println("# Commencing SpecOps @" + LocalDateTime.now());
-            System.out.println("// ========================================= //");
-        }
+    public static <R extends Result> R execute_headless(SPECpp<?, ?, ?, R> specpp) {
+        R r = null;
         try {
             ExecutorService executorService = Executors.newCachedThreadPool();
 
             specpp.start();
 
-            CompletableFuture<ProMPetrinetWrapper> future = specpp.future(executorService);
+            CompletableFuture<R> future = specpp.future(executorService);
+
+            r = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        } finally {
+            specpp.stop();
+        }
+        return r;
+    }
+
+    public static <R extends Result> R execute(SPECpp<?, ?, ?, R> specpp, boolean allowPrinting) {
+        if (allowPrinting) {
+            System.out.println("# Commencing SpecOps @" + LocalDateTime.now());
+            System.out.println("// ========================================= //");
+        }
+        R r;
+        try {
+            ExecutorService executorService = Executors.newCachedThreadPool();
+
+            specpp.start();
+
+            CompletableFuture<R> future = specpp.future(executorService);
 
             for (ProvidesOngoingVisualization<?> ongoingVisualization : getOngoingVisualizations(specpp)) {
                 VizUtils.showVisualization(ongoingVisualization.getOngoingVisualization());
             }
 
-            future.get();
+            r = future.get();
 
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
@@ -154,6 +176,8 @@ public class SPECppOperations {
             specpp.stop();
         }
         if (allowPrinting) System.out.println("# Shutdown SpecOps @" + LocalDateTime.now());
+
+        return r;
     }
 
     private static List<ProvidesOngoingVisualization<?>> getOngoingVisualizations(SPECpp<?, ?, ?, ?> specpp) {

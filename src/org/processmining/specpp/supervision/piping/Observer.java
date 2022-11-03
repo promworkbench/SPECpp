@@ -4,6 +4,10 @@ import org.processmining.specpp.supervision.observations.Observation;
 
 import java.util.function.Consumer;
 
+/**
+ * Base interface for observers.
+ * @param <O> the type of observations observed by this Observer
+ */
 @FunctionalInterface
 public interface Observer<O extends Observation> extends Consumer<O> {
 

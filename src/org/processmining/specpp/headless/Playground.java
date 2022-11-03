@@ -34,7 +34,7 @@ public class Playground {
 
 
     public static void play(DataSource<SPECppConfigBundle> configBundleSource, DataSource<InputDataBundle> inputDataBundleSource) {
-        SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specPP = SPECppOperations.configureAndExecute(configBundleSource, inputDataBundleSource, true);
+        SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specPP = SPECppOperations.configureAndExecute(configBundleSource.getData(), inputDataBundleSource.getData(), true);
 
         System.out.println("// ========================================= //");
         System.out.println("POST EXECUTION");

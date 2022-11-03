@@ -1,7 +1,7 @@
 package org.processmining.specpp.prom.alg;
 
-import org.processmining.specpp.base.impls.IdentityPostProcessor;
 import org.processmining.specpp.base.PostProcessor;
+import org.processmining.specpp.base.impls.IdentityPostProcessor;
 import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
 import org.processmining.specpp.config.SimpleBuilder;
 import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
@@ -28,7 +28,7 @@ public class FrameworkBridge {
     public static final List<AnnotatedActivityOrderingStrategy> ORDERING_STRATEGIES = Arrays.stream(BridgedActivityOrderingStrategies.values())
                                                                                             .map(BridgedActivityOrderingStrategies::getBridge)
                                                                                             .collect(Collectors.toList());
-    ;
+
     public static final List<AnnotatedTreeHeuristic> HEURISTICS = Arrays.stream(BridgedHeuristics.values())
                                                                         .map(BridgedHeuristics::getBridge)
                                                                         .collect(Collectors.toList());
@@ -39,12 +39,12 @@ public class FrameworkBridge {
                                                                          .map(BridgedDeltaAdaptationFunctions::getBridge)
                                                                          .collect(Collectors.toList());
 
-    public static final List<AnnotatedPostProcessor> POST_PROCESSORS = Arrays.asList(BridgedPostProcessors.ReplayBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.LPBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.SelfLoopPlacesMerging.getBridge(), BridgedPostProcessors.DanglingTransitionsAddition.getBridge(), BridgedPostProcessors.PlaceTxtExport.getBridge(), BridgedPostProcessors.ProMPetrinetConversion.getBridge());
+    public static final List<AnnotatedPostProcessor> POST_PROCESSORS = Arrays.asList(BridgedPostProcessors.ReplayBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.LPBasedImplicitPlaceRemoval.getBridge(), BridgedPostProcessors.SelfLoopPlacesMerging.getBridge(), BridgedPostProcessors.UniwiredSelfLoopAddition.getBridge(), BridgedPostProcessors.DanglingTransitionsAddition.getBridge(), BridgedPostProcessors.PlaceTxtExport.getBridge(), BridgedPostProcessors.ProMPetrinetConversion.getBridge());
 
     public enum BridgedHeuristics {
         PlaceInterestingness(new AnnotatedTreeHeuristic("Place Interestingness", EventuallyFollowsTreeHeuristic.Builder::new)),
-        BFS_Emulation(new AnnotatedTreeHeuristic("BFS Emulation", () -> HeuristicUtils::bfs)),
-        DFS_Emulation(new AnnotatedTreeHeuristic("DFS Emulation", () -> HeuristicUtils::dfs));
+        BFS_Emulation(new AnnotatedTreeHeuristic("BFS Emulation", () -> () -> HeuristicUtils.<PlaceNode>bfs())),
+        DFS_Emulation(new AnnotatedTreeHeuristic("DFS Emulation", () -> () -> HeuristicUtils.<PlaceNode>dfs()));
 
         private final AnnotatedTreeHeuristic bth;
 

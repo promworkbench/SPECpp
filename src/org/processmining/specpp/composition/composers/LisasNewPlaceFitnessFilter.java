@@ -24,15 +24,15 @@ import org.processmining.specpp.evaluation.fitness.FitnessThresholder;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class NewPlaceFitnessFilter<I extends CompositionComponent<Place>, R extends Result> extends PlaceFitnessFilter<I, R> {
+public class LisasNewPlaceFitnessFilter<I extends CompositionComponent<Place>, R extends Result> extends PlaceFitnessFilter<I, R> {
 
-    DelegatingDataSource<Log> logSource = new DelegatingDataSource<>();
-    DelegatingDataSource<BidiMap<Activity, Transition>> actTransMapping = new DelegatingDataSource<>();
+    private final DelegatingDataSource<Log> logSource = new DelegatingDataSource<>();
+    private final DelegatingDataSource<BidiMap<Activity, Transition>> actTransMapping = new DelegatingDataSource<>();
     private Map<Transition, BitMask> activationMap;
     private IntVector frequencies;
     private Map<Transition, Integer> activationFrequencies;
 
-    public NewPlaceFitnessFilter(ComposerComponent<Place, I, R> childComposer) {
+    public LisasNewPlaceFitnessFilter(ComposerComponent<Place, I, R> childComposer) {
         super(childComposer);
         globalComponentSystem().require(DataRequirements.RAW_LOG, logSource)
                                .require(DataRequirements.ACT_TRANS_MAPPING, actTransMapping);

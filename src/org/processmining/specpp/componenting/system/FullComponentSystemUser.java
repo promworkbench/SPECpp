@@ -6,6 +6,9 @@ import org.processmining.specpp.traits.Initializable;
 
 import java.util.List;
 
+/**
+ * Bundles the local & global component system with transitive local component system initialization.
+ */
 public interface FullComponentSystemUser extends UsesLocalComponentSystem, UsesGlobalComponentSystem, Initializable {
 
     void registerSubComponent(FullComponentSystemUser subComponent);

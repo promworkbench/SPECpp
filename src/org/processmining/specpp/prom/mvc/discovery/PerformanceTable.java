@@ -1,5 +1,6 @@
 package org.processmining.specpp.prom.mvc.discovery;
 
+import org.processmining.framework.util.ui.widgets.ProMScrollPane;
 import org.processmining.framework.util.ui.widgets.ProMTable;
 import org.processmining.specpp.prom.alg.LivePerformance;
 import org.processmining.specpp.prom.computations.ComputationEnded;
@@ -53,6 +54,8 @@ public class PerformanceTable extends JPanel implements Destructible, Observer<C
         };
         ProMTable table = SwingFactory.proMTable(model);
         table.setAutoCreateRowSorter(true);
+        ProMScrollPane pane = (ProMScrollPane) table.getComponent(1);
+        pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         table.getTable().setDefaultRenderer(Duration.class, new DefaultTableCellRenderer() {
 
             @Override
@@ -95,6 +98,6 @@ public class PerformanceTable extends JPanel implements Destructible, Observer<C
 
     @Override
     public void observe(ComputationEvent event) {
-        if (event instanceof ComputationEnded) updateTimer.stop();
+        if (event instanceof ComputationEnded && updateTimer != null) updateTimer.stop();
     }
 }

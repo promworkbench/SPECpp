@@ -29,7 +29,7 @@ public class SPECppPlugin {
 
         XLogBasedInputDataBundle dataBundle = XLogBasedInputDataBundle.fromXLog(log, PreProcessingParameters.getDefault());
 
-        SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specpp = SPECppOperations.configureAndExecute(ProMSPECppConfigBundle::new, dataBundle, true, false, false);
+        SPECpp<Place, StatefulPlaceComposition, CollectionOfPlaces, ProMPetrinetWrapper> specpp = SPECppOperations.configureAndExecute(new ProMSPECppConfigBundle(), dataBundle.getData(), true, false, false);
 
         ProMPetrinetWrapper pnWrapper = specpp.getPostProcessedResult();
 
