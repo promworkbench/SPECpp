@@ -54,6 +54,8 @@ public class ComposerDelevopmentEntryPoint<I extends AdvancedComposition<Place>>
     @Override
     protected boolean deliberateAcceptance(Place candidate) {
         // here's some more sample code
+        boolean b = true;
+        if (b) return false;
 
         VariantMarkingHistories variantMarkingHistories = markingHistoriesEvaluator.eval(candidate);
 

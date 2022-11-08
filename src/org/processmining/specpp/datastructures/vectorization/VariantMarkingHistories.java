@@ -89,8 +89,12 @@ public class VariantMarkingHistories implements IndexedSpliterable<IntBuffer>, M
         return indexSubset;
     }
 
-    public IntStream variantIndices() {
+    public IntStream streamIndices() {
         return indexSubset.streamIndices();
+    }
+
+    public BitMask getIndices() {
+        return indexSubset.getIndices();
     }
 
     public BitMask getPerfectlyFittingVariants() {
@@ -114,6 +118,13 @@ public class VariantMarkingHistories implements IndexedSpliterable<IntBuffer>, M
     public IntBuffer getAt(int index) {
         if (indexSubset.contains(index)) {
             return markingHistories.getVector(indexSubset.mapIndex(index));
+        }
+        throw new NotCoveringRequiredVariantsException();
+    }
+
+    public int getLengthAt(int index) {
+        if (indexSubset.contains(index)) {
+            return markingHistories.getVectorLength(indexSubset.mapIndex(index));
         }
         throw new NotCoveringRequiredVariantsException();
     }

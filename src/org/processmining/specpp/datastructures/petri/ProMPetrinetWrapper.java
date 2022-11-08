@@ -14,6 +14,7 @@ import org.processmining.models.graphbased.directed.petrinet.elements.Arc;
 import org.processmining.models.graphbased.directed.petrinet.elements.ExpandableSubNet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Place;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
+import org.processmining.models.graphbased.directed.petrinet.impl.PetrinetFactory;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.specpp.base.Result;
 import org.processmining.specpp.traits.Copyable;
@@ -250,7 +251,7 @@ public class ProMPetrinetWrapper implements Result, Petrinet, AcceptingPetriNet,
     }
 
     public ProMPetrinetWrapper copy() {
-        AcceptingPetriNet apn = AcceptingPetriNetFactory.createAcceptingPetriNet();
+        AcceptingPetriNet apn = AcceptingPetriNetFactory.createAcceptingPetriNet(PetrinetFactory.newPetrinet(getLabel()));
         Petrinet newNet = apn.getNet();
         Map<Transition, Transition> transMap = new HashMap<>();
         Map<Place, Place> placeMap = new HashMap<>();

@@ -6,6 +6,7 @@ import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.composition.ConstrainingPlaceCollection;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
+import org.processmining.specpp.composition.composers.PlaceAccepter;
 import org.processmining.specpp.composition.composers.PlaceComposerWithCIPR;
 import org.processmining.specpp.composition.composers.PlaceFitnessFilter;
 import org.processmining.specpp.config.*;

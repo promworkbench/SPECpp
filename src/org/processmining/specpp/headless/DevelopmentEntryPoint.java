@@ -25,10 +25,7 @@ import org.processmining.specpp.evaluation.markings.LogHistoryMaker;
 import org.processmining.specpp.orchestra.PreProcessingParameters;
 import org.processmining.specpp.orchestra.SPECppConfigBundle;
 import org.processmining.specpp.orchestra.SPECppOperations;
-import org.processmining.specpp.postprocessing.LPBasedImplicitnessPostProcessing;
-import org.processmining.specpp.postprocessing.ProMConverter;
-import org.processmining.specpp.postprocessing.ReplayBasedImplicitnessPostProcessing;
-import org.processmining.specpp.postprocessing.SelfLoopPlaceMerger;
+import org.processmining.specpp.postprocessing.*;
 import org.processmining.specpp.preprocessing.InputData;
 import org.processmining.specpp.preprocessing.InputDataBundle;
 import org.processmining.specpp.prom.mvc.config.ConfiguratorCollection;
@@ -86,7 +83,7 @@ public class DevelopmentEntryPoint {
         temp_ppConfig.addPostProcessor(new ReplayBasedImplicitnessPostProcessing.Builder())
                      .addPostProcessor(new LPBasedImplicitnessPostProcessing.Builder())
                      .addPostProcessor(SelfLoopPlaceMerger::new);
-        PostProcessingConfiguration.Configurator<CollectionOfPlaces, ProMPetrinetWrapper> ppConfig = temp_ppConfig.addPostProcessor(ProMConverter::new);
+        PostProcessingConfiguration.Configurator<CollectionOfPlaces, ProMPetrinetWrapper> ppConfig = temp_ppConfig.addPostProcessor(ProMConverter::new).addPostProcessor(new AddDanglingTransitionPostProcessing.Builder());
 
         // ** Parameters ** //
 
