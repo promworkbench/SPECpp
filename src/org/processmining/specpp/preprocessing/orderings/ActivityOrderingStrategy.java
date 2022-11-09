@@ -37,9 +37,9 @@ public abstract class ActivityOrderingStrategy implements SimpleBuilder<Pair<Com
     }
 
     public static List<Transition> createOrderedList(Collection<Activity> activities, Comparator<Activity> comparator, BidiMap<Activity, Transition> mapping) {
-        TreeSet<Activity> set = new TreeSet<>(comparator);
-        set.addAll(activities);
-        return set.stream().map(mapping::get).collect(Collectors.toList());
+        ArrayList<Activity> l = new ArrayList<>(activities);
+        l.sort(comparator);
+        return l.stream().map(mapping::get).collect(Collectors.toList());
     }
 
 
