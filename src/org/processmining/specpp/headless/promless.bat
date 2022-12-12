@@ -1,1 +1,0 @@
-java org.processmining.specpp.headless.ProMLessSPECpp %1 %2
