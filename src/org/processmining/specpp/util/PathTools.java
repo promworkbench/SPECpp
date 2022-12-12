@@ -86,5 +86,8 @@ public class PathTools {
         else return getRelativeFolderPath(folder.parent) + folder.name + PATH_FOLDER_SEPARATOR;
     }
 
+    public static String join(String... pathlets) {
+        return String.join(PATH_FOLDER_SEPARATOR, pathlets);
+    }
 
 }

@@ -7,7 +7,7 @@ import org.processmining.specpp.componenting.system.FullComponentSystemUser;
 import org.processmining.specpp.componenting.system.link.AbstractBaseClass;
 import org.processmining.specpp.componenting.system.link.PostProcessorComponent;
 import org.processmining.specpp.componenting.traits.UsesGlobalComponentSystem;
-import org.processmining.specpp.config.SimpleBuilder;
+import org.processmining.specpp.config.components.SimpleBuilder;
 
 public class WrappedPostProcessor<R extends Result, F extends Result> extends AbstractBaseClass implements PostProcessorComponent<R, F> {
 

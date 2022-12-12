@@ -72,9 +72,7 @@ public class ComputationListeningPanel<T extends OngoingComputation> extends JPa
         String newText = "";
         if (start == null) newText = label + " Computation started @?. Running for ? out of ?.";
         else {
-            Duration runningTime;
-            if (ongoingComputation.hasEnded()) runningTime = ongoingComputation.calculateRuntime();
-            else runningTime = Duration.between(start, LocalDateTime.now());
+            Duration runningTime = ongoingComputation.calculateRuntime();
             Duration timeLimit = ongoingComputation.getTimeLimit();
             newText = label + " Computation started @" + start.toLocalTime() + ". Running for " + runningTime.toString()
                                                                                                              .substring(2) + " out of " + (timeLimit == null ? "unlimited" : timeLimit.toString()

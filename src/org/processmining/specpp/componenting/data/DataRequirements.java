@@ -6,7 +6,7 @@ import org.processmining.specpp.base.Result;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.ComponentInitializer;
 import org.processmining.specpp.componenting.system.link.CompositionComponent;
-import org.processmining.specpp.config.*;
+import org.processmining.specpp.config.components.*;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;
 import org.processmining.specpp.datastructures.log.Activity;

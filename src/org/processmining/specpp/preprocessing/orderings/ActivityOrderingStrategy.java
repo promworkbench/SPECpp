@@ -1,7 +1,7 @@
 package org.processmining.specpp.preprocessing.orderings;
 
 import org.apache.commons.collections4.BidiMap;
-import org.processmining.specpp.config.SimpleBuilder;
+import org.processmining.specpp.config.components.SimpleBuilder;
 import org.processmining.specpp.datastructures.encoding.HashmapEncoding;
 import org.processmining.specpp.datastructures.encoding.IntEncoding;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;

@@ -1,6 +1,6 @@
 package org.processmining.specpp.datastructures.tree.base.impls;
 
-import org.processmining.specpp.config.SimpleBuilder;
+import org.processmining.specpp.config.components.SimpleBuilder;
 import org.processmining.specpp.datastructures.graph.Annotatable;
 import org.processmining.specpp.datastructures.tree.base.TreeNode;
 import org.processmining.specpp.datastructures.tree.base.traits.KnowsParent;

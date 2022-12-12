@@ -11,10 +11,11 @@ import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.componenting.system.link.ComposerComponent;
 import org.processmining.specpp.componenting.system.link.CompositionComponent;
 import org.processmining.specpp.componenting.system.link.ProposerComponent;
-import org.processmining.specpp.config.InitializingBuilder;
-import org.processmining.specpp.config.PostProcessingConfiguration;
-import org.processmining.specpp.config.ProposerComposerConfiguration;
-import org.processmining.specpp.config.SupervisionConfiguration;
+import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
+import org.processmining.specpp.config.components.InitializingBuilder;
+import org.processmining.specpp.config.components.PostProcessingConfiguration;
+import org.processmining.specpp.config.components.ProposerComposerConfiguration;
+import org.processmining.specpp.config.components.SupervisionConfiguration;
 import org.processmining.specpp.config.parameters.SupervisionParameters;
 import org.processmining.specpp.supervision.Supervisor;
 import org.processmining.specpp.supervision.instrumentators.InstrumentedSPECpp;
@@ -48,10 +49,11 @@ public class SPECppBuilder<C extends Candidate, I extends CompositionComponent<C
         ProposerComposerConfiguration<C, I, R> pcConfig = pcConfigDelegator.getData();
         PostProcessingConfiguration<R, F> ppConfig = ppConfigDelegator.getData();
         EvaluatorConfiguration evConfig = evConfigDelegator.getData();
-        evConfig.createPossiblyInstrumentedEvaluators();
+        List<ProvidesEvaluators> evaluatorsList = evConfig.createPossiblyInstrumentedEvaluators();
         ProposerComponent<C> proposer = pcConfig.createPossiblyInstrumentedProposer();
         ComposerComponent<C, I, R> composer = pcConfig.createPossiblyInstrumentedComposer();
         PostProcessingPipeline<R, F> processor = ppConfig.createPostProcessorPipeline();
+        evConfig.reCheckoutEvaluators(evaluatorsList);
         SupervisionParameters svParams = svParametersDelegator.getData();
         if (svParams.shouldClassBeInstrumented(SPECpp.class))
             return new InstrumentedSPECpp<>(gcr, supervisorList, proposer, composer, processor);

@@ -7,9 +7,9 @@ import org.processmining.specpp.base.Evaluator;
 import org.processmining.specpp.componenting.system.AbstractGlobalComponentSystemUser;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
-import org.processmining.specpp.config.ComponentInitializerBuilder;
-import org.processmining.specpp.config.Configuration;
-import org.processmining.specpp.config.SimpleBuilder;
+import org.processmining.specpp.config.components.ComponentInitializerBuilder;
+import org.processmining.specpp.config.components.Configuration;
+import org.processmining.specpp.config.components.SimpleBuilder;
 import org.processmining.specpp.evaluation.fitness.AbstractBasicFitnessEvaluator;
 import org.processmining.specpp.evaluation.fitness.InstrumentedBasicFitnessEvaluator;
 import org.processmining.specpp.util.Reflection;
@@ -38,6 +38,11 @@ public class EvaluatorConfiguration extends Configuration {
 
     public List<ProvidesEvaluators> createPossiblyInstrumentedEvaluators() {
         return evaluatorProviderBuilders.stream().map(this::createPossiblyInstrumented).collect(Collectors.toList());
+    }
+
+    public List<ProvidesEvaluators> reCheckoutEvaluators(List<ProvidesEvaluators> list) {
+        if (list == null) return null;
+        return list.stream().map(this::checkout).collect(Collectors.toList());
     }
 
     public static class Configurator implements ComponentInitializerBuilder<EvaluatorConfiguration> {

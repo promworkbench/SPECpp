@@ -7,7 +7,7 @@ import org.processmining.specpp.componenting.data.DataSource;
 import org.processmining.specpp.config.parameters.OutputPathParameters;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.vectorization.OrderingRelation;
-import org.processmining.specpp.evaluation.implicitness.ImplicitnessTestingParameters;
+import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
 import org.processmining.specpp.prom.alg.FrameworkBridge;
 import org.processmining.specpp.prom.mvc.AbstractStagePanel;
 import org.processmining.specpp.prom.mvc.swing.*;

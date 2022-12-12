@@ -20,6 +20,6 @@ public class ParameterSourceCollection extends DataSourceCollection implements I
                 .map(f -> "\t" + f.getComparable().toString() + " = " + f.getContent()
                                                                          .getData()
                                                                          .toString())
-                .collect(Collectors.joining("\n", "Configured Parameters:\n", ""));
+                .collect(Collectors.joining("\n", "Configured Parameters: {\n", "\n}"));
     }
 }

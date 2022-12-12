@@ -12,7 +12,7 @@ import org.processmining.specpp.componenting.delegators.DelegatingEvaluator;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.supervision.SupervisionRequirements;
 import org.processmining.specpp.componenting.system.link.ComposerComponent;
-import org.processmining.specpp.composition.composers.DeltaComposerParameters;
+import org.processmining.specpp.config.parameters.DeltaComposerParameters;
 import org.processmining.specpp.config.parameters.TauFitnessThresholds;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.NonMutatingSetOperations;

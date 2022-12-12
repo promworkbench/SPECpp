@@ -14,6 +14,14 @@ public class ExecutionParameters implements Parameters {
         this.performanceFocus = performanceFocus;
     }
 
+    public static ExecutionParameters timeouts(ExecutionTimeLimits timeLimits) {
+        return new ExecutionParameters(timeLimits, ParallelizationTarget.None, PerformanceFocus.Balanced);
+    }
+
+    public static ExecutionParameters noTimeouts() {
+        return new ExecutionParameters(ExecutionTimeLimits.empty(), ParallelizationTarget.None, PerformanceFocus.Balanced);
+    }
+
     public ExecutionTimeLimits getTimeLimits() {
         return timeLimits;
     }
@@ -27,6 +35,10 @@ public class ExecutionParameters implements Parameters {
             this.discoveryTimeLimit = discoveryTimeLimit;
             this.postProcessingTimeLimit = postProcessingTimeLimit;
             this.totalTimeLimit = totalTimeLimit;
+        }
+
+        public static ExecutionTimeLimits empty() {
+            return new ExecutionTimeLimits(null, null, null);
         }
 
         public boolean hasDiscoveryTimeLimit() {
@@ -53,6 +65,10 @@ public class ExecutionParameters implements Parameters {
             return postProcessingTimeLimit;
         }
 
+        @Override
+        public String toString() {
+            return "ExecutionTimeLimits{" + "discoveryTimeLimit=" + discoveryTimeLimit + ", postProcessingTimeLimit=" + postProcessingTimeLimit + ", totalTimeLimit=" + totalTimeLimit + '}';
+        }
     }
 
 

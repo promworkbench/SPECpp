@@ -20,7 +20,7 @@ import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
 import org.processmining.specpp.evaluation.fitness.DetailedFitnessEvaluation;
-import org.processmining.specpp.orchestra.SPECppConfigBundle;
+import org.processmining.specpp.config.SPECppConfigBundle;
 import org.processmining.specpp.preprocessing.InputDataBundle;
 import org.processmining.specpp.prom.mvc.AbstractStageController;
 import org.processmining.specpp.prom.mvc.SPECppController;
@@ -96,8 +96,9 @@ public class ResultController extends AbstractStageController {
 
     public XLog getEvalLog() {
         if (evalLog == null)
-            if (parentController.getPreProcessingParameters() != null && parentController.getPreProcessingParameters()
-                                                                                         .isAddStartEndTransitions()) {
+            if (parentController.getInputProcessingConfig() != null && parentController.getInputProcessingConfig()
+                                                                                       .getPreProcessingParameters()
+                                                                                       .isAddStartEndTransitions()) {
                 XFactoryNaiveImpl xFactorY = new XFactoryNaiveImpl();
                 XAttributeMap attributeMap = xFactorY.createAttributeMap();
                 attributeMap.put("concept:name", xFactorY.createAttributeLiteral("concept:name", Factory.UNIQUE_START_LABEL, XConceptExtension.instance()));
@@ -120,7 +121,7 @@ public class ResultController extends AbstractStageController {
     }
 
     public XEventClassifier getEventClassifier() {
-        return parentController.getPreProcessingParameters().getEventClassifier();
+        return parentController.getInputProcessingConfig().getPreProcessingParameters().getEventClassifier();
     }
 
     public ProMConfig getProMConfig() {

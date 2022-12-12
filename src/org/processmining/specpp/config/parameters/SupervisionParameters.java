@@ -13,7 +13,7 @@ public class SupervisionParameters implements Parameters {
     private final boolean useConsole, useFiles;
     private final Set<Class<?>> classesToInstrument;
 
-    protected SupervisionParameters(boolean useConsole, boolean useFiles) {
+    public SupervisionParameters(boolean useConsole, boolean useFiles) {
         this.useConsole = useConsole;
         this.useFiles = useFiles;
         classesToInstrument = new HashSet<>();

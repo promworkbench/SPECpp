@@ -9,7 +9,8 @@ import org.processmining.specpp.composition.ConstrainingPlaceCollection;
 import org.processmining.specpp.composition.LightweightPlaceComposition;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.composition.composers.*;
-import org.processmining.specpp.config.*;
+import org.processmining.specpp.config.InputProcessingConfig;
+import org.processmining.specpp.config.components.*;
 import org.processmining.specpp.config.parameters.*;
 import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.Place;
@@ -21,12 +22,13 @@ import org.processmining.specpp.datastructures.tree.heuristic.*;
 import org.processmining.specpp.datastructures.tree.nodegen.MonotonousPlaceGenerationLogic;
 import org.processmining.specpp.datastructures.tree.nodegen.PlaceNode;
 import org.processmining.specpp.datastructures.tree.nodegen.PlaceState;
-import org.processmining.specpp.evaluation.fitness.ReplayComputationParameters;
 import org.processmining.specpp.evaluation.heuristics.DirectlyFollowsHeuristic;
 import org.processmining.specpp.evaluation.heuristics.TreeHeuristicThreshold;
-import org.processmining.specpp.evaluation.implicitness.ImplicitnessTestingParameters;
 import org.processmining.specpp.evaluation.implicitness.LPBasedImplicitnessCalculator;
 import org.processmining.specpp.evaluation.markings.LogHistoryMaker;
+import org.processmining.specpp.config.ComponentConfigImpl;
+import org.processmining.specpp.config.ConfigFactory;
+import org.processmining.specpp.config.SPECppConfigBundle;
 import org.processmining.specpp.prom.alg.FrameworkBridge;
 import org.processmining.specpp.prom.alg.LiveEvents;
 import org.processmining.specpp.prom.alg.LivePerformance;
@@ -47,7 +49,7 @@ public class ConfigurationController extends AbstractStageController {
         super(parentController);
     }
 
-    public static ConfiguratorCollection convertToFullConfig(ProMConfig pc) {
+    public static SPECppConfigBundle convertToFullConfig(InputProcessingConfig inputProcessingConfig, ProMConfig pc) {
         // BUILDING CONFIGURATORS
 
         // ** SUPERVISION ** //
@@ -78,13 +80,11 @@ public class ConfigurationController extends AbstractStageController {
         boolean compositionConstraintsRequired = pc.respectWiring || pc.compositionStrategy == ProMConfig.CompositionStrategy.Uniwired;
         boolean compositionStateRequired = pc.compositionStrategy == ProMConfig.CompositionStrategy.TauDelta;
         if (compositionStateRequired) {
-            if (compositionConstraintsRequired)
-                pcCfg.nestedComposition(StatefulPlaceComposition::new, ConstrainingPlaceCollection::new);
-            else pcCfg.composition(StatefulPlaceComposition::new);
+            pcCfg.terminalComposition(StatefulPlaceComposition::new);
+            if (compositionConstraintsRequired) pcCfg.recursiveCompositions(ConstrainingPlaceCollection::new);
         } else {
-            if (compositionConstraintsRequired)
-                pcCfg.nestedComposition(LightweightPlaceComposition::new, ConstrainingPlaceCollection::new);
-            else pcCfg.composition(LightweightPlaceComposition::new);
+            pcCfg.terminalComposition(LightweightPlaceComposition::new);
+            if (compositionConstraintsRequired) pcCfg.recursiveCompositions(ConstrainingPlaceCollection::new);
         }
         if (pc.ciprVariant != ProMConfig.CIPRVariant.None)
             pcCfg.terminalComposer(isSupervisingEvents ? EventingPlaceComposerWithCIPR::new : PlaceComposerWithCIPR::new);
@@ -92,13 +92,13 @@ public class ConfigurationController extends AbstractStageController {
         InitializingBuilder<? extends ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>, ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>> fitnessFilterBuilder = isSupervisingEvents ? EventingPlaceFitnessFilter::new : PlaceFitnessFilter::new;
         switch (pc.compositionStrategy) {
             case Standard:
-                pcCfg.composerChain(fitnessFilterBuilder);
+                pcCfg.recursiveComposers(fitnessFilterBuilder);
                 break;
             case TauDelta:
-                pcCfg.composerChain(fitnessFilterBuilder, DeltaComposer::new);
+                pcCfg.recursiveComposers(fitnessFilterBuilder, DeltaComposer::new);
                 break;
             case Uniwired:
-                pcCfg.composerChain(fitnessFilterBuilder, UniwiredComposer::new);
+                pcCfg.recursiveComposers(fitnessFilterBuilder, UniwiredComposer::new);
                 break;
         }
 
@@ -144,8 +144,9 @@ public class ConfigurationController extends AbstractStageController {
         ExecutionParameters exp = new ExecutionParameters(new ExecutionParameters.ExecutionTimeLimits(pc.discoveryTimeLimit, null, pc.totalTimeLimit), ExecutionParameters.ParallelizationTarget.Moderate, ExecutionParameters.PerformanceFocus.Balanced);
         PlaceGeneratorParameters pgp = new PlaceGeneratorParameters(pc.depth < 0 ? Integer.MAX_VALUE : pc.depth, true, pc.respectWiring, false, false);
 
-        class CustomParameters extends ParameterProvider {
-            public CustomParameters() {
+        ParameterProvider pp = new ParameterProvider() {
+            @Override
+            public void init() {
                 globalComponentSystem().provide(ParameterRequirements.EXTERNAL_INITIALIZATION.fulfilWithStatic(new ExternalInitializationParameters(pc.initiallyWireSelfLoops)))
                                        .provide(ParameterRequirements.EXECUTION_PARAMETERS.fulfilWithStatic(exp))
                                        .provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWithStatic(pc.supervisionSetting != ProMConfig.SupervisionSetting.Nothing ? SupervisionParameters.instrumentAll(false, logToFile) : SupervisionParameters.instrumentNone(false, logToFile)))
@@ -160,10 +161,13 @@ public class ConfigurationController extends AbstractStageController {
                 }
                 if (pc.enforceHeuristicThreshold)
                     globalComponentSystem().provide(ParameterRequirements.TREE_HEURISTIC_THRESHOLD.fulfilWithStatic(new TreeHeuristicThreshold(pc.heuristicThreshold, pc.heuristicThresholdRelation)));
-            }
-        }
 
-        return new ConfiguratorCollection(svCfg, pcCfg, evCfg, etCfg, ppCfg, new CustomParameters());
+            }
+        };
+
+
+        ComponentConfigImpl cc = new ComponentConfigImpl(svCfg, pcCfg, evCfg, etCfg, ppCfg);
+        return ConfigFactory.create(inputProcessingConfig, cc, ConfigFactory.create(pp));
     }
 
     @Override
@@ -177,7 +181,7 @@ public class ConfigurationController extends AbstractStageController {
     }
 
     public void basicConfigCompleted(ProMConfig basicConfig) {
-        ConfiguratorCollection fullConfig = convertToFullConfig(basicConfig);
+        SPECppConfigBundle fullConfig = convertToFullConfig(parentController.getInputProcessingConfig(), basicConfig);
         parentController.configCompleted(basicConfig, fullConfig);
     }
 

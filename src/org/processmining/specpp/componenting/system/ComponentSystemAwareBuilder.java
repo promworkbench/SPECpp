@@ -1,6 +1,6 @@
 package org.processmining.specpp.componenting.system;
 
-import org.processmining.specpp.config.SimpleBuilder;
+import org.processmining.specpp.config.components.SimpleBuilder;
 
 public abstract class ComponentSystemAwareBuilder<T> extends AbstractGlobalComponentSystemUser implements SimpleBuilder<T> {
 

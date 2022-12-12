@@ -2,7 +2,7 @@ package org.processmining.specpp.componenting.system;
 
 import org.processmining.specpp.componenting.traits.*;
 
-public class LocalComponentRepository extends ComponentCollection implements UsesLocalComponentSystem, ProvidesDataSources, ProvidesEvaluators, ProvidesSupervisors, ProvidesParameters {
+public class LocalComponentRepository extends ComponentCollection implements UsesLocalComponentSystem, ProvidesDataSources, ProvidesEvaluators, ProvidesSupervisors {
 
     public LocalComponentRepository() {
         addComponent(ComponentType.Data);

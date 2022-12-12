@@ -10,7 +10,7 @@ import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.util.ImmutableTuple2;
 import org.processmining.specpp.datastructures.util.Tuple2;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
-import org.processmining.specpp.evaluation.implicitness.ImplicitnessTestingParameters;
+import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
 import org.python.google.common.collect.Maps;
 
 import java.util.HashSet;

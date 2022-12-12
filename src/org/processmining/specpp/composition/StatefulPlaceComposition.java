@@ -18,7 +18,7 @@ import org.processmining.specpp.datastructures.vectorization.IntVector;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
 import org.processmining.specpp.evaluation.implicitness.BooleanImplicitness;
 import org.processmining.specpp.evaluation.implicitness.ImplicitnessRating;
-import org.processmining.specpp.evaluation.implicitness.ImplicitnessTestingParameters;
+import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
 import org.processmining.specpp.evaluation.implicitness.ReplayBasedImplicitnessCalculator;
 import org.processmining.specpp.supervision.observations.performance.PerformanceEvent;
 import org.processmining.specpp.supervision.observations.performance.TaskDescription;

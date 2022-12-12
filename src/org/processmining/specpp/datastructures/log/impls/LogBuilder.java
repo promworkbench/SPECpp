@@ -1,6 +1,6 @@
 package org.processmining.specpp.datastructures.log.impls;
 
-import org.processmining.specpp.config.SimpleBuilder;
+import org.processmining.specpp.config.components.SimpleBuilder;
 import org.processmining.specpp.datastructures.log.Log;
 import org.processmining.specpp.datastructures.log.Variant;
 

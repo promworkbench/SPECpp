@@ -72,8 +72,8 @@ public class DetailedHeuristicsSupervisor extends FileWritingMonitoringSuperviso
     @Override
     public void stop() {
         super.stop();
-        queueSizeExporter.stop();
-        heuristicsExporter.stop();
+        if (queueSizeExporter != null) queueSizeExporter.stop();
+        if (heuristicsExporter != null) heuristicsExporter.stop();
     }
 
 }

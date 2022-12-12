@@ -1,6 +1,8 @@
 package org.processmining.specpp.preprocessing;
 
 import org.apache.commons.collections4.BidiMap;
+import org.deckfour.xes.model.XLog;
+import org.processmining.specpp.config.InputProcessingConfig;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;
 import org.processmining.specpp.datastructures.log.Activity;
 import org.processmining.specpp.datastructures.log.Log;
@@ -30,6 +32,11 @@ public class InputDataBundle {
         return transitionEncodings;
     }
 
+    public static InputDataBundle load(String logPath, InputProcessingConfig inputProcessingConfig) {
+        XLog xLog = XLogParser.readLog(logPath);
+        return inputProcessingConfig.getInputDataSource(inputProcessingConfig.getParsedLogDataSource(xLog).getData())
+                                    .getData();
+    }
 
     @Override
     public String toString() {

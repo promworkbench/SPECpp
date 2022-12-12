@@ -8,8 +8,8 @@ import org.processmining.models.connections.petrinets.behavioral.InitialMarkingC
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.semantics.petrinet.Marking;
 import org.processmining.plugins.utils.ProvidedObjectHelper;
+import org.processmining.specpp.config.InputProcessingConfig;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
-import org.processmining.specpp.orchestra.PreProcessingParameters;
 import org.processmining.specpp.prom.mvc.AbstractStagePanel;
 import org.processmining.specpp.prom.mvc.config.ProMConfig;
 import org.processmining.specpp.prom.plugins.ProMSPECppConfig;
@@ -41,30 +41,28 @@ public class ResultExportPanel extends AbstractStagePanel<ResultController> {
 
     private void saveProMPetri() {
         ProMPetrinetWrapper result = controller.getResult();
-        context.getProvidedObjectManager().createProvidedObject("Petrinet", result.getNet(), Petrinet.class, context);
-        context.getConnectionManager().addConnection(new InitialMarkingConnection(result, result.getInitialMarking()));
+        Petrinet net = result.getNet();
+        ProvidedObjectHelper.publish(context, "Petrinet", net, Petrinet.class, true);
+        context.getConnectionManager().addConnection(new InitialMarkingConnection(net, result.getInitialMarking()));
         context.getConnectionManager()
-               .addConnection(new FinalMarkingConnection(result, result.getFinalMarkings()
+               .addConnection(new FinalMarkingConnection(net, result.getFinalMarkings()
                                                                        .stream()
                                                                        .findFirst()
                                                                        .orElse(new Marking())));
-        ProvidedObjectHelper.setFavorite(context, result);
         saveProMPetriButton.setEnabled(false);
     }
 
     private void saveConfig() {
         ProMConfig proMConfig = controller.getParentController().getProMConfig();
-        PreProcessingParameters preProcessingParameters = controller.getParentController().getPreProcessingParameters();
-        ProMSPECppConfig config = new ProMSPECppConfig(preProcessingParameters, proMConfig);
-        context.getProvidedObjectManager().createProvidedObject("Config", config, ProMSPECppConfig.class, context);
-        ProvidedObjectHelper.setFavorite(context, config);
+        InputProcessingConfig inputProcessingConfig = controller.getParentController().getInputProcessingConfig();
+        ProMSPECppConfig config = new ProMSPECppConfig(inputProcessingConfig, proMConfig);
+        ProvidedObjectHelper.publish(context, "SPECpp Config", config, ProMSPECppConfig.class, true);
         saveConfigButton.setEnabled(false);
     }
 
     private void saveEvalLog() {
         XLog evalLog = controller.getEvalLog();
-        context.getProvidedObjectManager().createProvidedObject("Evaluation Log", evalLog, XLog.class, context);
-        ProvidedObjectHelper.setFavorite(context, evalLog);
+        ProvidedObjectHelper.publish(context, "Evaluation Log", evalLog, XLog.class, true);
         saveEvalLogButton.setEnabled(false);
     }
 

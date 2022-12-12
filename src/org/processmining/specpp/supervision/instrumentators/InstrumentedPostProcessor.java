@@ -5,7 +5,7 @@ import org.processmining.specpp.componenting.supervision.SupervisionRequirements
 import org.processmining.specpp.componenting.system.ComponentSystemAwareBuilder;
 import org.processmining.specpp.componenting.system.link.PostProcessorComponent;
 import org.processmining.specpp.componenting.traits.UsesGlobalComponentSystem;
-import org.processmining.specpp.config.SimpleBuilder;
+import org.processmining.specpp.config.components.SimpleBuilder;
 import org.processmining.specpp.supervision.observations.performance.PerformanceEvent;
 import org.processmining.specpp.supervision.observations.performance.TaskDescription;
 

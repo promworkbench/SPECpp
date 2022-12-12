@@ -1,6 +1,7 @@
 package org.processmining.specpp.evaluation.fitness;
 
 import org.processmining.specpp.componenting.data.DataSource;
+import org.processmining.specpp.config.parameters.ReplayComputationParameters;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.log.impls.MultiEncodedLog;
 import org.processmining.specpp.datastructures.petri.Place;

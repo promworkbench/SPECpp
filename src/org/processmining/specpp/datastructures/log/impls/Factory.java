@@ -1,7 +1,7 @@
 package org.processmining.specpp.datastructures.log.impls;
 
 import com.google.common.collect.ImmutableMap;
-import org.processmining.specpp.config.InitializingBuilder;
+import org.processmining.specpp.config.components.InitializingBuilder;
 import org.processmining.specpp.datastructures.log.Activity;
 
 import java.util.Map;

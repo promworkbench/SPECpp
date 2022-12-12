@@ -5,7 +5,7 @@ import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
 import org.processmining.specpp.componenting.supervision.SupervisionRequirements;
 import org.processmining.specpp.componenting.system.link.AbstractBaseClass;
-import org.processmining.specpp.config.ExternalInitializationParameters;
+import org.processmining.specpp.config.components.ExternalInitializationParameters;
 import org.processmining.specpp.datastructures.encoding.BitEncodedSet;
 import org.processmining.specpp.datastructures.encoding.IntEncoding;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;

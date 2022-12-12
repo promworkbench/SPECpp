@@ -3,7 +3,7 @@ package org.processmining.specpp.prom.alg;
 import org.processmining.specpp.base.PostProcessor;
 import org.processmining.specpp.base.impls.IdentityPostProcessor;
 import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
-import org.processmining.specpp.config.SimpleBuilder;
+import org.processmining.specpp.config.components.SimpleBuilder;
 import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.tree.base.HeuristicStrategy;

@@ -3,7 +3,10 @@ package org.processmining.specpp.prom.mvc.preprocessing;
 import com.fluxicon.slickerbox.factory.SlickerFactory;
 import com.google.common.collect.ImmutableList;
 import org.deckfour.xes.classification.XEventClassifier;
-import org.processmining.specpp.orchestra.PreProcessingParameters;
+import org.processmining.specpp.config.DataExtractionParameters;
+import org.processmining.specpp.config.InputProcessingConfig;
+import org.processmining.specpp.config.InputProcessingConfigImpl;
+import org.processmining.specpp.config.PreProcessingParameters;
 import org.processmining.specpp.preprocessing.orderings.ActivityOrderingStrategy;
 import org.processmining.specpp.prom.alg.FrameworkBridge;
 import org.processmining.specpp.prom.mvc.swing.LabeledComboBox;
@@ -28,23 +31,22 @@ public class ParametersPanel extends JPanel {
     public ParametersPanel(PreProcessingController controller, List<XEventClassifier> eventClassifiers) {
         super(new GridBagLayout());
         this.controller = controller;
-        PreProcessingParameters defaultParameters = PreProcessingParameters.getDefault();
-
+        PreProcessingParameters ppp_default = PreProcessingParameters.getDefault();
         availableEventClassifiers = ImmutableList.copyOf(eventClassifiers);
         LabeledComboBox<XEventClassifier> eventClassifierBox = SwingFactory.labeledComboBox("Event Classifier", availableEventClassifiers.toArray(new XEventClassifier[0]));
         classifierComboBox = eventClassifierBox.getComboBox();
         SwingFactory.resizeComboBox(classifierComboBox, 175, 25);
-        classifierComboBox.setSelectedItem(defaultParameters.getEventClassifier());
+        classifierComboBox.setSelectedItem(ppp_default.getEventClassifier());
 
         availableOrderings = FrameworkBridge.ORDERING_STRATEGIES;
         LabeledComboBox<FrameworkBridge.AnnotatedActivityOrderingStrategy> orderingStrategyBox = SwingFactory.labeledComboBox("Ordering Strategy", availableOrderings.toArray(new FrameworkBridge.AnnotatedActivityOrderingStrategy[0]));
         orderingComboBox = orderingStrategyBox.getComboBox();
         SwingFactory.resizeComboBox(orderingComboBox, 250, 25);
-        orderingComboBox.setSelectedItem(findEnum(defaultParameters.getTransitionEncodingsBuilderClass()));
+        orderingComboBox.setSelectedItem(findEnum(DataExtractionParameters.getDefault().getActivityOrderingStrategy()));
         orderingStrategyBox.add(SwingFactory.help(null, SwingFactory.html("Determines the order in which the search tree is explored. Can have a big impact on performance.<br>Refer to <a href=\"https://dx.doi.org/10.1007/978-3-030-66498-5_25\">Improving the State-Space Traversal of the eST-Miner by Exploiting Underlying Log Structures</a>")));
 
         artificialTransitionsCheckBox = SlickerFactory.instance()
-                                                      .createCheckBox("introduce artificial start & end transitions", defaultParameters.isAddStartEndTransitions());
+                                                      .createCheckBox("introduce artificial start & end transitions", ppp_default.isAddStartEndTransitions());
 
 
         previewButton = SlickerFactory.instance().createButton("preview");
@@ -71,22 +73,23 @@ public class ParametersPanel extends JPanel {
     }
 
     private void tryInstantiatingFromLastOrLoaded() {
-        PreProcessingParameters preProcessingParameters = controller.getParentController().getPreProcessingParameters();
-        if (preProcessingParameters != null) {
-            instantiateFrom(preProcessingParameters);
-            return;
-        }
-        PreProcessingParameters loadedPreProcessingParameters = controller.getParentController()
-                                                                          .getLoadedPreProcessingParameters();
-        if (loadedPreProcessingParameters != null) {
-            instantiateFrom(loadedPreProcessingParameters);
+        InputProcessingConfig inputProcessingConfig = controller.getParentController().getInputProcessingConfig();
+        if (inputProcessingConfig != null) {
+            instantiateFrom(inputProcessingConfig);
+        } else {
+            inputProcessingConfig = controller.getParentController().getLoadedInputDataConfig();
+            if (inputProcessingConfig != null) {
+                instantiateFrom(inputProcessingConfig);
+            }
         }
     }
 
-    private void instantiateFrom(PreProcessingParameters preProcessingParameters) {
+    private void instantiateFrom(InputProcessingConfig inputProcessingConfig) {
+        PreProcessingParameters preProcessingParameters = inputProcessingConfig.getPreProcessingParameters();
+        DataExtractionParameters dataExtractionParameters = inputProcessingConfig.getDataExtractionParameters();
         XEventClassifier eventClassifier = preProcessingParameters.getEventClassifier();
         if (availableEventClassifiers.contains(eventClassifier)) classifierComboBox.setSelectedItem(eventClassifier);
-        Class<? extends ActivityOrderingStrategy> aos = preProcessingParameters.getTransitionEncodingsBuilderClass();
+        Class<? extends ActivityOrderingStrategy> aos = dataExtractionParameters.getActivityOrderingStrategy();
         orderingComboBox.setSelectedItem(findEnum(aos));
         artificialTransitionsCheckBox.setSelected(preProcessingParameters.isAddStartEndTransitions());
     }
@@ -99,11 +102,13 @@ public class ParametersPanel extends JPanel {
         return first.orElse(FrameworkBridge.BridgedActivityOrderingStrategies.AverageFirstOccurrenceIndex.getBridge());
     }
 
-    public PreProcessingParameters collectParameters() {
+    public InputProcessingConfig collectParameters() {
         XEventClassifier eventClassifier = availableEventClassifiers.get(classifierComboBox.getSelectedIndex());
-        Class<? extends ActivityOrderingStrategy> orderingStrategy = ((FrameworkBridge.AnnotatedActivityOrderingStrategy) orderingComboBox.getSelectedItem()).getStrategyClass();
         boolean introduceArtificialTransitions = artificialTransitionsCheckBox.isSelected();
-        return new PreProcessingParameters(eventClassifier, introduceArtificialTransitions, orderingStrategy);
+        Class<? extends ActivityOrderingStrategy> orderingStrategy = ((FrameworkBridge.AnnotatedActivityOrderingStrategy) orderingComboBox.getSelectedItem()).getStrategyClass();
+        PreProcessingParameters ppp = new PreProcessingParameters(eventClassifier, introduceArtificialTransitions);
+        DataExtractionParameters dep = new DataExtractionParameters(orderingStrategy);
+        return new InputProcessingConfigImpl(ppp, dep);
     }
 
     public void disableButton() {
