@@ -59,12 +59,15 @@ public class BaseDataExtractionStrategy implements DataExtractionStrategy {
 
     public static Tuple2<IntEncodings<Transition>, BidiMap<Activity, Transition>> deriveTransitions(Pair<Comparator<Activity>> comparators, Log log, Map<String, Activity> activityMapping) {
         BidiMap<Activity, Transition> transitionMapping = createTransitions(log, activityMapping);
+        return new ImmutableTuple2<>(orderTransitions(comparators, activityMapping, transitionMapping), transitionMapping);
+    }
+
+    public static IntEncodings<Transition> orderTransitions(Pair<Comparator<Activity>> comparators, Map<String, Activity> activityMapping, BidiMap<Activity, Transition> transitionMapping) {
         Set<Activity> presetSet = new HashSet<>(activityMapping.values());
         presetSet.remove(Factory.ARTIFICIAL_END);
         Set<Activity> postsetSet = new HashSet<>(activityMapping.values());
         postsetSet.remove(Factory.ARTIFICIAL_START);
-        IntEncodings<Transition> encodings = ActivityOrderingStrategy.createEncodings(new ImmutablePair<>(presetSet, postsetSet), comparators, transitionMapping);
-        return new ImmutableTuple2<>(encodings, transitionMapping);
+        return ActivityOrderingStrategy.createEncodings(new ImmutablePair<>(presetSet, postsetSet), comparators, transitionMapping);
     }
 
     public static Pair<Comparator<Activity>> createOrderings(Log log, Map<String, Activity> activityMapping, Class<? extends ActivityOrderingStrategy> transitionEncodingsBuilderClass) {

@@ -5,6 +5,7 @@ import org.processmining.specpp.prom.mvc.config.ProMConfig;
 
 import java.util.Objects;
 
+
 public class ProMSPECppConfig {
 
     private final InputProcessingConfig inputProcessingConfig;

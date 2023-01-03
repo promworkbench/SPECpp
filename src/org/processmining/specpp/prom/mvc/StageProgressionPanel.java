@@ -38,8 +38,8 @@ public class StageProgressionPanel extends JPanel {
             jButton.setBorder(BorderFactory.createEmptyBorder());
             jButton.setOpaque(false);
             locked(jButton);
-            jButton.setMinimumSize(new Dimension(150, 50));
-            //jButton.setPreferredSize(new Dimension(150, 50));
+            jButton.setMinimumSize(new Dimension(170, 63));
+            jButton.setPreferredSize(new Dimension(170, 63));
             jButton.addActionListener(e -> {
                 if (stage != currentStage) parentController.setPluginStage(stage);
             });
@@ -73,7 +73,7 @@ public class StageProgressionPanel extends JPanel {
         Font buttonFont = button.getFont();
         Map map = buttonFont.getAttributes();
         if (on) map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-        else map.put(TextAttribute.UNDERLINE, null);
+        else map.put(TextAttribute.UNDERLINE, -1);
         button.setFont(buttonFont.deriveFont(map));
     }
 

@@ -14,9 +14,7 @@ import org.processmining.specpp.traits.Joinable;
 import org.processmining.specpp.util.StupidUtils;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
@@ -29,6 +27,7 @@ public class ExecutionEnvironment implements Joinable, AutoCloseable {
     private final int MAX_TERMINATION_WAIT = 5;
     private static final int CALLBACK_TIMEOUT = 5;
 
+    private final Map<Consumer<?>, ListenableFuture<?>> callbackFutures;
 
     @Override
     public void join() throws InterruptedException {
@@ -36,21 +35,20 @@ public class ExecutionEnvironment implements Joinable, AutoCloseable {
         for (ListenableFuture<?> f : monitoredFutures) {
             try {
                 f.get();
-            } catch (ExecutionException e) {
+            } catch (ExecutionException | CancellationException e) {
                 e.printStackTrace();
             }
         }
         workerExecutorService.shutdownNow();
-        timeoutExecutorService.shutdownNow();
         for (ListenableFuture<?> f : monitoredCallbackFutures) {
             try {
-                f.get(CALLBACK_TIMEOUT, TimeUnit.SECONDS);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            } catch (TimeoutException e) {
-                System.out.println("callback execution timed out");
+                f.get();
+            } catch (ExecutionException | CancellationException e) {
+                System.out.println("callback execution failed");
+                e.printStackTrace();
             }
         }
+        timeoutExecutorService.shutdownNow();
         callbackExecutorService.shutdownNow();
         timeoutExecutorService.awaitTermination(MAX_TERMINATION_WAIT, TimeUnit.SECONDS);
         workerExecutorService.awaitTermination(MAX_TERMINATION_WAIT, TimeUnit.SECONDS);
@@ -118,7 +116,8 @@ public class ExecutionEnvironment implements Joinable, AutoCloseable {
                                                                                                    .build());
 
         ThreadFactory workerThreadFactory = new ThreadFactoryBuilder().setNameFormat("worker-pool-thread-%d").build();
-        ThreadPoolExecutor workerExecutor = new ThreadPoolExecutor(core_pool, core_pool, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), workerThreadFactory);
+
+        ThreadPoolExecutor workerExecutor = new ThreadPoolExecutor(core_pool, core_pool, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), workerThreadFactory);
         workerExecutor.prestartAllCoreThreads();
         workerExecutorService = workerExecutor;
 
@@ -135,6 +134,7 @@ public class ExecutionEnvironment implements Joinable, AutoCloseable {
 
         monitoredCallbackFutures = new ArrayList<>();
         monitoredFutures = new ArrayList<>();
+        callbackFutures = new HashMap<>();
     }
 
     public static <C extends Candidate, I extends CompositionComponent<C>, R extends Result, F extends Result> SPECppExecution<C, I, R, F> oneshotExecution(SPECpp<C, I, R, F> specpp, ExecutionParameters executionParameters) {
@@ -145,6 +145,19 @@ public class ExecutionEnvironment implements Joinable, AutoCloseable {
             throw new RuntimeException(e);
         }
         return execution;
+    }
+
+    public <C extends Candidate, I extends CompositionComponent<C>, R extends Result, F extends Result> ListenableFuture<?> addTimeLimitedCompletionCallback(SPECppExecution<C, I, R, F> execution, Consumer<SPECppExecution<C, I, R, F>> callback, Duration timeLimit) {
+        Consumer<SPECppExecution<C, I, R, F>> wrap = ex -> {
+            ScheduledFuture<?> schedule = timeoutExecutorService.schedule(() -> {
+                if (callbackFutures.containsKey(callback)) callbackFutures.get(callback).cancel(true);
+            }, timeLimit.toMillis(), TimeUnit.MILLISECONDS);
+            callback.accept(ex);
+            schedule.cancel(false);
+        };
+        ListenableFuture<?> future = addCompletionCallback(execution, wrap);
+        callbackFutures.put(callback, future);
+        return future;
     }
 
     public <C extends Candidate, I extends CompositionComponent<C>, R extends Result, F extends Result> ListenableFuture<?> addCompletionCallback(SPECppExecution<C, I, R, F> execution, Consumer<SPECppExecution<C, I, R, F>> callback) {

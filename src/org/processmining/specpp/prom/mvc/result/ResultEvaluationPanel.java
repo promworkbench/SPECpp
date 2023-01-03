@@ -5,35 +5,25 @@ import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.plugin.PluginContext;
-import org.processmining.log.utils.XUtils;
-import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
-import org.processmining.models.semantics.petrinet.Marking;
-import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithoutILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
-import org.processmining.plugins.etconformance.ETCAlgorithm;
-import org.processmining.plugins.etconformance.ETCResults;
-import org.processmining.plugins.petrinet.replayer.PNLogReplayer;
-import org.processmining.plugins.petrinet.replayer.algorithms.costbasedcomplete.CostBasedCompleteParam;
-import org.processmining.plugins.petrinet.replayresult.PNRepResult;
-import org.processmining.pnetreplayer.utils.TransEvClassMappingUtils;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.util.ImmutableTuple2;
 import org.processmining.specpp.datastructures.util.Tuple2;
 import org.processmining.specpp.prom.mvc.AbstractStagePanel;
 import org.processmining.specpp.supervision.supervisors.DebuggingSupervisor;
+import org.processmining.specpp.util.EvalUtils;
 
 import javax.swing.*;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class ResultEvaluationPanel extends AbstractStagePanel<ResultController> {
 
     private final JLabel fitnessLabel, precisionLabel;
-    private final SwingWorker<ETCResults, Void> precisionWorker;
-    private final SwingWorker<Double, Void> fitnessWorker;
+    private SwingWorker<Double, Void> precisionWorker;
+    private SwingWorker<Double, Void> fitnessWorker;
+    private final SwingWorker<Tuple2<EvalUtils.EvaluationLogData, TransEvClassMapping>, Void> dataWorker;
+    private final Timer timer;
 
     public ResultEvaluationPanel(ResultController resultController, ProMPetrinetWrapper proMPetrinetWrapper) {
         super(resultController);
@@ -51,86 +41,83 @@ public class ResultEvaluationPanel extends AbstractStagePanel<ResultController> 
         precisionLabel = SlickerFactory.instance().createLabel("ETC Precision: ?");
         add(precisionLabel);
 
-        XLog evalLog = resultController.getEvalLog();
+        dataWorker = new SwingWorker<Tuple2<EvalUtils.EvaluationLogData, TransEvClassMapping>, Void>() {
 
-        fitnessWorker = new SwingWorker<Double, Void>() {
             @Override
-            protected Double doInBackground() throws Exception {
-                Tuple2<TransEvClassMapping, Set<XEventClass>> tuple = getTransEvClassMapping(evalLog, resultController.getEventClassifier(), proMPetrinetWrapper);
-                PluginContext context = resultController.getContext().createChildContext("Fitness");
-                Map<XEventClass, Integer> mapEvClass2Cost = tuple.getT2()
-                                                                 .stream()
-                                                                 .collect(Collectors.toMap(a -> a, a -> 5));
-                mapEvClass2Cost.put(tuple.getT1().getDummyEventClass(), 5);
-                Map<Transition, Integer> mapTrans2Cost = proMPetrinetWrapper.getTransitions()
-                                                                            .stream()
-                                                                            .collect(Collectors.toMap(t -> t, t -> 2));
-                CostBasedCompleteParam paramObj = new CostBasedCompleteParam(mapEvClass2Cost, mapTrans2Cost);
-                paramObj.setMaxNumOfStates(Integer.MAX_VALUE);
-                paramObj.setInitialMarking(proMPetrinetWrapper.getInitialMarking());
-                paramObj.setFinalMarkings(proMPetrinetWrapper.getFinalMarkings().toArray(new Marking[0]));
-                paramObj.setGUIMode(false);
-                paramObj.setCreateConn(false);
-                PNRepResult syncReplayResults = new PNLogReplayer().replayLog(context, proMPetrinetWrapper, evalLog, tuple.getT1(), new PetrinetReplayerWithoutILP(), paramObj);
-                return (Double) syncReplayResults.getInfo().get(PNRepResult.TRACEFITNESS);
+            protected Tuple2<EvalUtils.EvaluationLogData, TransEvClassMapping> doInBackground() throws Exception {
+                XLog evalLog = resultController.createEvalLog();
+                XEventClassifier eventClassifier = resultController.getEventClassifier();
+                Set<XEventClass> eventClasses = EvalUtils.createEventClasses(eventClassifier, evalLog);
+                return new ImmutableTuple2<>(new EvalUtils.EvaluationLogData(evalLog, eventClassifier, eventClasses), EvalUtils.createTransEvClassMapping(eventClassifier, evalLog, proMPetrinetWrapper));
             }
 
             @Override
             protected void done() {
                 try {
-                    Double o = get();
-                    fitnessLabel.setText(String.format("Alignment-Based Fitness: %.2f", o));
-                } catch (InterruptedException | ExecutionException ignored) {
-                    fitnessLabel.setText("Alignment-Based Fitness: failed");
-                    DebuggingSupervisor.debug("Result Evaluation", "Alignment-Based Fitness failed:\n");
-                    ignored.printStackTrace();
+                    Tuple2<EvalUtils.EvaluationLogData, TransEvClassMapping> tuple2 = get();
+                    EvalUtils.EvaluationLogData evaluationLogData = tuple2.getT1();
+                    TransEvClassMapping evClassMapping = tuple2.getT2();
+                    fitnessWorker = new SwingWorker<Double, Void>() {
+                        @Override
+                        protected Double doInBackground() throws Exception {
+                            PluginContext context = resultController.getContext().createChildContext("Fitness");
+                            return EvalUtils.computeAlignmentBasedFitness(context, evaluationLogData, evClassMapping, proMPetrinetWrapper);
+                        }
+
+                        @Override
+                        protected void done() {
+                            try {
+                                Double o = get();
+                                fitnessLabel.setText(String.format("Alignment-Based Fitness: %.2f", o));
+                            } catch (InterruptedException | ExecutionException e) {
+                                fitnessLabel.setText("Alignment-Based Fitness: failed");
+                                e.fillInStackTrace();
+                                DebuggingSupervisor.debug("Result Evaluation", "Alignment-Based Fitness failed:\n" + e);
+                            }
+                        }
+                    };
+
+                    precisionWorker = new SwingWorker<Double, Void>() {
+
+                        @Override
+                        protected Double doInBackground() throws Exception {
+                            PluginContext childContext = resultController.getContext().createChildContext("Precision");
+                            return EvalUtils.computeETCPrecision(childContext, evaluationLogData, evClassMapping, proMPetrinetWrapper);
+                        }
+
+                        @Override
+                        protected void done() {
+                            try {
+                                Double etcPrecision = get();
+                                precisionLabel.setText(String.format("ETC Precision: %.2f", etcPrecision));
+                            } catch (InterruptedException | ExecutionException e) {
+                                precisionLabel.setText("ETC Precision: failed");
+                                e.fillInStackTrace();
+                                DebuggingSupervisor.debug("Result Evaluation", "ETC Precision failed:\n" + e);
+                            }
+                        }
+                    };
+
+                    fitnessWorker.execute();
+                    precisionWorker.execute();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
                 }
             }
         };
-
-
-        precisionWorker = new SwingWorker<ETCResults, Void>() {
-
-            @Override
-            protected ETCResults doInBackground() throws Exception {
-                TransEvClassMapping transEvClassMapping = getTransEvClassMapping(evalLog, resultController.getEventClassifier(), proMPetrinetWrapper).getT1();
-                PluginContext childContext = resultController.getContext().createChildContext("Precision");
-                ETCResults etcResults = new ETCResults();
-                ETCAlgorithm.exec(childContext, evalLog, proMPetrinetWrapper, proMPetrinetWrapper.getInitialMarking(), transEvClassMapping, etcResults);
-                return etcResults;
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    ETCResults etcResults = get();
-                    precisionLabel.setText(String.format("ETC Precision: %.2f", etcResults.getEtcp()));
-                } catch (InterruptedException | ExecutionException ignored) {
-                    precisionLabel.setText("ETC Precision: failed");
-                    DebuggingSupervisor.debug("Result Evaluation", "ETC Precision failed:\n");
-                    ignored.printStackTrace();
-                }
-            }
-        };
-
-        fitnessWorker.execute();
-        precisionWorker.execute();
+        dataWorker.execute();
 
         // 2 min timeout
-        Timer timer = new Timer(2 * 60 * 1000, e -> killWorkers());
+        timer = new Timer(2 * 60 * 1000, e -> killWorkers());
         timer.setRepeats(false);
         timer.start();
     }
 
     private void killWorkers() {
-        fitnessWorker.cancel(true);
-        precisionWorker.cancel(true);
-    }
-
-    private static Tuple2<TransEvClassMapping, Set<XEventClass>> getTransEvClassMapping(XLog xLog, XEventClassifier eventClassifier, ProMPetrinetWrapper proMPetrinetWrapper) {
-        Set<XEventClass> eventClasses = new HashSet<>(XUtils.createEventClasses(eventClassifier, xLog).getClasses());
-        return new ImmutableTuple2<>(TransEvClassMappingUtils.getInstance()
-                                                             .getMapping(proMPetrinetWrapper, eventClasses, eventClassifier), eventClasses);
+        if (timer != null && timer.isRunning()) timer.stop();
+        if (fitnessWorker != null && !fitnessWorker.isDone()) fitnessWorker.cancel(true);
+        if (precisionWorker != null && !precisionWorker.isDone()) precisionWorker.cancel(true);
+        dataWorker.cancel(true);
     }
 
     @Override

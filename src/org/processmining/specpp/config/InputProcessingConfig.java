@@ -17,6 +17,10 @@ public interface InputProcessingConfig {
     DataExtractionStrategy getDataExtractionStrategy();
 
 
+    default DataSource<InputDataBundle> getInputDataSource(XLog xLog) {
+        return getInputDataSource(getParsedLogDataSource(xLog).getData());
+    }
+
     default DataSource<ParsedLog> getParsedLogDataSource(XLog xLog) {
         return getPreProcessingStrategy().getParser(xLog, getPreProcessingParameters());
     }

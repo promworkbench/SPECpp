@@ -5,6 +5,7 @@ import org.processmining.specpp.traits.ProperlyPrintable;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Set;
 
 public class FixedOrdering<T> implements Comparator<T>, ProperlyPrintable {
 
@@ -19,6 +20,10 @@ public class FixedOrdering<T> implements Comparator<T>, ProperlyPrintable {
         }
         order = builder.build();
         arr = Arrays.copyOf(ts, ts.length);
+    }
+
+    public Set<T> elements() {
+        return order.keySet();
     }
 
     @Override

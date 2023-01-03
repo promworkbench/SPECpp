@@ -62,4 +62,10 @@ public class CSVWriter<O extends Observation> implements AsyncObserver<O>, Buffe
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        stop();
+        super.finalize();
+    }
+
 }

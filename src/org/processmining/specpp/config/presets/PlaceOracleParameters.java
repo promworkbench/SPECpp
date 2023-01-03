@@ -9,7 +9,7 @@ import org.processmining.specpp.config.parameters.TauFitnessThresholds;
 
 public class PlaceOracleParameters extends ParameterProvider {
     public PlaceOracleParameters() {
-        globalComponentSystem().provide(ParameterRequirements.parameters("placegenerator.parameters", PlaceGeneratorParameters.class, StaticDataSource.of(new PlaceGeneratorParameters(5, true, false, true, true))))
+        globalComponentSystem().provide(ParameterRequirements.PLACE_GENERATOR_PARAMETERS.fulfilWithStatic(new PlaceGeneratorParameters(5, true, false, true, true)))
                                .provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWith(StaticDataSource.of(SupervisionParameters.instrumentNone(false, true))))
                                .provide(ParameterRequirements.TAU_FITNESS_THRESHOLDS.fulfilWith(StaticDataSource.of(new TauFitnessThresholds(0.5))));
     }

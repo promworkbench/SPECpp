@@ -91,7 +91,7 @@ public class SPECppOutputtingUtils {
     public static void postExecution(SPECpp<?, ?, ?, ProMPetrinetWrapper> specpp, boolean allowPrinting, boolean allowVisualOutput, boolean allowSaving) {
         if (allowPrinting) {
             System.out.println("// ========================================= //");
-            System.out.println("Executed " + specpp.currentStepCount() + " ProposalEvaluationComposition (PEC) cycles.");
+            System.out.println("Executed " + specpp.currentCycleCount() + " ProposalEvaluationComposition (PEC) cycles.");
         }
 
         ProMPetrinetWrapper finalResult = specpp.getPostProcessedResult();

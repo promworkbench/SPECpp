@@ -3,24 +3,26 @@ package org.processmining.specpp.prom.mvc.swing;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.beans.VetoableChangeListener;
 
-public class TitledBorderPanel extends JPanel {
+public class TitledBorderScrollPanel extends JScrollPane {
 
+    private final JPanel content;
     private GridBagConstraints c;
 
-    public TitledBorderPanel(String title, LayoutManager layout) {
-        super(layout);
+    public TitledBorderScrollPanel(String title, LayoutManager layout) {
+        content = new JPanel(layout);
         createBorder(title);
+        setViewportView(content);
     }
 
-    public TitledBorderPanel(String title) {
-        super(new GridBagLayout());
+    public TitledBorderScrollPanel(String title) {
+        this(title, new GridBagLayout());
         c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.insets = new Insets(1, 1, 1, 1);
         c.gridx = 0;
         c.gridy = 0;
-        createBorder(title);
     }
 
     private void createBorder(String title) {
@@ -32,17 +34,16 @@ public class TitledBorderPanel extends JPanel {
     }
 
     public void append(JComponent component) {
-        add(component, c);
+        content.add(component, c);
         c.gridy++;
     }
 
     public void completeWithWhitespace() {
         c.weighty = 1;
         c.weightx = 1;
-        add(Box.createVerticalGlue(), c);
+        content.add(Box.createVerticalGlue(), c);
         c.gridx++;
-        add(Box.createHorizontalGlue(), c);
+        content.add(Box.createHorizontalGlue(), c);
     }
-
 
 }

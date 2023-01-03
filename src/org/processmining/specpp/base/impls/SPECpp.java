@@ -205,7 +205,7 @@ public class SPECpp<C extends Candidate, I extends CompositionComponent<C>, R ex
         return composer;
     }
 
-    public int currentStepCount() {
+    public int currentCycleCount() {
         return cycleCount;
     }
 

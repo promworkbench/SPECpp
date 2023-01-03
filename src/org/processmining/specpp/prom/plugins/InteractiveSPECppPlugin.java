@@ -10,7 +10,7 @@ import org.processmining.log.utils.XUtils;
 public class InteractiveSPECppPlugin {
 
 
-    public static final String HELP = "The name is an acronym for Supervised Proposal, Evaluation & Composition + post processing. This plugin provides an extensible framework implementation of the bottom-up Petri net discovery approach also known as eST Miner. It tries to efficiently evaluate all possible place candidates by exploiting token-based fitness monotonicity and guiding the search using heuristics.";
+    public static final String HELP = "The name is an acronym for Supervised Proposal, Evaluation & Composition + post processing. This plugin provides an extensible framework implementation of the bottom-up Petri net discovery approach also known as eST Miner. The goal is to efficiently evaluate all possible place candidates (most indirectly!) by exploiting token-based fitness monotonicity and guiding the search using heuristics.";
 
     @UITopiaVariant(affiliation = "PADS RWTH Aachen University", author = "Leah Tacke genannt Unterberg", email = "leah.tgu@pads.rwth-aachen.de")
     @PluginVariant(variantLabel = "Interactive SPECpp", requiredParameterLabels = {0})

@@ -29,6 +29,5 @@ public class ProposalTreeSupervisor extends MonitoringSupervisor {
                 .giveBackgroundThread()
                 .pipe(PipeWorks.predicatePipe(e -> e instanceof TreeNodeEvent))
                 .sink(getMonitor("tree.monitor")).apply();
-
     }
 }

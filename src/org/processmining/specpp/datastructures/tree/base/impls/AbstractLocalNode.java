@@ -72,7 +72,7 @@ public abstract class AbstractLocalNode<P extends NodeProperties, S extends Node
 
     @Override
     public String toString() {
-        return "(d=" + depth + ", props=" + properties + ", state=" + state + ")";
+        return "(d=" + depth + ", properties=" + properties + ", state=" + state + ")";
     }
 
 }

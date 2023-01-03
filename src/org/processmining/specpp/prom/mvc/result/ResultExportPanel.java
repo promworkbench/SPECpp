@@ -35,7 +35,7 @@ public class ResultExportPanel extends AbstractStagePanel<ResultController> {
 
         saveEvalLogButton = SlickerFactory.instance().createButton("save evaluation log to workspace");
         saveEvalLogButton.addActionListener(e -> saveEvalLog());
-        if (controller.getEvalLog() == controller.getRawLog()) saveEvalLogButton.setVisible(false);
+        if (controller.createEvalLog() == controller.getRawLog()) saveEvalLogButton.setVisible(false);
         add(saveEvalLogButton);
     }
 
@@ -61,7 +61,7 @@ public class ResultExportPanel extends AbstractStagePanel<ResultController> {
     }
 
     private void saveEvalLog() {
-        XLog evalLog = controller.getEvalLog();
+        XLog evalLog = controller.createEvalLog();
         ProvidedObjectHelper.publish(context, "Evaluation Log", evalLog, XLog.class, true);
         saveEvalLogButton.setEnabled(false);
     }

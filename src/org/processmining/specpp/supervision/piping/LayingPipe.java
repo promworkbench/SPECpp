@@ -133,6 +133,11 @@ public class LayingPipe {
         return this;
     }
 
+    public void terminalSink(Observer<?> sink) {
+        sink(sink);
+        apply();
+    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void connectAllObservers(int index) {
         if (index >= observables.size()) throw new DisorderedPipeLaying();

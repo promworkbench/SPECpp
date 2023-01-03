@@ -4,10 +4,10 @@ import com.fluxicon.slickerbox.factory.SlickerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.processmining.specpp.componenting.data.DataSource;
+import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
 import org.processmining.specpp.config.parameters.OutputPathParameters;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.vectorization.OrderingRelation;
-import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
 import org.processmining.specpp.prom.alg.FrameworkBridge;
 import org.processmining.specpp.prom.mvc.AbstractStagePanel;
 import org.processmining.specpp.prom.mvc.swing.*;
@@ -104,12 +104,17 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
     private final JCheckBox initiallyWireSelfLoopsCheckBox = SwingFactory.labeledCheckBox("initially wire self loops", false);
     private final HorizontalJPanel deltaRelatedParametersPanel;
 
+    @Override
+    public boolean isValidateRoot() {
+        return true; // super.isValidateRoot();
+    }
+
     public ConfigurationPanel(ConfigurationController controller) {
         super(controller, new GridBagLayout());
 
         // ** SUPERVISION ** //
 
-        TitledBorderPanel supervision = new TitledBorderPanel("Preset & Supervision");
+        TitledBorderScrollPanel supervision = new TitledBorderScrollPanel("Preset & Supervision");
         Preset[] availablePresets = Preset.values();
         if (controller.getParentController().getLoadedConfig() == null)
             availablePresets = Arrays.copyOf(Preset.values(), Preset.values().length - 1);
@@ -148,7 +153,7 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
 
         // ** PROPOSAL ** //
 
-        TitledBorderPanel proposal = new TitledBorderPanel("Proposal");
+        TitledBorderScrollPanel proposal = new TitledBorderScrollPanel("Proposal");
         LabeledComboBox<ProMConfig.TreeExpansionSetting> candidateEnumerationLabeledComboBox = SwingFactory.labeledComboBox("Place Enumeration", ProMConfig.TreeExpansionSetting.values());
         expansionStrategyComboBox = candidateEnumerationLabeledComboBox.getComboBox();
         candidateEnumerationLabeledComboBox.add(SwingFactory.help("The strategy by which the place candidate tree is traversed.", "BFS - breadth first search\nDFS - depth first search\nHeuristic - using the subsequently configured heuristic"));
@@ -180,7 +185,7 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
 
         // ** EVALUATION ** //
 
-        TitledBorderPanel evaluation = new TitledBorderPanel("Evaluation");
+        TitledBorderScrollPanel evaluation = new TitledBorderScrollPanel("Evaluation");
         concurrentReplayCheckBox = SwingFactory.labeledCheckBox("use parallel replay implementation");
         concurrentReplayCheckBox.addChangeListener(e -> updatedEvaluationSettings());
         concurrentReplayCheckBox.setToolTipText("Whether to favor a parallel (over variants) replay implementation. Influences performance.");
@@ -216,7 +221,7 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
 
         // ** COMPOSITION ** //
 
-        TitledBorderPanel composition = new TitledBorderPanel("Composition");
+        TitledBorderScrollPanel composition = new TitledBorderScrollPanel("Composition");
         LabeledComboBox<ProMConfig.CompositionStrategy> compositionStrategyLabeledComboBox = SwingFactory.labeledComboBox("Variant", ProMConfig.CompositionStrategy.values());
         compositionStrategyComboBox = compositionStrategyLabeledComboBox.getComboBox();
         compositionStrategyComboBox.addItemListener(e -> {
@@ -244,7 +249,7 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         postProcessing.add(Box.createVerticalGlue(), BorderLayout.PAGE_END);
         // ** PARAMETERS ** //
 
-        TitledBorderPanel parameters = new TitledBorderPanel("Parameters");
+        TitledBorderScrollPanel parameters = new TitledBorderScrollPanel("Parameters");
         parameters.setFocusable(true); // focus is still not lost on click outside
         tauInput = SwingFactory.textBasedInputField("tau", zeroOneDoubleFunc, 10);
         tauInput.getTextField().setToolTipText("Minimal place fitness threshold in [0, 1].");
@@ -374,7 +379,8 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         expansionStrategyComboBox.setSelectedItem(pc.treeExpansionSetting);
         respectWiringCheckBox.setSelected(pc.respectWiring);
         supportRestartCheckBox.setSelected(pc.supportRestart);
-        heuristicComboBox.setSelectedItem(pc.treeHeuristic);
+        if (pc.treeHeuristic != null)
+            heuristicComboBox.setSelectedItem(pc.treeHeuristic);
         enforceHeuristicScoreThresholdCheckBox.setSelected(pc.enforceHeuristicThreshold);
         concurrentReplayCheckBox.setSelected(pc.concurrentReplay);
         permitNegativeMarkingsCheckBox.setSelected(pc.permitNegativeMarkingsDuringReplay);

@@ -138,7 +138,8 @@ public class FrameworkBridge {
         AverageTraceOccurrence(new AnnotatedActivityOrderingStrategy("Average Trace Occurrence", org.processmining.specpp.preprocessing.orderings.AverageTraceOccurrence.class)),
         AbsoluteTraceFrequency(new AnnotatedActivityOrderingStrategy("Absolute Trace Frequency", org.processmining.specpp.preprocessing.orderings.AbsoluteTraceFrequency.class)),
         AbsoluteActivityFrequency(new AnnotatedActivityOrderingStrategy("Absolute Activity Frequency", org.processmining.specpp.preprocessing.orderings.AbsoluteActivityFrequency.class)),
-        Lexicographic(new AnnotatedActivityOrderingStrategy("Lexicographic", org.processmining.specpp.preprocessing.orderings.Lexicographic.class));
+        Lexicographic(new AnnotatedActivityOrderingStrategy("Lexicographic", org.processmining.specpp.preprocessing.orderings.Lexicographic.class)),
+        Random(new AnnotatedActivityOrderingStrategy("Random", org.processmining.specpp.preprocessing.orderings.RandomOrdering.class));
 
         private final AnnotatedActivityOrderingStrategy strategy;
 

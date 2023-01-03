@@ -1,30 +1,24 @@
 package org.processmining.specpp.prom.mvc.result;
 
 import org.deckfour.xes.classification.XEventClassifier;
-import org.deckfour.xes.extension.std.XConceptExtension;
-import org.deckfour.xes.factory.XFactoryNaiveImpl;
-import org.deckfour.xes.model.XAttributeMap;
-import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
-import org.deckfour.xes.model.XTrace;
-import org.processmining.log.utils.XUtils;
 import org.processmining.specpp.base.Evaluator;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
+import org.processmining.specpp.config.SPECppConfigBundle;
 import org.processmining.specpp.datastructures.log.Log;
-import org.processmining.specpp.datastructures.log.impls.Factory;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
 import org.processmining.specpp.evaluation.fitness.DetailedFitnessEvaluation;
-import org.processmining.specpp.config.SPECppConfigBundle;
 import org.processmining.specpp.preprocessing.InputDataBundle;
 import org.processmining.specpp.prom.mvc.AbstractStageController;
 import org.processmining.specpp.prom.mvc.SPECppController;
 import org.processmining.specpp.prom.mvc.config.ProMConfig;
+import org.processmining.specpp.util.EvalUtils;
 import org.processmining.specpp.util.PlaceMaker;
 
 import javax.swing.*;
@@ -94,25 +88,9 @@ public class ResultController extends AbstractStageController {
         return rawLog;
     }
 
-    public XLog getEvalLog() {
-        if (evalLog == null)
-            if (parentController.getInputProcessingConfig() != null && parentController.getInputProcessingConfig()
-                                                                                       .getPreProcessingParameters()
-                                                                                       .isAddStartEndTransitions()) {
-                XFactoryNaiveImpl xFactorY = new XFactoryNaiveImpl();
-                XAttributeMap attributeMap = xFactorY.createAttributeMap();
-                attributeMap.put("concept:name", xFactorY.createAttributeLiteral("concept:name", Factory.UNIQUE_START_LABEL, XConceptExtension.instance()));
-                XEvent startEvent = xFactorY.createEvent(attributeMap);
-                attributeMap = xFactorY.createAttributeMap();
-                attributeMap.put("concept:name", xFactorY.createAttributeLiteral("concept:name", Factory.UNIQUE_END_LABEL, XConceptExtension.instance()));
-                XEvent endEvent = xFactorY.createEvent(attributeMap);
-                XLog copiedLog = XUtils.cloneLogWithoutGlobalsAndClassifiers(getRawLog());
-                for (XTrace trace : copiedLog) {
-                    trace.add(0, startEvent);
-                    trace.add(endEvent);
-                }
-                evalLog = copiedLog;
-            } else evalLog = rawLog;
+    public XLog createEvalLog() {
+        if (evalLog == null) evalLog = EvalUtils.createEvalLog(getRawLog(), parentController.getInputProcessingConfig()
+                                                                                            .getPreProcessingParameters());
         return evalLog;
     }
 

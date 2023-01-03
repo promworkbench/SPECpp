@@ -37,10 +37,10 @@ public class ProMPetrinetBuilder {
     public ProMPetrinetWrapper build() {
         org.processmining.models.graphbased.directed.petrinet.elements.Place uniqueStartPlace = net.addPlace("start");
         uniqueStartPlace.getAttributeMap().put(AttributeMap.LABEL, "START");
-        uniqueStartPlace.getAttributeMap().put(AttributeMap.SHOWLABEL, true);
+        uniqueStartPlace.getAttributeMap().put(AttributeMap.SHOWLABEL, false);
         org.processmining.models.graphbased.directed.petrinet.elements.Place uniqueEndPlace = net.addPlace("end");
         uniqueEndPlace.getAttributeMap().put(AttributeMap.LABEL, "END");
-        uniqueEndPlace.getAttributeMap().put(AttributeMap.SHOWLABEL, true);
+        uniqueEndPlace.getAttributeMap().put(AttributeMap.SHOWLABEL, false);
         Marking initialMarking = new Marking(ImmutableSet.of(uniqueStartPlace)), finalMarking = new Marking(ImmutableSet.of(uniqueEndPlace));
         Set<org.processmining.specpp.datastructures.petri.Transition> hasStartConnection = new HashSet<>(), hasEndConnection = new HashSet<>();
         for (Place p : collectionOfPlaces.getPlaces()) {

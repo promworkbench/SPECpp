@@ -37,10 +37,10 @@ public class ProMConfig {
         pc.supervisionSetting = SupervisionSetting.PerformanceAndEvents;
         pc.logToFile = true;
         pc.logHeuristics = false;
-        pc.treeExpansionSetting = TreeExpansionSetting.Heuristic;
+        pc.treeExpansionSetting = TreeExpansionSetting.BFS;
+        pc.treeHeuristic = null; // FrameworkBridge.BridgedHeuristics.BFS_Emulation.getBridge();
         pc.respectWiring = false;
         pc.supportRestart = false;
-        pc.treeHeuristic = FrameworkBridge.BridgedHeuristics.BFS_Emulation.getBridge();
         pc.enforceHeuristicThreshold = false;
         pc.concurrentReplay = false;
         pc.permitNegativeMarkingsDuringReplay = false;
@@ -80,6 +80,7 @@ public class ProMConfig {
         pc.compositionStrategy = CompositionStrategy.Uniwired;
         pc.respectWiring = true;
         pc.initiallyWireSelfLoops = true;
+        pc.ciprVariant = CIPRVariant.None;
         pc.ppPipeline = ImmutableList.of(FrameworkBridge.BridgedPostProcessors.UniwiredSelfLoopAddition.getBridge(), FrameworkBridge.BridgedPostProcessors.LPBasedImplicitPlaceRemoval.getBridge(), FrameworkBridge.BridgedPostProcessors.ProMPetrinetConversion.getBridge());
         return pc;
     }
@@ -89,7 +90,7 @@ public class ProMConfig {
         boolean incomplete = (supervisionSetting == null | treeExpansionSetting == null | compositionStrategy == null);
         incomplete |= logHeuristics && (!logToFile || supervisionSetting != SupervisionSetting.PerformanceAndEvents);
         incomplete |= treeExpansionSetting == TreeExpansionSetting.Heuristic && treeHeuristic == null;
-        incomplete |= enforceHeuristicThreshold && (heuristicThreshold < 0 || heuristicThresholdRelation == null);
+        incomplete |= treeExpansionSetting == TreeExpansionSetting.Heuristic && enforceHeuristicThreshold && (heuristicThreshold < 0 || heuristicThresholdRelation == null);
         incomplete |= compositionStrategy == CompositionStrategy.TauDelta && (deltaAdaptationFunction == null || (deltaAdaptationFunction != FrameworkBridge.BridgedDeltaAdaptationFunctions.None.getBridge() && delta < 0) || ((deltaAdaptationFunction == FrameworkBridge.BridgedDeltaAdaptationFunctions.Linear.getBridge() || deltaAdaptationFunction == FrameworkBridge.BridgedDeltaAdaptationFunctions.Sigmoid.getBridge()) && steepness < 0));
         return !outOfRange && !incomplete;
     }
@@ -105,7 +106,7 @@ public class ProMConfig {
     public enum SupervisionSetting implements DisplayableEnum {
         Nothing("Nothing", "Nothing is tracked. Least amount of overhead."),
         PerformanceOnly("Performance Only", "Component's performance is logged."),
-        PerformanceAndEvents("Performance & Events", "Utilizes event-generating implementations in addition to performance logging.");
+        PerformanceAndEvents("Performance & Events", "Utilizes descriptive event-generating implementations in addition to performance logging.");
 
 
         private final String displayName, description;

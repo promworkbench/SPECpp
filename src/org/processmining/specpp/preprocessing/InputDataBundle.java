@@ -32,10 +32,12 @@ public class InputDataBundle {
         return transitionEncodings;
     }
 
-    public static InputDataBundle load(String logPath, InputProcessingConfig inputProcessingConfig) {
-        XLog xLog = XLogParser.readLog(logPath);
-        return inputProcessingConfig.getInputDataSource(inputProcessingConfig.getParsedLogDataSource(xLog).getData())
-                                    .getData();
+    public static InputDataBundle loadAndProcess(String logPath, InputProcessingConfig inputProcessingConfig) {
+        return process(XLogParser.readLog(logPath), inputProcessingConfig);
+    }
+
+    public static InputDataBundle process(XLog xLog, InputProcessingConfig inputProcessingConfig) {
+        return inputProcessingConfig.getInputDataSource(xLog).getData();
     }
 
     @Override
