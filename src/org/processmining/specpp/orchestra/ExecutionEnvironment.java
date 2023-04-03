@@ -8,7 +8,6 @@ import org.processmining.specpp.base.Result;
 import org.processmining.specpp.base.impls.SPECpp;
 import org.processmining.specpp.componenting.system.link.CompositionComponent;
 import org.processmining.specpp.config.parameters.ExecutionParameters;
-import org.processmining.specpp.headless.batch.MyThreadPoolExecutor;
 import org.processmining.specpp.prom.computations.OngoingComputation;
 import org.processmining.specpp.prom.computations.OngoingStagedComputation;
 import org.processmining.specpp.traits.Joinable;
