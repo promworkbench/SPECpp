@@ -1,6 +1,7 @@
 package org.processmining.specpp.util;
 
 import nl.tue.astar.AStarException;
+import nl.tue.astar.AStarThread;
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.extension.std.XConceptExtension;
@@ -15,6 +16,7 @@ import org.processmining.log.utils.XUtils;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.elements.Transition;
 import org.processmining.models.semantics.petrinet.Marking;
+import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithILP;
 import org.processmining.plugins.astar.petrinet.PetrinetReplayerWithoutILP;
 import org.processmining.plugins.connectionfactories.logpetrinet.TransEvClassMapping;
 import org.processmining.plugins.etconformance.ETCAlgorithm;
@@ -69,7 +71,7 @@ public class EvalUtils {
         return createTransEvClassMapping(eventClassifier, eventClasses, petrinet);
     }
 
-    public static CostBasedCompleteParam getCostBasedCompleteParam(TransEvClassMapping transEvClassMapping, Set<XEventClass> eventClasses, AcceptingPetriNet proMPetrinetWrapper) {
+    public static CostBasedCompleteParam getCostBasedCompleteParam(TransEvClassMapping transEvClassMapping, Set<XEventClass> eventClasses, AcceptingPetriNet proMPetrinetWrapper, AStarThread.Canceller canceller) {
         Map<XEventClass, Integer> mapEvClass2Cost = eventClasses.stream().collect(Collectors.toMap(a -> a, a -> 5));
         mapEvClass2Cost.put(transEvClassMapping.getDummyEventClass(), 5);
         Map<Transition, Integer> mapTrans2Cost = proMPetrinetWrapper.getNet()
@@ -82,18 +84,19 @@ public class EvalUtils {
         paramObj.setFinalMarkings(proMPetrinetWrapper.getFinalMarkings().toArray(new Marking[0]));
         paramObj.setGUIMode(false);
         paramObj.setCreateConn(false);
+        if (canceller != null) paramObj.setCanceller(canceller);
         return paramObj;
     }
 
 
-    public static PNRepResult computeAlignmentBasedReplay(PluginContext context, EvaluationLogData evaluationLogData, TransEvClassMapping evClassMapping, ProMPetrinetWrapper proMPetrinetWrapper) throws AStarException {
-        CostBasedCompleteParam paramObj = getCostBasedCompleteParam(evClassMapping, evaluationLogData.getEventClasses(), proMPetrinetWrapper);
-        return new PNLogReplayer().replayLog(context, proMPetrinetWrapper, evaluationLogData.getEvalLog(), evClassMapping, new PetrinetReplayerWithoutILP(), paramObj);
+    public static PNRepResult computeAlignmentBasedReplay(PluginContext context, EvaluationLogData evaluationLogData, TransEvClassMapping evClassMapping, ProMPetrinetWrapper proMPetrinetWrapper, AStarThread.Canceller canceller, boolean attemptILP) throws AStarException {
+        CostBasedCompleteParam paramObj = getCostBasedCompleteParam(evClassMapping, evaluationLogData.getEventClasses(), proMPetrinetWrapper, canceller);
+        return new PNLogReplayer().replayLog(context, proMPetrinetWrapper, evaluationLogData.getEvalLog(), evClassMapping, attemptILP ? new PetrinetReplayerWithILP() : new PetrinetReplayerWithoutILP(), paramObj);
     }
 
-    public static double computeAlignmentBasedFitness(PluginContext context, EvaluationLogData evaluationLogData, TransEvClassMapping evClassMapping, ProMPetrinetWrapper proMPetrinetWrapper) throws AStarException {
-        return ((Double) computeAlignmentBasedReplay(context, evaluationLogData, evClassMapping, proMPetrinetWrapper).getInfo()
-                                                                                                                     .get(PNRepResult.TRACEFITNESS));
+    public static double computeAlignmentBasedFitness(PluginContext context, EvaluationLogData evaluationLogData, TransEvClassMapping evClassMapping, ProMPetrinetWrapper proMPetrinetWrapper, AStarThread.Canceller canceller, boolean attemptILP) throws AStarException {
+        return ((Double) computeAlignmentBasedReplay(context, evaluationLogData, evClassMapping, proMPetrinetWrapper, canceller, attemptILP).getInfo()
+                                                                                                                                            .get(PNRepResult.TRACEFITNESS));
     }
 
     public static double deriveAlignmentBasedFitness(PNRepResult replayResults) {

@@ -46,9 +46,9 @@ public class ResultExportPanel extends AbstractStagePanel<ResultController> {
         context.getConnectionManager().addConnection(new InitialMarkingConnection(net, result.getInitialMarking()));
         context.getConnectionManager()
                .addConnection(new FinalMarkingConnection(net, result.getFinalMarkings()
-                                                                       .stream()
-                                                                       .findFirst()
-                                                                       .orElse(new Marking())));
+                                                                    .stream()
+                                                                    .findFirst()
+                                                                    .orElse(new Marking())));
         saveProMPetriButton.setEnabled(false);
     }
 

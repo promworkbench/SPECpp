@@ -1,8 +1,8 @@
 package org.processmining.specpp.datastructures.vectorization.spliteration;
 
+import org.processmining.specpp.datastructures.util.MutablePair;
 import org.processmining.specpp.datastructures.util.MutableTuple2;
 import org.processmining.specpp.datastructures.util.Tuple2;
-import org.processmining.specpp.datastructures.util.MutablePair;
 
 import java.util.Spliterator;
 import java.util.function.Function;

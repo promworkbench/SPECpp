@@ -6,4 +6,13 @@ public interface WiringTester extends PotentialExpansionsFilter, ExpansionStoppe
     void wire(Place place);
 
     void unwire(Place place);
+
+    boolean isWired(Place place);
+
+    @Override
+    default boolean notAllowedToExpand(PlaceNode placeNode) {
+        Place place = placeNode.getPlace();
+        return isWired(place);
+    }
+
 }

@@ -24,14 +24,16 @@ public class UnWiringMatrix extends WiringMatrix {
 
     private void recomputeWireSets() {
         for (Place p : wiredPlaces) {
-            wire(p);
+            super.wire(p);
         }
     }
 
     @Override
     public void unwire(Place place) {
         wiredPlaces.remove(place);
+        reset();
         recomputeWireSets();
     }
+
 
 }

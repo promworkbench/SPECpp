@@ -17,6 +17,7 @@ import org.processmining.specpp.datastructures.tree.base.HeuristicStrategy;
 import org.processmining.specpp.datastructures.tree.constraints.AddWiredPlace;
 import org.processmining.specpp.datastructures.tree.constraints.RemoveWiredPlace;
 import org.processmining.specpp.datastructures.tree.nodegen.UnWiringMatrix;
+import org.processmining.specpp.datastructures.tree.nodegen.WiringTester;
 import org.processmining.specpp.evaluation.heuristics.CandidateScore;
 import org.processmining.specpp.proposal.ProposerSignal;
 import org.processmining.specpp.util.JavaTypingUtils;
@@ -30,7 +31,7 @@ public class UniwiredComposer<I extends AdvancedComposition<Place>, R extends Re
     protected final DelegatingObserver<ProposerSignal> proposerSignalsIn = new DelegatingObserver<>();
     protected final DelegatingDataSource<IntEncodings<Transition>> transitionEncodings = new DelegatingDataSource<>();
     protected final DelegatingDataSource<HeuristicStrategy<Place, CandidateScore>> orderingHeuristic = new DelegatingDataSource<>();
-    protected UnWiringMatrix wiringMatrix;
+    protected WiringTester wiringMatrix;
     protected int currentTreeLevel;
     protected final DelegatingDataSource<Integer> treeLevelSource = new DelegatingDataSource<>(() -> currentTreeLevel);
     private HeuristicStrategy<Place, CandidateScore> heuristic;
@@ -59,7 +60,6 @@ public class UniwiredComposer<I extends AdvancedComposition<Place>, R extends Re
         heuristic = orderingHeuristic.getData();
         IntEncodings<Transition> encodings = transitionEncodings.getData();
         wiringMatrix = new UnWiringMatrix(encodings);
-
     }
 
     @Override
@@ -80,6 +80,7 @@ public class UniwiredComposer<I extends AdvancedComposition<Place>, R extends Re
             if (wiringMatrix.isWired(place)) rejectCandidate(place);
             else acceptCandidate(place);
         }
+
         collectedPlaces.clear();
         return true;
     }

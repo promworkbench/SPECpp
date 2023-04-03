@@ -220,7 +220,7 @@ public class MonotonousPlaceGenerationLogic extends PlaceGenerationLogic {
      * @return potential expansions represented by a bitmask
      */
     protected BitMask computeFilteredPotentialExpansions(Place place, PlaceState state, ExpansionType expansionType) {
-        BitMask potentialExpansions = expansionType == ExpansionType.Postset ? state.getPotentialPostsetExpansions() : state.getPotentialPresetExpansions();
+        BitMask potentialExpansions = state.getPotentialExpansions(expansionType);
 
         for (PotentialExpansionsFilter filter : potentialExpansionFilters) {
             potentialExpansions = filter.filterPotentialSetExpansions(place, potentialExpansions, expansionType);

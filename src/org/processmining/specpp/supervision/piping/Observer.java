@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 /**
  * Base interface for observers.
+ *
  * @param <O> the type of observations observed by this Observer
  */
 @FunctionalInterface

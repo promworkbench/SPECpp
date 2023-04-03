@@ -5,6 +5,7 @@ import java.util.function.Function;
 /**
  * General interface for evaluators. Essentially a function restricted to {@code Evaluable} and {@code Evaluation} types.
  * E.g. {@code Place} to {@code BasicFitnessEvaluation}.
+ *
  * @param <I> evaluable type
  * @param <E> evaluation type
  */

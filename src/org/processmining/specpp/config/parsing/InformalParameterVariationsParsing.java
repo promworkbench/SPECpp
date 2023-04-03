@@ -5,13 +5,9 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import org.processmining.specpp.componenting.data.FulfilledDataRequirement;
-import org.processmining.specpp.componenting.data.ParameterRequirement;
-import org.processmining.specpp.componenting.traits.ProvidesParameters;
-import org.processmining.specpp.config.parameters.ParameterProvider;
-import org.processmining.specpp.config.parameters.Parameters;
 import org.processmining.specpp.datastructures.util.ImmutableTuple2;
 import org.processmining.specpp.datastructures.util.Tuple2;
+import org.processmining.specpp.util.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,29 +16,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.processmining.specpp.config.parsing.ConfigurationParsing.getFullyQualifiedClassName;
+public class InformalParameterVariationsParsing {
 
-public class ParameterVariationsParsing {
+    public static void main(String[] args) {
+        List<Tuple2<String, List<String>>> list = FileUtils.readCustomJson("input/eval_configs/variations.json", getTypeAdapter());
+        FileUtils.saveAsCSV("test.csv", list);
+    }
 
-    public static final TypeAdapter<List<ProvidesParameters>> PARAMETER_PROVIDER_LIST_TYPE_ADAPTER = new TypeAdapter<List<ProvidesParameters>>() {
+    public static final TypeAdapter<List<Tuple2<String, List<String>>>> PARAMETER_PROVIDER_LIST_TYPE_ADAPTER = new TypeAdapter<List<Tuple2<String, List<String>>>>() {
 
         private final Gson gson = new Gson();
 
         @Override
-        public void write(JsonWriter out, List<ProvidesParameters> value) throws IOException {
+        public void write(JsonWriter out, List<Tuple2<String, List<String>>> value) throws IOException {
             out.nullValue();
         }
 
         @Override
-        public List<ProvidesParameters> read(JsonReader in) throws IOException {
+        public List<Tuple2<String, List<String>>> read(JsonReader in) throws IOException {
             if (in.peek() == JsonToken.NULL) {
                 in.nextNull();
                 return Lists.newArrayList();
             } else {
-                List<List<Tuple2<ParameterRequirement<Parameters>, List<Parameters>>>> listOfListsOfLists = new ArrayList<>();
+                List<List<List<Tuple2<String, List<String>>>>> listOfListOfListOfPairs = new ArrayList<>();
                 JsonArray jsonArray = gson.fromJson(in, JsonArray.class);
                 for (JsonElement next : jsonArray) {
-                    List<Tuple2<ParameterRequirement<Parameters>, List<Parameters>>> blocks = new ArrayList<>();
+                    List<List<Tuple2<String, List<String>>>> blocks = new ArrayList<>();
                     if (next.isJsonArray()) {
                         // param group which are varied together, same length required
                         for (JsonElement jsonBlock : next.getAsJsonArray()) {
@@ -51,16 +50,16 @@ public class ParameterVariationsParsing {
                     } else if (next.isJsonObject()) {
                         blocks.add(readParameterBlock(next));
                     }
-                    assert blocks.stream().mapToInt(t -> t.getT2().size()).distinct().count() == 1;
-                    listOfListsOfLists.add(blocks);
+                    assert blocks.stream().mapToInt(List::size).distinct().count() == 1;
+                    listOfListOfListOfPairs.add(blocks);
                 }
 
                 //
 
-                int V = listOfListsOfLists.size();
-                List<Integer> innerVariations = listOfListsOfLists.stream()
-                                                                  .map(l -> l.get(0).getT2().size())
-                                                                  .collect(Collectors.toList());
+                int V = listOfListOfListOfPairs.size();
+                List<Integer> innerVariations = listOfListOfListOfPairs.stream()
+                                                                       .map(l -> l.get(0).get(0).getT2().size())
+                                                                       .collect(Collectors.toList());
                 int[] temp = innerVariations.stream().mapToInt(i -> i).toArray();
                 Arrays.parallelPrefix(temp, (a, b) -> a * b);
                 int totalVariationCount = temp[V - 1];
@@ -68,54 +67,43 @@ public class ParameterVariationsParsing {
                 cumulativeVariations[0] = 1;
                 System.arraycopy(temp, 0, cumulativeVariations, 1, V - 1);
 
-                List<ProvidesParameters> variations = new ArrayList<>(totalVariationCount);
+
+                List<Tuple2<String, List<String>>> variations = new ArrayList<>();
+                listOfListOfListOfPairs.stream()
+                                       .flatMap(ll -> ll.stream().flatMap(l -> l.stream().map(Tuple2::getT1)))
+                                       .forEachOrdered(s -> variations.add(new ImmutableTuple2<>(s, new ArrayList<>())));
+
                 for (int i = 0; i < totalVariationCount; i++) {
-                    List<FulfilledDataRequirement<Parameters>> variation = new ArrayList<>();
+                    int x = 0;
                     for (int j = 0; j < V; j++) {
                         int l = innerVariations.get(j);
                         int k = (i / cumulativeVariations[j]) % l;
-                        List<Tuple2<ParameterRequirement<Parameters>, List<Parameters>>> tuple2s = listOfListsOfLists.get(j);
-                        List<FulfilledDataRequirement<Parameters>> collect = tuple2s.stream()
-                                                                                    .map(t -> t.getT1()
-                                                                                               .fulfilWithStatic(t.getT2()
-                                                                                                                  .get(k)))
-                                                                                    .collect(Collectors.toList());
-                        variation.addAll(collect);
-                    }
-                    ParameterProvider pp = new ParameterProvider() {
-                        @Override
-                        public void init() {
-                            for (FulfilledDataRequirement<? extends Parameters> f : variation) {
-                                globalComponentSystem().provide(f);
+                        for (List<Tuple2<String, List<String>>> list : listOfListOfListOfPairs.get(j)) {
+                            for (Tuple2<String, List<String>> tup : list) {
+                                variations.get(x).getT2().add(tup.getT2().get(k));
+                                x++;
                             }
                         }
-                    };
-                    variations.add(pp);
+                    }
+
                 }
 
                 return variations;
             }
         }
 
-        private Tuple2<ParameterRequirement<Parameters>, List<Parameters>> readParameterBlock(JsonElement next) {
+        private List<Tuple2<String, List<String>>> readParameterBlock(JsonElement next) {
             JsonObject parameterBlock = next.getAsJsonObject();
-            String label = parameterBlock.get("label").getAsString();
-            String type = parameterBlock.get("type").getAsString();
             boolean vary_args_independently = parameterBlock.has("vary args independently") && parameterBlock.get("vary args independently")
                                                                                                              .getAsBoolean();
-            type = getFullyQualifiedClassName(ConfigurationParsing.BasePackage.Parameters, type);
-            Class<Parameters> forName;
-            try {
-                forName = (Class<Parameters>) Class.forName(type);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            Class<Parameters> parameterClass = forName;
             JsonObject args = parameterBlock.get("args").getAsJsonObject();
             List<String> argNames = args.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
-            TypeAdapter<Parameters> adapter = gson.getAdapter(parameterClass);
 
-            List<Parameters> parameterList;
+            List<Tuple2<String, List<String>>> parameterList = new ArrayList<>();
+            for (String s : argNames) {
+                parameterList.add(new ImmutableTuple2<>(s, new ArrayList<>()));
+            }
+
             if (vary_args_independently) {
                 List<List<JsonElement>> listOfArgValueLists = new ArrayList<>();
                 for (int i = 0; i < argNames.size(); i++) {
@@ -138,17 +126,12 @@ public class ParameterVariationsParsing {
                 cumulativeVariations[0] = 1;
                 System.arraycopy(temp, 0, cumulativeVariations, 1, V - 1);
 
-                parameterList = new ArrayList<>(totalVariations);
                 for (int i = 0; i < totalVariations; i++) {
-                    JsonObject o = new JsonObject();
                     for (int j = 0; j < V; j++) {
-                        String s = argNames.get(j);
                         List<JsonElement> list = listOfArgValueLists.get(j);
                         int k = (i / cumulativeVariations[j]) % list.size();
-                        JsonElement jsonElement = list.get(k);
-                        o.add(s, jsonElement);
+                        parameterList.get(j).getT2().add(list.get(k).getAsString());
                     }
-                    parameterList.add(adapter.fromJsonTree(o));
                 }
 
             } else {
@@ -157,32 +140,31 @@ public class ParameterVariationsParsing {
                                         .filter(JsonElement::isJsonArray)
                                         .map(JsonElement::getAsJsonArray)
                                         .mapToInt(JsonArray::size)
-                                        .max().orElse(1);
+                                        .max()
+                                        .orElse(1);
 
                 assert argNames.stream()
                                .map(args::get)
                                .filter(JsonElement::isJsonArray)
                                .map(JsonElement::getAsJsonArray)
-                               .mapToInt(JsonArray::size).allMatch(i -> i == maxLength);
+                               .mapToInt(JsonArray::size)
+                               .allMatch(i -> i == maxLength);
 
-                parameterList = new ArrayList<>(maxLength);
                 for (int i = 0; i < maxLength; i++) {
-                    JsonObject o = new JsonObject();
-                    for (String s : argNames) {
+                    for (int j = 0; j < argNames.size(); j++) {
+                        String s = argNames.get(j);
                         JsonElement entry = args.get(s);
                         JsonElement jsonElement = entry.isJsonArray() ? entry.getAsJsonArray().get(i) : entry;
-                        o.add(s, jsonElement);
+                        parameterList.get(j).getT2().add(jsonElement.getAsString());
                     }
-                    Parameters paramInstance = adapter.fromJsonTree(o);
-                    parameterList.add(paramInstance);
                 }
             }
 
-            return new ImmutableTuple2<>(new ParameterRequirement<>(label, parameterClass), parameterList);
+            return parameterList;
         }
     };
 
-    public static TypeAdapter<List<ProvidesParameters>> getTypeAdapter() {
+    public static TypeAdapter<List<Tuple2<String, List<String>>>> getTypeAdapter() {
         return PARAMETER_PROVIDER_LIST_TYPE_ADAPTER;
     }
 

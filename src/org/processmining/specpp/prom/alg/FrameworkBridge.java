@@ -67,7 +67,7 @@ public class FrameworkBridge {
         ReplayBasedImplicitPlaceRemoval(new AnnotatedPostProcessor("Replay-Based Implicit Place Removal", CollectionOfPlaces.class, CollectionOfPlaces.class, ReplayBasedImplicitnessPostProcessing.Builder::new)),
         LPBasedImplicitPlaceRemoval(new AnnotatedPostProcessor("LP-Based Implicit Place Removal", CollectionOfPlaces.class, CollectionOfPlaces.class, LPBasedImplicitnessPostProcessing.Builder::new)),
         SelfLoopPlacesMerging(new AnnotatedPostProcessor("Self-Loop Places Merging", CollectionOfPlaces.class, CollectionOfPlaces.class, () -> SelfLoopPlaceMerger::new)),
-        UniwiredSelfLoopAddition(new AnnotatedPostProcessor("Uniwired Self-Loop Addition", CollectionOfPlaces.class, CollectionOfPlaces.class, UniwiredSelfLoopAdditionPostProcessing.Builder::new)),
+        UniwiredSelfLoopAddition(new AnnotatedPostProcessor("Uniwired Self-Loop Addition", CollectionOfPlaces.class, CollectionOfPlaces.class, StrictUniwiredSelfLoopAdditionPostProcessing.Builder::new)),
         DanglingTransitionsAddition(new AnnotatedPostProcessor("Dangling Transitions Addition", ProMPetrinetWrapper.class, ProMPetrinetWrapper.class, AddDanglingTransitionPostProcessing.Builder::new)),
         PlaceTxtExport(new AnnotatedPostProcessor("Basic txt based Place Export", CollectionOfPlaces.class, CollectionOfPlaces.class, PlaceExporter.Builder::new)),
         ProMPetrinetConversion(new AnnotatedPostProcessor("Conversion to ProM Petri net", CollectionOfPlaces.class, ProMPetrinetWrapper.class, () -> ProMConverter::new));

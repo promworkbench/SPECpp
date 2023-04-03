@@ -56,6 +56,15 @@ public class PostProcessingPipeline<R extends Result, F extends Result> implemen
         return (F) r;
     }
 
+    public F postProcessInterruptibly(R result) throws InterruptedException {
+        Result r = result;
+        for (PostProcessor postProcessor : line) {
+            if (Thread.interrupted()) throw new InterruptedException();
+            r = postProcessor.postProcess(r);
+        }
+        return (F) r;
+    }
+
     protected static <I extends Result, O extends Result> O tryme(PostProcessor<I, O> pp, I r) {
         try {
             return pp.postProcess(r);

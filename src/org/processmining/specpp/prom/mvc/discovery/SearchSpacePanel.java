@@ -36,9 +36,9 @@ public class SearchSpacePanel extends JPanel implements Destructible {
                           .createLabel("#Preset Transitions: " + preSize + ", #Postset Transitions: " + postSize));
         BigInteger combinations = BigInteger.valueOf(2).pow(preSize + postSize);
         BigInteger throughPlaces = BigInteger.valueOf(2)
-                                              .pow(preSize)
-                                              .subtract(BigInteger.ONE)
-                                              .multiply(BigInteger.valueOf(2).pow(postSize).subtract(BigInteger.ONE));
+                                             .pow(preSize)
+                                             .subtract(BigInteger.ONE)
+                                             .multiply(BigInteger.valueOf(2).pow(postSize).subtract(BigInteger.ONE));
         maxCandidates = throughPlaces.add(BigInteger.ONE).add(BigInteger.valueOf(postSize));
         add(SlickerFactory.instance()
                           .createLabel("#Possible Combinations: 2^(#Preset Transitions) * 2^(#Postset Transitions) = " + combinations));

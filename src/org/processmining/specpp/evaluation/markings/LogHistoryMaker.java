@@ -8,11 +8,11 @@ import org.processmining.specpp.componenting.system.AbstractGlobalComponentSyste
 import org.processmining.specpp.componenting.system.ComponentSystemAwareBuilder;
 import org.processmining.specpp.componenting.traits.IsGlobalProvider;
 import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
+import org.processmining.specpp.config.parameters.ReplayComputationParameters;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.log.impls.MultiEncodedLog;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
-import org.processmining.specpp.config.parameters.ReplayComputationParameters;
 
 public class LogHistoryMaker extends AbstractGlobalComponentSystemUser implements ProvidesEvaluators, IsGlobalProvider {
 

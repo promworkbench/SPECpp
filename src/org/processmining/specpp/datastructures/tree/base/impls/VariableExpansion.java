@@ -24,6 +24,18 @@ public class VariableExpansion<N extends TreeNode & LocallyExpandable<N>> extend
         dequeue = useStack ? buffer::removeLast : buffer::removeFirst;
     }
 
+    public static class BFS<N extends TreeNode & LocallyExpandable<N>> extends VariableExpansion<N> {
+        public BFS() {
+            super(false);
+        }
+    }
+
+    public static class DFS<N extends TreeNode & LocallyExpandable<N>> extends VariableExpansion<N> {
+        public DFS() {
+            super(true);
+        }
+    }
+
     public static <N extends TreeNode & LocallyExpandable<N>> VariableExpansion<N> dfs() {
         return new VariableExpansion<>(true);
     }

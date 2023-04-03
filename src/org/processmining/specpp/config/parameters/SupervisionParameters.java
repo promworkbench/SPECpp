@@ -76,6 +76,8 @@ public class SupervisionParameters implements Parameters {
 
     @Override
     public String toString() {
-        return "SupervisionParameters{" + "useConsole=" + useConsole + ", useFiles=" + useFiles + ", classesToInstrument=" + classesToInstrument.stream().map(Class::getSimpleName).collect(Collectors.toList()) + '}';
+        return "SupervisionParameters{" + "useConsole=" + useConsole + ", useFiles=" + useFiles + ", classesToInstrument=" + classesToInstrument.stream()
+                                                                                                                                                .map(Class::getSimpleName)
+                                                                                                                                                .collect(Collectors.toList()) + '}';
     }
 }

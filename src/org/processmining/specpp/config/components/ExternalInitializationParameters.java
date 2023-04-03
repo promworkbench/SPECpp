@@ -14,4 +14,10 @@ public class ExternalInitializationParameters implements Parameters {
         return initiallyWireSelfLoops;
     }
 
+    @Override
+    public String toString() {
+        return "ExternalInitializationParameters{" +
+                "initiallyWireSelfLoops=" + initiallyWireSelfLoops +
+                '}';
+    }
 }

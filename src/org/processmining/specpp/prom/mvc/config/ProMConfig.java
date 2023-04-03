@@ -1,8 +1,8 @@
 package org.processmining.specpp.prom.mvc.config;
 
 import com.google.common.collect.ImmutableList;
-import org.processmining.specpp.datastructures.vectorization.OrderingRelation;
 import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
+import org.processmining.specpp.datastructures.vectorization.OrderingRelation;
 import org.processmining.specpp.prom.alg.FrameworkBridge;
 
 import java.time.Duration;

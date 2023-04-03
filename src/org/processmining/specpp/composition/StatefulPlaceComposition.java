@@ -8,6 +8,7 @@ import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
 import org.processmining.specpp.componenting.delegators.DelegatingEvaluator;
 import org.processmining.specpp.componenting.evaluation.EvaluationRequirements;
 import org.processmining.specpp.componenting.supervision.SupervisionRequirements;
+import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.NonMutatingSetOperations;
 import org.processmining.specpp.datastructures.encoding.WeightedBitMask;
@@ -18,7 +19,6 @@ import org.processmining.specpp.datastructures.vectorization.IntVector;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
 import org.processmining.specpp.evaluation.implicitness.BooleanImplicitness;
 import org.processmining.specpp.evaluation.implicitness.ImplicitnessRating;
-import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
 import org.processmining.specpp.evaluation.implicitness.ReplayBasedImplicitnessCalculator;
 import org.processmining.specpp.supervision.observations.performance.PerformanceEvent;
 import org.processmining.specpp.supervision.observations.performance.TaskDescription;
@@ -97,7 +97,7 @@ public class StatefulPlaceComposition extends BasePlaceComposition implements Of
                 return rating;
             };
         } else if (params.getVersion() == ImplicitnessTestingParameters.CIPRVersion.LPBased)
-            implicitnessRater = p -> externalImplicitnessCalculator.eval(new EvaluationParameterTuple2<>(p, candidates));
+            implicitnessRater = p -> externalImplicitnessCalculator.eval(new EvaluationParameterTuple2<>(p, candidates)); // almost impossible to be less efficient with LP handling (by recreating the LP each call instead of managing the state here)
 
         resetCurrentlySupportedVariants(consideredVariants.getData());
     }

@@ -5,24 +5,27 @@ import org.apache.commons.collections4.BidiMap;
 import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.model.XLog;
+import org.processmining.specpp.config.BaseDataExtractionStrategy;
 import org.processmining.specpp.config.DataExtractionParameters;
 import org.processmining.specpp.config.InputProcessingConfig;
+import org.processmining.specpp.config.PreProcessingParameters;
 import org.processmining.specpp.datastructures.encoding.IntEncodings;
 import org.processmining.specpp.datastructures.log.Activity;
 import org.processmining.specpp.datastructures.log.ParsedLog;
 import org.processmining.specpp.datastructures.petri.Transition;
-import org.processmining.specpp.datastructures.util.ImmutablePair;
 import org.processmining.specpp.datastructures.util.Pair;
+import org.processmining.specpp.datastructures.util.Tuple2;
 import org.processmining.specpp.datastructures.util.Tuple3;
-import org.processmining.specpp.config.BaseDataExtractionStrategy;
-import org.processmining.specpp.config.PreProcessingParameters;
 import org.processmining.specpp.preprocessing.InputDataBundle;
 import org.processmining.specpp.preprocessing.orderings.ActivityOrderingStrategy;
 import org.processmining.specpp.prom.mvc.AbstractStageController;
 import org.processmining.specpp.prom.mvc.SPECppController;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class PreProcessingController extends AbstractStageController {
@@ -60,10 +63,11 @@ public class PreProcessingController extends AbstractStageController {
     }
 
 
-    private InputProcessingConfig lastDataConfig;
+    private InputProcessingConfig lastInputProcessingConfig;
     private PreProcessingParameters lastPreProcessingParameters;
     private DataExtractionParameters lastExtractionParameters;
     private Pair<Comparator<Activity>> lastComparators;
+    private Pair<Set<Activity>> lastSelectedActivities;
     private ParsedLog lastDerivedLog;
 
     public void preview(InputProcessingConfig collectedParameters) {
@@ -80,19 +84,26 @@ public class PreProcessingController extends AbstractStageController {
                 parametersPanel.disableButton();
                 previewPanel.disableButton();
 
-
+                boolean dirty = false;
                 PreProcessingParameters preProcessingParameters = collectedParameters.getPreProcessingParameters();
-                if (lastDataConfig == null || !lastDataConfig.getPreProcessingParameters()
-                                                             .equals(preProcessingParameters)) {
+                if (lastInputProcessingConfig == null || !lastInputProcessingConfig.getPreProcessingParameters()
+                                                                                   .equals(preProcessingParameters)) {
                     lastDerivedLog = collectedParameters.getParsedLogDataSource(rawLog).getData();
                     lastPreProcessingParameters = preProcessingParameters;
+                    lastSelectedActivities = null;
+                    dirty = true;
                 }
-                Pair<Comparator<Activity>> orderings = BaseDataExtractionStrategy.createOrderings(lastDerivedLog.getLog(), lastDerivedLog.getStringActivityMapping(), collectedParameters.getDataExtractionParameters()
-                                                                                                                                                                                         .getActivityOrderingStrategy());
+                if (dirty || lastComparators == null || lastInputProcessingConfig == null || !lastInputProcessingConfig.getDataExtractionParameters()
+                                                                                                                       .equals(collectedParameters.getDataExtractionParameters())) {
+                    lastComparators = BaseDataExtractionStrategy.createOrderings(lastDerivedLog.getLog(), lastDerivedLog.getStringActivityMapping(), collectedParameters.getDataExtractionParameters()
+                                                                                                                                                                        .getActivityOrderingStrategy());
+                }
 
-                lastDataConfig = collectedParameters;
-                lastComparators = orderings;
-                return orderings;
+                lastInputProcessingConfig = collectedParameters;
+
+                lastSelectedActivities = previewPanel.collectSelectedActivities();
+
+                return lastComparators;
             }
 
             @Override
@@ -131,17 +142,19 @@ public class PreProcessingController extends AbstractStageController {
 
                 previewPanel.disableButton();
                 InputProcessingConfig collectedParameters = parametersPanel.collectParameters();
-                if (lastDataConfig == null || !lastDataConfig.equals(collectedParameters)) {
+                if (lastInputProcessingConfig == null || !lastInputProcessingConfig.equals(collectedParameters)) {
                     SwingWorker<Pair<Comparator<Activity>>, Void> w = previewWorker(collectedParameters);
                     Pair<Comparator<Activity>> comparators = w.get();
                     if (w.isCancelled()) throw new RuntimeException("data dependency failed to compute");
                     Collection<Activity> activities = lastDerivedLog.getStringActivityMapping().values();
-                    SwingWorker<Pair<List<Activity>>, Void> lists = previewPanel.updateLists(activities, comparators);
-                    selection = ImmutablePair.map(lists.get(), HashSet::new);
+                    SwingWorker<Tuple2<Pair<List<Activity>>, Pair<Set<Activity>>>, Void> lists = previewPanel.updateLists(activities, comparators);
+                    selection = lists.get().getT2();
                 }
+
+                lastSelectedActivities = selection;
                 BidiMap<Activity, Transition> transitionMapping = BaseDataExtractionStrategy.createTransitions(lastDerivedLog.getLog(), lastDerivedLog.getStringActivityMapping());
                 IntEncodings<Transition> encodings = ActivityOrderingStrategy.createEncodings(selection, lastComparators, transitionMapping);
-                return new Tuple3<>(lastDataConfig, selection, new InputDataBundle(lastDerivedLog.getLog(), encodings, transitionMapping));
+                return new Tuple3<>(lastInputProcessingConfig, selection, new InputDataBundle(lastDerivedLog.getLog(), encodings, transitionMapping));
             }
 
             @Override

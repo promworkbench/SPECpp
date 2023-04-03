@@ -53,7 +53,7 @@ public class ListBasedWiringTester implements WiringTester {
     }
 
     @Override
-    public boolean notAllowedToExpand(PlaceNode placeNode) {
-        return !meetsWiringConstraint(placeNode.getPlace());
+    public boolean isWired(Place place) {
+        return !meetsWiringConstraint(place);
     }
 }

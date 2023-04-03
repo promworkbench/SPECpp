@@ -93,7 +93,6 @@ public class EventuallyFollowsTreeHeuristic implements HeuristicStrategy<PlaceNo
     }
 
 
-
     protected double[][] eventuallyFollows;
 
     @Override

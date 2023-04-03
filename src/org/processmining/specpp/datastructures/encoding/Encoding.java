@@ -1,6 +1,5 @@
 package org.processmining.specpp.datastructures.encoding;
 
-import org.apache.commons.collections.MultiMap;
 import org.processmining.specpp.datastructures.util.ImmutableTuple2;
 import org.processmining.specpp.datastructures.util.Tuple2;
 import org.processmining.specpp.traits.Immutable;

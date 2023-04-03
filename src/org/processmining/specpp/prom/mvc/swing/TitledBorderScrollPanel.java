@@ -3,7 +3,6 @@ package org.processmining.specpp.prom.mvc.swing;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.beans.VetoableChangeListener;
 
 public class TitledBorderScrollPanel extends JScrollPane {
 

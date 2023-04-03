@@ -5,7 +5,9 @@ import org.processmining.framework.util.ui.widgets.ProMList;
 import org.processmining.specpp.datastructures.log.Activity;
 import org.processmining.specpp.datastructures.log.impls.Factory;
 import org.processmining.specpp.datastructures.util.ImmutablePair;
+import org.processmining.specpp.datastructures.util.ImmutableTuple2;
 import org.processmining.specpp.datastructures.util.Pair;
+import org.processmining.specpp.datastructures.util.Tuple2;
 import org.processmining.specpp.prom.mvc.AbstractStagePanel;
 
 import javax.swing.*;
@@ -13,7 +15,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.IntStream;
 
 public class PreviewPanel extends AbstractStagePanel<PreProcessingController> {
 
@@ -21,12 +22,17 @@ public class PreviewPanel extends AbstractStagePanel<PreProcessingController> {
     private final DefaultListModel<Activity> presetListModel;
     private final ProMList<Activity> presetList;
     private final ProMList<Activity> postsetList;
+
+    private Set<Activity> presetSelection, postsetSelection;
     private final JButton applyButton;
 
     public PreviewPanel(PreProcessingController controller) {
         super(controller, new GridBagLayout());
         presetListModel = new DefaultListModel<>();
         postsetListModel = new DefaultListModel<>();
+
+        presetSelection = new HashSet<>();
+        postsetSelection = new HashSet<>();
 
         presetList = new ProMList<>("Preset Activities", presetListModel);
         postsetList = new ProMList<>("Postset Activities", postsetListModel);
@@ -61,33 +67,63 @@ public class PreviewPanel extends AbstractStagePanel<PreProcessingController> {
 
 
     public Pair<Set<Activity>> collectSelectedActivities() {
-        return new ImmutablePair<>(new HashSet<>(presetList.getSelectedValuesList()), new HashSet<>(postsetList.getSelectedValuesList()));
+        presetSelection = new HashSet<>(presetList.getSelectedValuesList());
+        postsetSelection = new HashSet<>(postsetList.getSelectedValuesList());
+        return new ImmutablePair<>(presetSelection, postsetSelection);
     }
 
-    public SwingWorker<Pair<List<Activity>>, Void> updateLists(Collection<Activity> activities, Pair<Comparator<Activity>> comparators) {
-        SwingWorker<Pair<List<Activity>>, Void> w = new SwingWorker<Pair<List<Activity>>, Void>() {
+    public SwingWorker<Tuple2<Pair<List<Activity>>, Pair<Set<Activity>>>, Void> updateLists(Collection<Activity> activities, Pair<Comparator<Activity>> comparators) {
+        SwingWorker<Tuple2<Pair<List<Activity>>, Pair<Set<Activity>>>, Void> w = new SwingWorker<Tuple2<Pair<List<Activity>>, Pair<Set<Activity>>>, Void>() {
 
             @Override
-            protected Pair<List<Activity>> doInBackground() throws Exception {
+            protected Tuple2<Pair<List<Activity>>, Pair<Set<Activity>>> doInBackground() throws Exception {
                 List<Activity> l1 = new ArrayList<>(activities);
                 l1.remove(Factory.ARTIFICIAL_END);
                 l1.sort(comparators.first());
                 List<Activity> l2 = new ArrayList<>(activities);
                 l2.remove(Factory.ARTIFICIAL_START);
                 l2.sort(comparators.second());
-                return new ImmutablePair<>(l1, l2);
+
+                Set<Activity> newPresetSelection = new HashSet<>(l1);
+                if (newPresetSelection.stream().anyMatch(presetSelection::contains))
+                    newPresetSelection.retainAll(presetSelection);
+
+                Set<Activity> newPostsetSelection = new HashSet<>(l2);
+                // only try to filter if there is any overlap
+                if (newPostsetSelection.stream().anyMatch(postsetSelection::contains))
+                    newPostsetSelection.retainAll(postsetSelection);
+
+                presetSelection = newPresetSelection;
+                postsetSelection = newPostsetSelection;
+                return new ImmutableTuple2<>(new ImmutablePair<>(l1, l2), new ImmutablePair<>(newPresetSelection, newPostsetSelection));
             }
 
             @Override
             protected void done() {
                 try {
-                    Pair<List<Activity>> pair = get();
+                    Tuple2<Pair<List<Activity>>, Pair<Set<Activity>>> tup = get();
                     presetListModel.clear();
                     postsetListModel.clear();
-                    pair.first().forEach(presetListModel::addElement);
-                    pair.second().forEach(postsetListModel::addElement);
-                    presetList.setSelectedIndices(IntStream.range(0, presetListModel.size()).toArray());
-                    postsetList.setSelectedIndices(IntStream.range(0, postsetListModel.size()).toArray());
+                    Pair<List<Activity>> allActivities = tup.getT1();
+                    List<Activity> presetActivityList = allActivities.first();
+                    presetActivityList.forEach(presetListModel::addElement);
+                    List<Activity> postsetActivityList = allActivities.second();
+                    postsetActivityList.forEach(postsetListModel::addElement);
+                    Pair<Set<Activity>> selectedActivities = tup.getT2();
+
+                    List<Integer> selectedPresetIndices = new ArrayList<>();
+                    List<Integer> selectedPostsetIndices = new ArrayList<>();
+                    for (Activity activity : selectedActivities.first()) {
+                        int idx = presetActivityList.indexOf(activity);
+                        if (idx >= 0) selectedPresetIndices.add(idx);
+                    }
+                    for (Activity activity : selectedActivities.second()) {
+                        int idx = postsetActivityList.indexOf(activity);
+                        if (idx >= 0) selectedPostsetIndices.add(idx);
+                    }
+                    presetList.setSelectedIndices(selectedPresetIndices.stream().mapToInt(i -> i).toArray());
+                    postsetList.setSelectedIndices(selectedPostsetIndices.stream().mapToInt(i -> i).toArray());
+
                 } catch (InterruptedException | ExecutionException ignored) {
 
                 } finally {

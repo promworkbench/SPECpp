@@ -19,6 +19,7 @@ import org.processmining.specpp.datastructures.tree.base.TreeNode;
 import org.processmining.specpp.datastructures.tree.base.impls.LocalNodeWithExternalizedLogic;
 import org.processmining.specpp.datastructures.tree.base.traits.LocallyExpandable;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
+import org.processmining.specpp.evaluation.implicitness.LPBasedImplicitnessCalculator;
 import org.processmining.specpp.util.JavaTypingUtils;
 
 public class DataRequirements {
@@ -36,6 +37,8 @@ public class DataRequirements {
     public static final ConfigurationRequirement<EvaluatorConfiguration> EVALUATOR_CONFIG = configuration("evaluator_config", EvaluatorConfiguration.class);
     public static final DataRequirement<BidiMap<Activity, Transition>> ACT_TRANS_MAPPING = dataSource("act_trans_mapping", JavaTypingUtils.castClass(BidiMap.class));
 
+    public static final DataRequirement<SimpleBuilder<LPBasedImplicitnessCalculator>> LP_BASED_IMPLICITNESS_CALCULATOR_DATA_REQUIREMENT = dataSource("lp_based_implicitness_calculator", JavaTypingUtils.castClass(SimpleBuilder.class));
+
     public static <C extends Candidate, I extends CompositionComponent<C>, R extends Result> ConfigurationRequirement<ProposerComposerConfiguration<C, I, R>> proposerComposerConfiguration() {
         return configuration("proposer_composer_config", JavaTypingUtils.castClass(ProposerComposerConfiguration.class));
     }
@@ -51,6 +54,7 @@ public class DataRequirements {
     public static <N extends TreeNode & LocallyExpandable<N>> ConfigurationRequirement<TreeConfiguration<N>> treeConfiguration() {
         return configuration("tree_config", JavaTypingUtils.castClass(TreeConfiguration.class));
     }
+
 
     public static <T> DataRequirement<T> dataSource(String label, Class<T> type) {
         return new DataRequirement<>(label, type);

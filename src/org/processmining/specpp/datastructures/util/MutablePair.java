@@ -1,8 +1,6 @@
 package org.processmining.specpp.datastructures.util;
 
 import org.apache.commons.collections4.IteratorUtils;
-import org.processmining.specpp.datastructures.util.MutableTuple2;
-import org.processmining.specpp.datastructures.util.Pair;
 
 import java.util.Iterator;
 

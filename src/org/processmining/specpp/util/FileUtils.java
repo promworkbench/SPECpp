@@ -2,6 +2,7 @@ package org.processmining.specpp.util;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.opencsv.CSVWriter;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.SimpleLayout;
 import org.jfree.chart.ChartUtilities;
@@ -10,6 +11,7 @@ import org.processmining.models.connections.GraphLayoutConnection;
 import org.processmining.plugins.graphviz.visualisation.DotPanel;
 import org.processmining.plugins.pnml.base.Pnml;
 import org.processmining.specpp.datastructures.petri.ProMPetrinetWrapper;
+import org.processmining.specpp.datastructures.util.Tuple2;
 
 import java.io.*;
 import java.util.List;
@@ -74,6 +76,10 @@ public class FileUtils {
         return fileWriter;
     }
 
+    public static CSVWriter createCSVWriter(String filePath) {
+        return new CSVWriter(createOutputFileWriter(filePath));
+    }
+
     public static void saveString(String filePath, String x) {
         try (FileWriter outputFileWriter = createOutputFileWriter(filePath)) {
             outputFileWriter.write(x);
@@ -82,10 +88,27 @@ public class FileUtils {
         }
     }
 
-    public static void saveStrings(String filePath, List<String> strings) {
+    public static void saveStrings(String filePath, Iterable<String> strings) {
         try (FileWriter outputFileWriter = createOutputFileWriter(filePath)) {
             for (String string : strings) {
                 outputFileWriter.write(string + "\n");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void saveAsCSV(String filePath, List<Tuple2<String, List<String>>> list) {
+        try (CSVWriter csvWriter = createCSVWriter(filePath)) {
+            csvWriter.writeNext(list.stream().map(Tuple2::getT1).toArray(String[]::new));
+            int columns = list.size();
+            int rows = list.stream().map(Tuple2::getT2).mapToInt(List::size).min().orElse(0);
+            for (int i = 0; i < rows; i++) {
+                String[] row = new String[columns];
+                for (int j = 0; j < columns; j++) {
+                    row[j] = list.get(j).getT2().get(i);
+                }
+                csvWriter.writeNext(row);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -96,7 +119,8 @@ public class FileUtils {
         if (!filePath.endsWith(".pnml")) filePath = filePath + ".pnml";
         Pnml pnml = new Pnml();
         pnml.setType(Pnml.PnmlType.PNML);
-        Pnml fromNet = pnml.convertFromNet(pn.getNet(), pn.getInitialMarking(), pn.getFinalMarkings(), new GraphLayoutConnection(pn.getNet()));
+        GraphLayoutConnection layout = new GraphLayoutConnection(pn.getNet());
+        Pnml fromNet = pnml.convertFromNet(pn.getNet(), pn.getInitialMarking(), pn.getFinalMarkings(), layout);
         String s = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" + fromNet.exportElement(fromNet);
         saveString(filePath, s);
     }

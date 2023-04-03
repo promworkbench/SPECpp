@@ -1,5 +1,6 @@
 package org.processmining.specpp.evaluation.implicitness;
 
+import org.apache.commons.math3.exception.TooManyIterationsException;
 import org.apache.commons.math3.optim.linear.*;
 import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
@@ -40,11 +41,18 @@ public class LPBasedImplicitnessCalculator extends AbstractGlobalComponentSystem
         }
     }
 
-    private final IntEncoding<Transition> combinedEncoding;
+    protected final IntEncoding<Transition> combinedEncoding;
+    protected final IntEncodings<Transition> transitionEncodings;
 
     public LPBasedImplicitnessCalculator(IntEncodings<Transition> transitionEncodings) {
         combinedEncoding = transitionEncodings.unionizedEncoding();
+        this.transitionEncodings = transitionEncodings;
         globalComponentSystem().provide(EvaluationRequirements.evaluator(JavaTypingUtils.castClass(EvaluationParameterTuple2.class), BooleanImplicitness.class, this::compute));
+        provideSelf();
+    }
+
+    protected void provideSelf() {
+        globalComponentSystem().provide(DataRequirements.LP_BASED_IMPLICITNESS_CALCULATOR_DATA_REQUIREMENT.fulfilWithStatic(() -> new LPBasedImplicitnessCalculator(transitionEncodings)));
     }
 
     private BooleanImplicitness compute(EvaluationParameterTuple2<Place, Collection<Place>> input) {
@@ -152,7 +160,7 @@ public class LPBasedImplicitnessCalculator extends AbstractGlobalComponentSystem
 
 
         //Type 3: forall t with currP in pre(t): Z*pre(q, t) + x >= k *pre(currP, t), for q in P/{currP}
-        // --> Z*pre(q, t) + x - k* pre(currP, t) >=0 	//TODO in contrast to paper (imp places in net systems, garcia&colom, proposition 13) seems to work fine for k=1. explain this result theoretically?!
+        // --> Z*pre(q, t) + x - k* pre(currP, t) >=0 	// in contrast to paper (imp places in net systems, garcia&colom, proposition 13) seems to work fine for k=1. explain this result theoretically?!
 
         PrimitiveIterator.OfInt preIncidentTransitions = preIncidenceMatrix.get(currentPlaceIndex).iterator();
         while (preIncidentTransitions.hasNext()) {
@@ -166,31 +174,15 @@ public class LPBasedImplicitnessCalculator extends AbstractGlobalComponentSystem
             coefficients[xVariableIndex] = 1; //coefficient of x=1
             constraints.add(new LinearConstraint(coefficients, Relationship.GEQ, 1));
         }
-
         LinearOptimizer solver = new SimplexSolver();
         try {
             solver.optimize(objectiveFunction, new LinearConstraintSet(constraints));
-        } catch (org.apache.commons.math3.optim.linear.NoFeasibleSolutionException NFSE) {
-            //				System.out.println("LPP Solver found no feasable solution for reference set of place "+placeToNamedString(places[currP], transitions));
+        } catch (org.apache.commons.math3.optim.linear.NoFeasibleSolutionException | UnboundedSolutionException |
+                 TooManyIterationsException ignored) {
+            //				System.out.println("LPP Solver found no feasible solution for reference set of place "+placeToNamedString(places[currP], transitions));
             return false;
         }
-        /*
-         * //for debuggin print out the found solution double[] solutionSupport
-         * = solution.getPoint(); String refSetStringY = "Y: "; String
-         * refSetStringZ = "Z: "; String k = "k: "; String x = "x: "; for (int
-         * pos = 0; pos < solutionSupport.length-2; pos++) { if
-         * (solutionSupport[pos] > 0 && pos < places.size()) { refSetStringY =
-         * refSetStringY + placeToNamedString(places.get(pos), transitions); }
-         * else if(solutionSupport[pos] > 0 && pos < places.size()*2){
-         * refSetStringZ = refSetStringZ +
-         * placeToNamedString(places.get(pos-places.size()), transitions); } } k
-         * = k+solutionSupport[places.size()*2]; x =
-         * x+solutionSupport[places.size()*2+1];
-         * System.out.println("Place "+placeToNamedString(places.get(currP),
-         * transitions)+" is implicit with solution ");
-         * System.out.println(refSetStringY); System.out.println(refSetStringZ);
-         * System.out.println(k); System.out.println(x);
-         */
+
         return true;
     }
 

@@ -4,6 +4,7 @@ import org.processmining.specpp.supervision.piping.Observer;
 
 /**
  * Trait interface for classes that somehow handle constraint events.
+ *
  * @param <L> type of constraint events handled
  */
 public interface Constrainable<L extends ConstraintEvent> extends Observer<L> {

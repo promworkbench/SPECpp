@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 
 /**
  * The abstract base class for compositions.
+ *
  * @param <C> candidate type
  * @param <K> type of the internally managed collection
  */

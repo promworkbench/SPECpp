@@ -51,11 +51,11 @@ public class LisasNewPlaceFitnessFilter<I extends CompositionComponent<Place>, R
             }
         }
         activationFrequencies = activationMap.entrySet()
-                                                                      .stream()
-                                                                      .collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue()
-                                                                                                                       .stream()
-                                                                                                                       .map(frequencies::get)
-                                                                                                                       .sum()));
+                                             .stream()
+                                             .collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue()
+                                                                                                .stream()
+                                                                                                .map(frequencies::get)
+                                                                                                .sum()));
     }
 
     @Override

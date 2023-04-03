@@ -5,6 +5,7 @@ import org.processmining.specpp.traits.ExposesObservable;
 
 /**
  * A type that exposes an observable that specifically publishes {@code ConstraintEvent}s of type {@code L}.
+ *
  * @param <L> type of constraint events
  */
 public interface Constrainer<L extends ConstraintEvent> extends ExposesObservable<L> {

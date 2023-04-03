@@ -61,7 +61,7 @@ public class ResultEvaluationPanel extends AbstractStagePanel<ResultController> 
                         @Override
                         protected Double doInBackground() throws Exception {
                             PluginContext context = resultController.getContext().createChildContext("Fitness");
-                            return EvalUtils.computeAlignmentBasedFitness(context, evaluationLogData, evClassMapping, proMPetrinetWrapper);
+                            return EvalUtils.computeAlignmentBasedFitness(context, evaluationLogData, evClassMapping, proMPetrinetWrapper, null, false);
                         }
 
                         @Override

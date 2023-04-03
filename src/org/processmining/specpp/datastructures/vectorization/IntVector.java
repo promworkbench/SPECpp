@@ -2,14 +2,13 @@ package org.processmining.specpp.datastructures.vectorization;
 
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.IndexSubset;
-import org.processmining.specpp.datastructures.vectorization.spliteration.Spliterable;
 import org.processmining.specpp.traits.Copyable;
 
 import java.util.Arrays;
 import java.util.Spliterator;
 import java.util.stream.IntStream;
 
-public class IntVector implements Copyable<IntVector>{
+public class IntVector implements Copyable<IntVector> {
 
     protected final int[] internal;
     protected final int total;

@@ -4,8 +4,8 @@ import org.processmining.specpp.componenting.data.DataRequirements;
 import org.processmining.specpp.componenting.data.ParameterRequirements;
 import org.processmining.specpp.componenting.delegators.DelegatingDataSource;
 import org.processmining.specpp.componenting.system.ComponentSystemAwareBuilder;
-import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.config.parameters.ImplicitnessTestingParameters;
+import org.processmining.specpp.datastructures.encoding.BitMask;
 
 public abstract class ImplicitnessPostProcessor implements CollectionOfPlacesPostProcessor {
 

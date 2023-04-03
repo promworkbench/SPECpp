@@ -1,10 +1,10 @@
 package org.processmining.specpp.config.presets;
 
 import org.processmining.specpp.base.AdvancedComposition;
-import org.processmining.specpp.composition.composers.PlaceComposerWithCIPR;
-import org.processmining.specpp.composition.composers.PlaceFitnessFilter;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
+import org.processmining.specpp.composition.composers.PlaceComposerWithCIPR;
+import org.processmining.specpp.composition.composers.PlaceFitnessFilter;
 import org.processmining.specpp.config.components.Configurators;
 import org.processmining.specpp.config.components.EfficientTreeConfiguration;
 import org.processmining.specpp.config.components.ProposerComposerConfiguration;

@@ -4,6 +4,7 @@ import org.processmining.specpp.base.impls.CandidateConstraint;
 
 /**
  * A base interface for proposers that are also constrainable.
+ *
  * @param <C> candidate type
  * @param <L> constraint event type
  */
