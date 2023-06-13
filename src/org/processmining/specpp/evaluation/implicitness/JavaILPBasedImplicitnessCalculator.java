@@ -9,6 +9,7 @@ import org.processmining.specpp.datastructures.petri.Transition;
 import java.util.List;
 import java.util.PrimitiveIterator;
 
+@Deprecated
 public class JavaILPBasedImplicitnessCalculator extends LPBasedImplicitnessCalculator {
     public JavaILPBasedImplicitnessCalculator(IntEncodings<Transition> transitionEncodings) {
         super(transitionEncodings);
@@ -21,6 +22,7 @@ public class JavaILPBasedImplicitnessCalculator extends LPBasedImplicitnessCalcu
         }
     }
 
+    // pretty sure this produced incorrect results
     @Override
     public boolean isImplicitAmong(int currentPlaceIndex, List<Place> places, List<BitMask> preIncidenceMatrix, List<int[]> incidenceMatrix) {
         assert places.size() == preIncidenceMatrix.size();

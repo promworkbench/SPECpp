@@ -11,6 +11,7 @@ import org.processmining.specpp.datastructures.petri.Transition;
 import java.util.List;
 import java.util.PrimitiveIterator;
 
+@Deprecated
 public class LPSolveBasedImplicitnessCalculator extends LPBasedImplicitnessCalculator {
     public LPSolveBasedImplicitnessCalculator(IntEncodings<Transition> transitionEncodings) {
         super(transitionEncodings);

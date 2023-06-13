@@ -86,9 +86,15 @@ public class ConfigurationController extends AbstractStageController {
             pcCfg.terminalComposition(LightweightPlaceComposition::new);
             if (compositionConstraintsRequired) pcCfg.recursiveCompositions(ConstrainingPlaceCollection::new);
         }
-        if (pc.ciprVariant != ProMConfig.CIPRVariant.None)
+
+        if (pc.useETCBasedComposer) {
+            pcCfg.terminalComposer(ETCBasedComposer::new);
+        } else if (pc.ciprVariant != ProMConfig.CIPRVariant.None) {
             pcCfg.terminalComposer(isSupervisingEvents ? EventingPlaceComposerWithCIPR::new : PlaceComposerWithCIPR::new);
-        else pcCfg.terminalComposer(PlaceAccepter::new);
+        } else {
+            pcCfg.terminalComposer(PlaceAccepter::new);
+        }
+
         InitializingBuilder<? extends ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>, ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>> fitnessFilterBuilder = isSupervisingEvents ? EventingPlaceFitnessFilter::new : PlaceFitnessFilter::new;
         switch (pc.compositionStrategy) {
             case Standard:
@@ -155,6 +161,9 @@ public class ConfigurationController extends AbstractStageController {
                                        .provide(ParameterRequirements.IMPLICITNESS_TESTING.fulfilWithStatic(new ImplicitnessTestingParameters(pc.ciprVariant.bridge(), pc.implicitnessReplaySubLogRestriction)))
                                        .provide(ParameterRequirements.PLACE_GENERATOR_PARAMETERS.fulfilWithStatic(pgp))
                                        .provide(ParameterRequirements.OUTPUT_PATH_PARAMETERS.fulfilWithStatic(OutputPathParameters.getDefault()));
+                if (pc.useETCBasedComposer) {
+                    globalComponentSystem().provide(ParameterRequirements.ETC_BASED_COMPOSER_PARAMETERS.fulfilWithStatic(new ETCBasedComposerParameters(pc.rho)));
+                }
                 if (pc.compositionStrategy == ProMConfig.CompositionStrategy.TauDelta) {
                     globalComponentSystem().provide(ParameterRequirements.DELTA_PARAMETERS.fulfilWithStatic(new DeltaParameters(pc.delta, pc.steepness)))
                                            .provide(ParameterRequirements.DELTA_COMPOSER_PARAMETERS.fulfilWithStatic(DeltaComposerParameters.getDefault()));

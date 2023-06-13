@@ -19,6 +19,8 @@ public class ParameterRequirements {
     public static final ParameterRequirement<DeltaComposerParameters> DELTA_COMPOSER_PARAMETERS = parameters("delta_composer.parameters", DeltaComposerParameters.class);
     public static ParameterRequirement<TreeHeuristicThreshold> TREE_HEURISTIC_THRESHOLD = parameters("tree.heuristic.parameters", TreeHeuristicThreshold.class);
 
+    public static final ParameterRequirement<ETCBasedComposerParameters> ETC_BASED_COMPOSER_PARAMETERS = parameters("etc.composer.parameters", ETCBasedComposerParameters.class);
+
     public static <P extends Parameters> ParameterRequirement<P> parameters(String label, Class<P> type) {
         return new ParameterRequirement<>(label, type);
     }

@@ -24,7 +24,9 @@ public class ProMConfig {
     public boolean initiallyWireSelfLoops;
     CIPRVariant ciprVariant;
     List<FrameworkBridge.AnnotatedPostProcessor> ppPipeline;
-    double tau, delta;
+    double tau, delta, rho;
+
+    boolean useETCBasedComposer;
     public int steepness;
     int depth;
     Duration discoveryTimeLimit, totalTimeLimit;
@@ -49,9 +51,11 @@ public class ProMConfig {
         pc.compositionStrategy = CompositionStrategy.Standard;
         pc.initiallyWireSelfLoops = false;
         pc.ciprVariant = CIPRVariant.ReplayBased;
+        pc.useETCBasedComposer = false;
         pc.ppPipeline = ImmutableList.of(FrameworkBridge.BridgedPostProcessors.LPBasedImplicitPlaceRemoval.getBridge(), FrameworkBridge.BridgedPostProcessors.ProMPetrinetConversion.getBridge());
         pc.tau = 1.0;
         pc.delta = -1.0;
+        pc.rho = -1.0;
         pc.steepness = -1;
         pc.heuristicThreshold = -1;
         pc.depth = -1;
@@ -85,6 +89,14 @@ public class ProMConfig {
         return pc;
     }
 
+    public static ProMConfig getETC() {
+        ProMConfig pc = getDefault();
+        pc.ciprVariant = CIPRVariant.None;
+        pc.useETCBasedComposer = true;
+        pc.rho = 1.0;
+        return pc;
+    }
+
     public boolean validate() {
         boolean outOfRange = tau < 0 || tau > 1.0;
         boolean incomplete = (supervisionSetting == null | treeExpansionSetting == null | compositionStrategy == null);
@@ -92,6 +104,7 @@ public class ProMConfig {
         incomplete |= treeExpansionSetting == TreeExpansionSetting.Heuristic && treeHeuristic == null;
         incomplete |= treeExpansionSetting == TreeExpansionSetting.Heuristic && enforceHeuristicThreshold && (heuristicThreshold < 0 || heuristicThresholdRelation == null);
         incomplete |= compositionStrategy == CompositionStrategy.TauDelta && (deltaAdaptationFunction == null || (deltaAdaptationFunction != FrameworkBridge.BridgedDeltaAdaptationFunctions.None.getBridge() && delta < 0) || ((deltaAdaptationFunction == FrameworkBridge.BridgedDeltaAdaptationFunctions.Linear.getBridge() || deltaAdaptationFunction == FrameworkBridge.BridgedDeltaAdaptationFunctions.Sigmoid.getBridge()) && steepness < 0));
+        incomplete |= useETCBasedComposer && (rho < 0 || rho > 1.0);
         return !outOfRange && !incomplete;
     }
 

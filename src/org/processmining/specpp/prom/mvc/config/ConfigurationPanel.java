@@ -100,6 +100,8 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
     private final JCheckBox enforceHeuristicScoreThresholdCheckBox;
     private final ComboBoxAndTextBasedInputField<Double, OrderingRelation> heuristicThresholdInput;
     private final CheckboxedComboBox<ProMConfig.CIPRVariant> ciprVariantCheckboxedComboBox;
+    private final JCheckBox checkBoxETCBasedComposer;
+    private final TextBasedInputField<Double> rhoInput;
     private final JCheckBox logHeuristicsCheckBox;
     private final JCheckBox initiallyWireSelfLoopsCheckBox = SwingFactory.labeledCheckBox("initially wire self loops", false);
     private final HorizontalJPanel deltaRelatedParametersPanel;
@@ -206,6 +208,7 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
                                             .setRenderer(createTooltippedListCellRenderer(ImmutableMap.of(ImplicitnessReplayRestriction.FittingOnAcceptedPlaces, "Replay is restricted to the variants which all previously accepted places, plus the new candidate, are replayable on.", ImplicitnessReplayRestriction.FittingOnEvaluatedPair, "Replay is restricted to the variants on which the new candidate and the singular place it is compared to are replayable on.")));
         restrictReplayBasedImplicitnessInput.getCheckBox()
                                             .setToolTipText("When replay is restricted to a fitting sub log, more places will be marked as implicit.");
+        restrictReplayBasedImplicitnessInput.setVisible(false);
         evaluation.append(restrictReplayBasedImplicitnessInput);
 
         deltaAdaptationLabeledComboBox = SwingFactory.labeledComboBox("Delta Adaptation Function", FrameworkBridge.DELTA_FUNCTIONS.toArray(new FrameworkBridge.AnnotatedEvaluator[0]));
@@ -239,6 +242,15 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         ciprVariantCheckboxedComboBox.getComboBox()
                                      .setRenderer(createTooltippedListCellRenderer(ImmutableMap.of(ProMConfig.CIPRVariant.ReplayBased, "Uses subregion implicitness on the markings obtained from replay.", ProMConfig.CIPRVariant.LPBased, "Uses lp optimization based structural implicitness.")));
         composition.append(ciprVariantCheckboxedComboBox);
+        checkBoxETCBasedComposer = SwingFactory.labeledCheckBox("use ETC-based composition", false);
+        checkBoxETCBasedComposer.setToolTipText("Whether to use ETC-based composition which is incompatible with CIPR.");
+        checkBoxETCBasedComposer.addItemListener(e -> updatedCompositionSettings());
+
+        //make cipr and ETC-based composer mutually exclusive
+        ciprVariantCheckboxedComboBox.getCheckBox().addActionListener(e -> checkBoxETCBasedComposer.setSelected(false));
+        checkBoxETCBasedComposer.addActionListener(e -> ciprVariantCheckboxedComboBox.getCheckBox().setSelected(false));
+
+        composition.append(checkBoxETCBasedComposer);
         composition.completeWithWhitespace();
 
         // ** POST PROCESSING ** //
@@ -258,6 +270,13 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         tauInput.addVerificationStatusListener(listener);
         parameters.append(tauInput);
 
+        rhoInput = SwingFactory.textBasedInputField("rho", zeroOneDoubleFunc, 10);
+        rhoInput.addVerificationStatusListener(listener);
+        //rhoInput.setText("1.0");
+        rhoInput.setToolTipText("Precision threshold to abort the search prematurely: rho in [0,1].");
+        rhoInput.setVisible(false);
+        parameters.append(rhoInput);
+
         deltaRelatedParametersPanel = new HorizontalJPanel();
         deltaInput = SwingFactory.textBasedInputField("delta", zeroOneDoubleFunc, 10);
         deltaInput.getTextField().setToolTipText("Delta parameter in [0,1].");
@@ -273,19 +292,23 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         deltaRelatedParametersPanel.addSpaced(steepnessInput);
         deltaRelatedParametersPanel.setVisible(false);
         parameters.append(deltaRelatedParametersPanel);
+
         heuristicThresholdInput = SwingFactory.comboBoxAndTextBasedInputField("heuristic threshold", OrderingRelation.values(), doubleFunc, 10);
         heuristicThresholdInput.addVerificationStatusListener(listener);
         heuristicThresholdInput.setVisible(false);
         parameters.append(heuristicThresholdInput);
+
         depthInput = SwingFactory.activatableTextBasedInputField("max depth", false, posIntFunc, 10);
         depthInput.setToolTipText("Max depth to traverse candidate tree to in {1,...}.");
         depthField = depthInput.getTextField();
         depthInput.addVerificationStatusListener(listener);
         parameters.append(depthInput);
+
         initiallyWireSelfLoopsCheckBox.addChangeListener(e -> updatedParameters());
         initiallyWireSelfLoopsCheckBox.setToolTipText("");
         initiallyWireSelfLoopsCheckBox.setVisible(false);
         parameters.append(initiallyWireSelfLoopsCheckBox);
+
         parameters.completeWithWhitespace();
 
         // ** EXECUTION ** //
@@ -397,9 +420,12 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         ciprVariantCheckboxedComboBox.getCheckBox().setSelected(pc.ciprVariant != ProMConfig.CIPRVariant.None);
         ciprVariantCheckboxedComboBox.getComboBox()
                                      .setSelectedItem(pc.ciprVariant != ProMConfig.CIPRVariant.None ? pc.ciprVariant : ProMConfig.CIPRVariant.ReplayBased);
+        checkBoxETCBasedComposer.setSelected(pc.useETCBasedComposer);
+
         ppPipelineModel.clear();
         pc.ppPipeline.forEach(ppPipelineModel::append);
         tauInput.setText(Double.toString(pc.tau));
+        rhoInput.setText(pc.rho < 0 ? null : Double.toString(pc.rho));
         deltaInput.setText(pc.delta < 0 ? null : Double.toString(pc.delta));
         steepnessInput.setText(pc.steepness < 0 ? null : Integer.toString(pc.steepness));
         if (pc.enforceHeuristicThreshold)
@@ -461,19 +487,16 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         pc.ciprVariant = ciprVariantCheckboxedComboBox.getCheckBox()
                                                       .isSelected() ? (ProMConfig.CIPRVariant) ciprVariantCheckboxedComboBox.getComboBox()
                                                                                                                             .getSelectedItem() : ProMConfig.CIPRVariant.None;
+        pc.useETCBasedComposer = checkBoxETCBasedComposer.isSelected();
         if (!validatePostProcessingPipeline(ppPipelineModel)) return null;
         pc.ppPipeline = ImmutableList.copyOf(ppPipelineModel.iterator());
-        Double rawTau = tauInput.getInput();
-        pc.tau = rawTau != null ? rawTau : -1;
-        Double rawDelta = deltaInput.getInput();
-        pc.delta = rawDelta != null ? rawDelta : -1;
-        Integer rawSteepness = steepnessInput.getInput();
-        pc.steepness = rawSteepness != null ? rawSteepness : -1;
-        Double rawMinimumHeuristic = heuristicThresholdInput.getInput();
-        pc.heuristicThreshold = rawMinimumHeuristic != null ? rawMinimumHeuristic : -1;
+        pc.tau = tauInput.getInput() != null ? tauInput.getInput() : -1;
+        pc.rho = rhoInput.getInput() != null ? rhoInput.getInput() : -1;
+        pc.delta = deltaInput.getInput() != null ? deltaInput.getInput() : -1;
+        pc.steepness = steepnessInput.getInput() != null ? steepnessInput.getInput() : -1;
+        pc.heuristicThreshold = heuristicThresholdInput.getInput() != null ? heuristicThresholdInput.getInput() : -1;
         pc.heuristicThresholdRelation = heuristicThresholdInput.getSelectedItem();
-        Integer rawDepthLimit = depthInput.getInput();
-        pc.depth = rawDepthLimit != null ? rawDepthLimit : -1;
+        pc.depth = depthInput.getInput() != null ? depthInput.getInput() : -1;
         pc.initiallyWireSelfLoops = initiallyWireSelfLoopsCheckBox.isVisible() && initiallyWireSelfLoopsCheckBox.isSelected();
         pc.discoveryTimeLimit = discoveryTimeLimitInput.getInput();
         pc.totalTimeLimit = totalTimeLimitInput.getInput();
@@ -499,9 +522,11 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
     }
 
     private void updatedCompositionSettings() {
+        rhoInput.setVisible(checkBoxETCBasedComposer.isSelected());
         initiallyWireSelfLoopsCheckBox.setVisible(compositionStrategyComboBox.getSelectedItem() == ProMConfig.CompositionStrategy.Uniwired || respectWiringCheckBox.isSelected());
         ciprVariantCheckboxedComboBox.getComboBox()
                                      .setVisible(ciprVariantCheckboxedComboBox.getCheckBox().isSelected());
+        restrictReplayBasedImplicitnessInput.setVisible(ciprVariantCheckboxedComboBox.getCheckBox().isSelected() && (ciprVariantCheckboxedComboBox.getComboBox().getSelectedItem() == ProMConfig.CIPRVariant.ReplayBased));
         deltaAdaptationLabeledComboBox.setVisible(compositionStrategyComboBox.getSelectedItem() == ProMConfig.CompositionStrategy.TauDelta);
         changeDeltaParametersVisibility();
         revalidate();
@@ -567,6 +592,7 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
     public enum Preset {
         Default(ProMConfig::getDefault),
         Lightweight(ProMConfig::getLightweight),
+        ETC(ProMConfig::getETC),
         TauDelta(ProMConfig::getTauDelta),
         Uniwired(ProMConfig::getUniwired),
         Last(null),
