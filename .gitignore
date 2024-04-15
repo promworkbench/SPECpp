@@ -1,0 +1,11 @@
+lib/
+bindist/
+.classpath
+.project
+.settings/
+bin/
+report/
+dist/
+.idea/
+/eSTMiner/output/
+/dll/

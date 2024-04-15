@@ -15,6 +15,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 public class LiveCompositionPanel extends JPanel implements Destructible {
@@ -130,8 +131,8 @@ public class LiveCompositionPanel extends JPanel implements Destructible {
                 try {
                     JComponent jComponent = get();
                     if (!isCancelled()) setContent(jComponent);
-                } catch (InterruptedException | ExecutionException ignored) {
-                    ignored.printStackTrace();
+                } catch (InterruptedException | ExecutionException | CancellationException ignored) {
+                    //ignored.printStackTrace();
                 }
             }
         };

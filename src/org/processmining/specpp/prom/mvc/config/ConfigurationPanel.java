@@ -40,6 +40,8 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
     private final JCheckBox supportRestartCheckBox;
     private final JCheckBox concurrentReplayCheckBox;
     private final JComboBox<FrameworkBridge.AnnotatedEvaluator> deltaAdaptationFunctionComboBox;
+    private final JComboBox<ProMConfig.FitnessMetric> fitnessMetricComboBox;
+    private final LabeledComboBox<ProMConfig.FitnessMetric> fitnessMetricLabeledComboBox;
     private final JComboBox<ProMConfig.CompositionStrategy> compositionStrategyComboBox;
     private final MyListModel<FrameworkBridge.AnnotatedPostProcessor> ppPipelineModel;
     private final JTextField tauField;
@@ -190,8 +192,17 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         TitledBorderScrollPanel evaluation = new TitledBorderScrollPanel("Evaluation");
         concurrentReplayCheckBox = SwingFactory.labeledCheckBox("use parallel replay implementation");
         concurrentReplayCheckBox.addChangeListener(e -> updatedEvaluationSettings());
-        concurrentReplayCheckBox.setToolTipText("Whether to favor a parallel (over variants) replay implementation. Influences performance.");
+        concurrentReplayCheckBox.setToolTipText("Whether to favor a parallelized (over variants) replay implementation. Influences performance.");
         evaluation.append(concurrentReplayCheckBox);
+
+        fitnessMetricLabeledComboBox = SwingFactory.labeledComboBox("Fitness Metric", ProMConfig.FitnessMetric.values());
+        fitnessMetricComboBox = fitnessMetricLabeledComboBox.getComboBox();
+        fitnessMetricComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) updatedEvaluationSettings();
+        });
+        String fitnessMetricLinkHtml = "<a href=\"https://dl.acm.org/doi/abs/10.3233/FI-242168\">Discovering Process Models with Long-Term Dependencies while Providing Guarantees and Filtering Infrequent Behavior Patterns</a>";
+        fitnessMetricLabeledComboBox.add(SwingFactory.help(null, html("See " + fitnessMetricLinkHtml + " for details.")));
+        evaluation.append(fitnessMetricLabeledComboBox);
 
         permitNegativeMarkingsCheckBox = SwingFactory.labeledCheckBox("permit negative markings during token-based replay");
         permitNegativeMarkingsCheckBox.addChangeListener(e -> updatedEvaluationSettings());
@@ -407,6 +418,7 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         enforceHeuristicScoreThresholdCheckBox.setSelected(pc.enforceHeuristicThreshold);
         concurrentReplayCheckBox.setSelected(pc.concurrentReplay);
         permitNegativeMarkingsCheckBox.setSelected(pc.permitNegativeMarkingsDuringReplay);
+        fitnessMetricComboBox.setSelectedItem(pc.fitnessMetric);
         restrictReplayBasedImplicitnessInput.getCheckBox()
                                             .setSelected(pc.implicitnessReplaySubLogRestriction != ImplicitnessTestingParameters.SubLogRestriction.None);
         if (pc.implicitnessReplaySubLogRestriction == ImplicitnessTestingParameters.SubLogRestriction.FittingOnAcceptedPlacesAndEvaluatedPlace)
@@ -468,10 +480,13 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         pc.enforceHeuristicThreshold = enforceHeuristicScoreThresholdCheckBox.isSelected();
         pc.concurrentReplay = concurrentReplayCheckBox.isSelected();
         pc.permitNegativeMarkingsDuringReplay = permitNegativeMarkingsCheckBox.isSelected();
+        pc.fitnessMetric = (ProMConfig.FitnessMetric) fitnessMetricComboBox.getSelectedItem();
+
         boolean selected = restrictReplayBasedImplicitnessInput.getCheckBox().isSelected();
         if (selected) {
-            ImplicitnessReplayRestriction item = (ImplicitnessReplayRestriction) restrictReplayBasedImplicitnessInput.getComboBox()
-                                                                                                                     .getSelectedItem();
+            ImplicitnessReplayRestriction item = (ImplicitnessReplayRestriction) restrictReplayBasedImplicitnessInput
+                    .getComboBox()
+                    .getSelectedItem();
             if (item == null) return null;
             switch (item) {
                 case FittingOnAcceptedPlaces:
@@ -485,8 +500,9 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         pc.deltaAdaptationFunction = (FrameworkBridge.AnnotatedEvaluator) deltaAdaptationFunctionComboBox.getSelectedItem();
         pc.compositionStrategy = (ProMConfig.CompositionStrategy) compositionStrategyComboBox.getSelectedItem();
         pc.ciprVariant = ciprVariantCheckboxedComboBox.getCheckBox()
-                                                      .isSelected() ? (ProMConfig.CIPRVariant) ciprVariantCheckboxedComboBox.getComboBox()
-                                                                                                                            .getSelectedItem() : ProMConfig.CIPRVariant.None;
+                                                      .isSelected() ? (ProMConfig.CIPRVariant) ciprVariantCheckboxedComboBox
+                .getComboBox()
+                .getSelectedItem() : ProMConfig.CIPRVariant.None;
         pc.useETCBasedComposer = checkBoxETCBasedComposer.isSelected();
         if (!validatePostProcessingPipeline(ppPipelineModel)) return null;
         pc.ppPipeline = ImmutableList.copyOf(ppPipelineModel.iterator());
@@ -526,7 +542,11 @@ public class ConfigurationPanel extends AbstractStagePanel<ConfigurationControll
         initiallyWireSelfLoopsCheckBox.setVisible(compositionStrategyComboBox.getSelectedItem() == ProMConfig.CompositionStrategy.Uniwired || respectWiringCheckBox.isSelected());
         ciprVariantCheckboxedComboBox.getComboBox()
                                      .setVisible(ciprVariantCheckboxedComboBox.getCheckBox().isSelected());
-        restrictReplayBasedImplicitnessInput.setVisible(ciprVariantCheckboxedComboBox.getCheckBox().isSelected() && (ciprVariantCheckboxedComboBox.getComboBox().getSelectedItem() == ProMConfig.CIPRVariant.ReplayBased));
+        restrictReplayBasedImplicitnessInput.setVisible(ciprVariantCheckboxedComboBox
+                .getCheckBox()
+                .isSelected() && (ciprVariantCheckboxedComboBox
+                .getComboBox()
+                .getSelectedItem() == ProMConfig.CIPRVariant.ReplayBased));
         deltaAdaptationLabeledComboBox.setVisible(compositionStrategyComboBox.getSelectedItem() == ProMConfig.CompositionStrategy.TauDelta);
         changeDeltaParametersVisibility();
         revalidate();

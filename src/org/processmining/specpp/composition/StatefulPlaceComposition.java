@@ -13,7 +13,7 @@ import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.encoding.NonMutatingSetOperations;
 import org.processmining.specpp.datastructures.encoding.WeightedBitMask;
 import org.processmining.specpp.datastructures.petri.Place;
-import org.processmining.specpp.datastructures.util.ComputingCache;
+import org.processmining.specpp.datastructures.util.caching.ComputingCache;
 import org.processmining.specpp.datastructures.util.EvaluationParameterTuple2;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;

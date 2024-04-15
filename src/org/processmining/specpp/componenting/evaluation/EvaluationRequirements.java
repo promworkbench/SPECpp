@@ -7,8 +7,10 @@ import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.util.EvaluationParameterTuple2;
 import org.processmining.specpp.datastructures.vectorization.VariantMarkingHistories;
-import org.processmining.specpp.evaluation.fitness.BasicFitnessEvaluation;
-import org.processmining.specpp.evaluation.fitness.DetailedFitnessEvaluation;
+import org.processmining.specpp.evaluation.fitness.results.BasicFitnessEvaluation;
+import org.processmining.specpp.evaluation.fitness.results.DetailedFitnessEvaluation;
+import org.processmining.specpp.evaluation.fitness.results.ComprehensiveFitnessEvaluation;
+import org.processmining.specpp.evaluation.fitness.results.FittingVariantsEvaluation;
 import org.processmining.specpp.evaluation.heuristics.AdaptedDelta;
 import org.processmining.specpp.evaluation.heuristics.CandidateScore;
 import org.processmining.specpp.evaluation.implicitness.ImplicitnessRating;
@@ -18,6 +20,8 @@ public class EvaluationRequirements {
 
     public static final EvaluatorRequirement<Place, BasicFitnessEvaluation> BASIC_FITNESS = evaluator(Place.class, BasicFitnessEvaluation.class);
     public static final EvaluatorRequirement<Place, DetailedFitnessEvaluation> DETAILED_FITNESS = evaluator(Place.class, DetailedFitnessEvaluation.class);
+    public static final EvaluatorRequirement<Place, ComprehensiveFitnessEvaluation> COMPREHENSIVE_FITNESS = evaluator(Place.class, ComprehensiveFitnessEvaluation.class);
+    public static final EvaluatorRequirement<Place, FittingVariantsEvaluation> PLACE_FITTING_VARIANTS = evaluator(Place.class, FittingVariantsEvaluation.class);
 
     public static final EvaluatorRequirement<EvaluationParameterTuple2<Place, BitMask>, BasicFitnessEvaluation> SUBSET_BASIC_FITNESS = evaluator(JavaTypingUtils.castClass(EvaluationParameterTuple2.class), BasicFitnessEvaluation.class);
     public static final EvaluatorRequirement<Place, ImplicitnessRating> PLACE_IMPLICITNESS = evaluator(Place.class, ImplicitnessRating.class);

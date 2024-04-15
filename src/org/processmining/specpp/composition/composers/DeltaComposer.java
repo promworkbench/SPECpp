@@ -19,32 +19,34 @@ import org.processmining.specpp.datastructures.encoding.NonMutatingSetOperations
 import org.processmining.specpp.datastructures.encoding.WeightedBitMask;
 import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.tree.heuristic.DoubleScore;
-import org.processmining.specpp.datastructures.util.BasicCache;
-import org.processmining.specpp.datastructures.util.ComputingCache;
+import org.processmining.specpp.datastructures.util.caching.BasicCache;
+import org.processmining.specpp.datastructures.util.caching.ComputingCache;
 import org.processmining.specpp.datastructures.util.EvaluationParameterTuple2;
-import org.processmining.specpp.datastructures.util.StackedCache;
+import org.processmining.specpp.datastructures.util.caching.StackedCache;
 import org.processmining.specpp.datastructures.vectorization.IntVector;
-import org.processmining.specpp.evaluation.fitness.DetailedFitnessEvaluation;
+import org.processmining.specpp.evaluation.fitness.results.DetailedFitnessEvaluation;
+import org.processmining.specpp.evaluation.fitness.results.FittingVariantsEvaluation;
 import org.processmining.specpp.util.JavaTypingUtils;
 
 public class DeltaComposer<I extends AdvancedComposition<Place>, R extends Result> extends AbstractQueueingComposer<Place, I, R, CandidateConstraint<Place>> {
 
-    private final DelegatingEvaluator<Place, DetailedFitnessEvaluation> fitnessEvaluator = new DelegatingEvaluator<>();
+    private final DelegatingEvaluator<Place, FittingVariantsEvaluation> fittingVariantsEvaluator = new DelegatingEvaluator<>();
+    private final DelegatingDataSource<BasicCache<Place, FittingVariantsEvaluation>> fittingVariantsCache = new DelegatingDataSource<>();
+
     private final DelegatingEvaluator<EvaluationParameterTuple2<Place, Integer>, DoubleScore> deltaAdaptationFunction = new DelegatingEvaluator<>();
     private final DelegatingDataSource<TauFitnessThresholds> fitnessThresholds = new DelegatingDataSource<>();
     private final DelegatingDataSource<DeltaComposerParameters> deltaComposerParameters = new DelegatingDataSource<>();
     private final DelegatingDataSource<WeightedBitMask> currentlySupportedVariants = new DelegatingDataSource<>();
-    private final DelegatingDataSource<BasicCache<Place, DetailedFitnessEvaluation>> fitnessCache = new DelegatingDataSource<>();
     private final DelegatingDataSource<IntVector> variantFrequencies = new DelegatingDataSource<>();
     private int currentTreeLevel;
     private final DelegatingDataSource<Integer> treeLevelSource = new DelegatingDataSource<>(() -> currentTreeLevel);
-    private Evaluator<Place, DetailedFitnessEvaluation> cachedEvaluator;
+    private Evaluator<Place, FittingVariantsEvaluation> getFittingVariants;
     private int maxQueueSize;
 
     public DeltaComposer(ComposerComponent<Place, I, R> childComposer) {
         super(childComposer);
         globalComponentSystem().require(ParameterRequirements.TAU_FITNESS_THRESHOLDS, fitnessThresholds)
-                               .require(EvaluationRequirements.DETAILED_FITNESS, fitnessEvaluator)
+                               .require(EvaluationRequirements.PLACE_FITTING_VARIANTS, fittingVariantsEvaluator)
                                .require(EvaluationRequirements.DELTA_ADAPTATION_FUNCTION, deltaAdaptationFunction)
                                .require(ParameterRequirements.DELTA_COMPOSER_PARAMETERS, deltaComposerParameters)
                                .require(DataRequirements.VARIANT_FREQUENCIES, variantFrequencies)
@@ -53,7 +55,7 @@ public class DeltaComposer<I extends AdvancedComposition<Place>, R extends Resul
 
         currentTreeLevel = 0;
         localComponentSystem().require(DataRequirements.dataSource("currently_supported_variants", WeightedBitMask.class), currentlySupportedVariants)
-                              .require(DataRequirements.dataSource("fitness_cache", JavaTypingUtils.castClass(BasicCache.class)), fitnessCache);
+                              .require(DataRequirements.dataSource("cache.fitting_variants", JavaTypingUtils.castClass(BasicCache.class)), fittingVariantsCache);
     }
 
     @Override
@@ -62,9 +64,9 @@ public class DeltaComposer<I extends AdvancedComposition<Place>, R extends Resul
         DeltaComposerParameters parameters = deltaComposerParameters.getData();
         maxQueueSize = parameters.getMaxQueueSize();
 
-        ComputingCache<Place, DetailedFitnessEvaluation> cache = new ComputingCache<>(10_000, fitnessEvaluator);
-        if (fitnessCache.isEmpty()) cachedEvaluator = cache::get;
-        else cachedEvaluator = new StackedCache<>(fitnessCache.getData(), cache)::get;
+        ComputingCache<Place, FittingVariantsEvaluation> cache = new ComputingCache<>(1_000, fittingVariantsEvaluator);
+        if (fittingVariantsCache.isEmpty()) getFittingVariants = cache::get;
+        else getFittingVariants = new StackedCache<>(fittingVariantsCache.getData(), cache)::get;
     }
 
     @Override
@@ -87,13 +89,13 @@ public class DeltaComposer<I extends AdvancedComposition<Place>, R extends Resul
     }
 
     private boolean meetsCurrentDelta(Place candidate) {
-        DetailedFitnessEvaluation evaluation = cachedEvaluator.eval(candidate);
+        FittingVariantsEvaluation fittingVariantsEvaluation = getFittingVariants.eval(candidate);
         Integer treeLevel = treeLevelSource.getData(); // more efficient: get once per postponed list traversal
         DoubleScore adaptedDelta = deltaAdaptationFunction.eval(new EvaluationParameterTuple2<>(candidate, treeLevel));
         double adaptedTau = fitnessThresholds.getData().getFittingThreshold() * adaptedDelta.getScore();
         WeightedBitMask supportedVariants = currentlySupportedVariants.getData();
         IntVector frequencies = variantFrequencies.getData();
-        BitMask intersection = NonMutatingSetOperations.intersection(evaluation.getFittingVariants(), supportedVariants);
+        BitMask intersection = NonMutatingSetOperations.intersection(fittingVariantsEvaluation.getFittingVariants(), supportedVariants);
         double f = intersection.stream().mapToDouble(frequencies::getRelative).sum();
         return f >= supportedVariants.getWeight() - adaptedTau;
     }

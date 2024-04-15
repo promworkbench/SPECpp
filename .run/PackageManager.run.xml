@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PackageManager" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="org.processmining.contexts.uitopia.packagemanager.PMFrame" />
+    <module name="specpp" />
+    <option name="VM_PARAMETERS" value="-ea -Xmx1G -Djava.library.path=. -Djava.system.class.loader=org.processmining.framework.util.ProMClassLoader" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

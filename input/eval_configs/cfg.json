@@ -1,0 +1,58 @@
+{
+  "Input Processing": {
+    "eventClassifier": "XEventNameClassifier",
+    "addStartEndTransitions": true,
+    "activityOrderingStrategy": "AverageFirstOccurrenceIndex"
+  },
+  "Components": {
+    "Supervisors": [],
+    "Evaluators": [
+      "fitness.AbsolutelyNoFrillsFitnessEvaluator$Builder",
+      "markings.LogHistoryMaker",
+      "implicitness.LPBasedImplicitnessCalculator$Builder"
+    ],
+    "Proposing": {
+      "Proposer": "ConstrainablePlaceProposer$Builder",
+      "Tree Structure": {
+        "Tree": "EnumeratingTree",
+        "Expansion Strategy": "heuristic.HeuristicTreeExpansion",
+        "Node Generation Logic": "MonotonousPlaceGenerationLogic$Builder",
+        "Heuristic": "EventuallyFollowsTreeHeuristic$Builder"
+      }
+    },
+    "Compositing": {
+      "Composition": "StatefulPlaceComposition",
+      "Composer": [
+        "PlaceFitnessFilter",
+        "PlaceComposerWithCIPR"
+      ]
+    },
+    "Post Processors": [
+      "LPBasedImplicitnessPostProcessing$Builder",
+      "SelfLoopPlaceMerger",
+      "ProMConverter"
+    ]
+  },
+  "Parameters": {
+    "base": "BaseParameters",
+    "extensions": [
+      {
+        "label": "placegenerator.parameters",
+        "type": "PlaceGeneratorParameters",
+        "args": {
+          "maxTreeDepth": 6,
+          "acceptSubtreeCutoffConstraints": true
+        }
+      },
+      {
+        "label": "supervision.parameters",
+        "type": "SupervisionParameters",
+        "args": {
+          "useConsole": false,
+          "useFiles": false,
+          "classesToInstrument": []
+        }
+      }
+    ]
+  }
+}

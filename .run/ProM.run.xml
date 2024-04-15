@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ProM" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="org.processmining.contexts.uitopia.UI" />
+    <module name="specpp" />
+    <option name="VM_PARAMETERS" value="-Xmx8G -Djava.library.path=. -Djava.util.Arrays.useLegacyMergeSort=true -Djava.system.class.loader=org.processmining.framework.util.ProMClassLoader" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,0 +1,49 @@
+[
+  {
+    "label": "fitness.tau_threshold",
+    "type": "TauFitnessThresholds",
+    "args": {
+      "tau": [
+        0.3,
+        0.6,
+        1
+      ]
+    }
+  },
+  [
+    {
+      "label": "placegenerator.parameters",
+      "type": "PlaceGeneratorParameters",
+      "vary args independently": false,
+      "args": {
+        "maxTreeDepth": [
+          5,
+          5,
+          8,
+          8
+        ],
+        "acceptWiringConstraints": [
+          false,
+          false,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "label": "implicitness.parameters",
+      "type": "ImplicitnessTestingParameters",
+      "vary args independently": true,
+      "args": {
+        "version": [
+          "ReplayBased",
+          "LPBased"
+        ],
+        "subLogRestriction": [
+          "FittingOnAcceptedPlacesAndEvaluatedPlace",
+          "MerelyFittingOnEvaluatedPair"
+        ]
+      }
+    }
+  ]
+]

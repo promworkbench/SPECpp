@@ -4,7 +4,7 @@ import org.processmining.specpp.base.AdvancedComposition;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.composition.composers.PlaceComposerWithCIPR;
-import org.processmining.specpp.composition.composers.PlaceFitnessFilter;
+import org.processmining.specpp.composition.composers.AbsoluteFitnessFilter;
 import org.processmining.specpp.config.components.Configurators;
 import org.processmining.specpp.config.components.EfficientTreeConfiguration;
 import org.processmining.specpp.config.components.ProposerComposerConfiguration;
@@ -38,7 +38,7 @@ public class LightweightComponentConfig extends BaseComponentConfig {
                             .proposer(new ConstrainablePlaceProposer.Builder())
                             .composition(StatefulPlaceComposition::new)
                             .composer(PlaceComposerWithCIPR::new)
-                            .recursiveComposers(PlaceFitnessFilter::new)
+                            .recursiveComposers(AbsoluteFitnessFilter::new)
                             .build(gcr);
     }
 

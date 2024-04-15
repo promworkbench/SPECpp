@@ -17,11 +17,12 @@ public class ProMConfig {
     boolean concurrentReplay, permitNegativeMarkingsDuringReplay;
     ImplicitnessTestingParameters.SubLogRestriction implicitnessReplaySubLogRestriction;
     FrameworkBridge.AnnotatedEvaluator deltaAdaptationFunction;
-    public boolean enforceHeuristicThreshold;
-    public double heuristicThreshold;
-    public OrderingRelation heuristicThresholdRelation;
+    boolean enforceHeuristicThreshold;
+    double heuristicThreshold;
+    OrderingRelation heuristicThresholdRelation;
+    FitnessMetric fitnessMetric;
     CompositionStrategy compositionStrategy;
-    public boolean initiallyWireSelfLoops;
+    boolean initiallyWireSelfLoops;
     CIPRVariant ciprVariant;
     List<FrameworkBridge.AnnotatedPostProcessor> ppPipeline;
     double tau, delta, rho;
@@ -48,6 +49,7 @@ public class ProMConfig {
         pc.permitNegativeMarkingsDuringReplay = false;
         pc.implicitnessReplaySubLogRestriction = ImplicitnessTestingParameters.SubLogRestriction.None;
         pc.deltaAdaptationFunction = FrameworkBridge.BridgedDeltaAdaptationFunctions.Constant.getBridge();
+        pc.fitnessMetric = FitnessMetric.AbsFitness;
         pc.compositionStrategy = CompositionStrategy.Standard;
         pc.initiallyWireSelfLoops = false;
         pc.ciprVariant = CIPRVariant.ReplayBased;
@@ -99,7 +101,7 @@ public class ProMConfig {
 
     public boolean validate() {
         boolean outOfRange = tau < 0 || tau > 1.0;
-        boolean incomplete = (supervisionSetting == null | treeExpansionSetting == null | compositionStrategy == null);
+        boolean incomplete = (supervisionSetting == null | treeExpansionSetting == null | fitnessMetric == null | compositionStrategy == null);
         incomplete |= logHeuristics && (!logToFile || supervisionSetting != SupervisionSetting.PerformanceAndEvents);
         incomplete |= treeExpansionSetting == TreeExpansionSetting.Heuristic && treeHeuristic == null;
         incomplete |= treeExpansionSetting == TreeExpansionSetting.Heuristic && enforceHeuristicThreshold && (heuristicThreshold < 0 || heuristicThresholdRelation == null);
@@ -139,6 +141,27 @@ public class ProMConfig {
             return description;
         }
 
+    }
+
+    public enum FitnessMetric implements DisplayableEnum {
+        AbsFitness("Absolute Fitness",""), RelFitness("Relative Fitness", ""), AggFitness("Aggregated Fitness", ""), CombFitness("Combined Fitness", "");
+
+        private final String displayName, description;
+
+        FitnessMetric(String displayName, String description) {
+            this.displayName = displayName;
+            this.description = description;
+        }
+
+        @Override
+        public String getDisplayText() {
+            return displayName;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
+        }
     }
 
     public enum TreeExpansionSetting {

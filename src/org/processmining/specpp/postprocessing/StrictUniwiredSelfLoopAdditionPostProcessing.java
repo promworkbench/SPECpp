@@ -8,7 +8,7 @@ import org.processmining.specpp.datastructures.petri.Place;
 import org.processmining.specpp.datastructures.petri.Transition;
 import org.processmining.specpp.datastructures.tree.base.HeuristicStrategy;
 import org.processmining.specpp.datastructures.tree.nodegen.WiringMatrix;
-import org.processmining.specpp.evaluation.fitness.BasicFitnessEvaluation;
+import org.processmining.specpp.evaluation.fitness.results.BasicFitnessEvaluation;
 import org.processmining.specpp.evaluation.fitness.FitnessThresholder;
 import org.processmining.specpp.evaluation.heuristics.CandidateScore;
 

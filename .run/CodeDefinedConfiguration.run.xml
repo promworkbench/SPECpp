@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CodeDefinedConfigurationSample" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="org.processmining.specpp.headless.CodeDefinedConfigurationSample" />
+    <module name="specpp" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="org.processmining.specpp.config.presets.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

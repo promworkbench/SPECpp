@@ -3,6 +3,7 @@ package org.processmining.specpp.datastructures.vectorization;
 import org.processmining.specpp.datastructures.encoding.BitMask;
 import org.processmining.specpp.datastructures.log.NotCoveringRequiredVariantsException;
 import org.processmining.specpp.datastructures.util.IndexedItem;
+import org.processmining.specpp.evaluation.fitness.base.ReplayOutcome;
 import org.processmining.specpp.evaluation.fitness.ReplayUtils;
 
 import java.nio.IntBuffer;
@@ -41,14 +42,14 @@ public class VMHComputations {
         return IVSComputations.orderingRelationsOn(toLocal(left, mask), left.getData(), toLocal(right, mask), right.getData());
     }
 
-    public static Spliterator<IndexedItem<EnumSet<ReplayUtils.ReplayOutcomes>>> indexedFitnessComputation(VariantMarkingHistories vmh) {
+    public static Spliterator<IndexedItem<EnumSet<ReplayOutcome>>> indexedFitnessComputation(VariantMarkingHistories vmh) {
         return vmh.getData()
                   .getIndexedVectors()
                   .map(ii -> new IndexedItem<>(toLocal(vmh, ii.getIndex()), ReplayUtils.markingBasedReplay(ii.getItem())))
                   .spliterator();
     }
 
-    public static Spliterator<IndexedItem<EnumSet<ReplayUtils.ReplayOutcomes>>> indexedFitnessComputationOn(VariantMarkingHistories vmh, BitMask variantMask) {
+    public static Spliterator<IndexedItem<EnumSet<ReplayOutcome>>> indexedFitnessComputationOn(VariantMarkingHistories vmh, BitMask variantMask) {
         return vmh.getData()
                   .getIndexedVectors(toLocal(vmh, variantMask))
                   .map(ii -> new IndexedItem<>(toLocal(vmh, ii.getIndex()), ReplayUtils.markingBasedReplay(ii.getItem())))

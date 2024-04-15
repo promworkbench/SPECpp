@@ -6,7 +6,7 @@ import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.ConstrainingPlaceCollection;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.composition.composers.PlaceAccepter;
-import org.processmining.specpp.composition.composers.PlaceFitnessFilter;
+import org.processmining.specpp.composition.composers.AbsoluteFitnessFilter;
 import org.processmining.specpp.composition.composers.UniwiredComposer;
 import org.processmining.specpp.config.components.Configurators;
 import org.processmining.specpp.config.components.EfficientTreeConfiguration;
@@ -22,7 +22,7 @@ import org.processmining.specpp.datastructures.tree.heuristic.TreeNodeScore;
 import org.processmining.specpp.datastructures.tree.nodegen.MonotonousPlaceGenerationLogic;
 import org.processmining.specpp.datastructures.tree.nodegen.PlaceNode;
 import org.processmining.specpp.datastructures.tree.nodegen.PlaceState;
-import org.processmining.specpp.evaluation.fitness.AbsolutelyNoFrillsFitnessEvaluator;
+import org.processmining.specpp.evaluation.fitness.BaselineFitnessEvaluator;
 import org.processmining.specpp.evaluation.heuristics.DirectlyFollowsHeuristic;
 import org.processmining.specpp.evaluation.markings.LogHistoryMaker;
 import org.processmining.specpp.postprocessing.ProMConverter;
@@ -34,7 +34,7 @@ public class UniwiredComponentConfig extends BaseComponentConfig {
     public EvaluatorConfiguration getEvaluatorConfiguration(GlobalComponentRepository gcr) {
         return Configurators.evaluators()
                             .addEvaluatorProvider(LogHistoryMaker::new)
-                            .addEvaluatorProvider(new AbsolutelyNoFrillsFitnessEvaluator.Builder())
+                            .addEvaluatorProvider(new BaselineFitnessEvaluator.Builder())
                             .addEvaluatorProvider(new DirectlyFollowsHeuristic.Builder())
                             .build(gcr);
     }
@@ -46,7 +46,7 @@ public class UniwiredComponentConfig extends BaseComponentConfig {
                             .terminalComposition(StatefulPlaceComposition::new)
                             .recursiveCompositions(ConstrainingPlaceCollection::new)
                             .terminalComposer(PlaceAccepter::new)
-                            .recursiveComposers(PlaceFitnessFilter::new, UniwiredComposer::new)
+                            .recursiveComposers(AbsoluteFitnessFilter::new, UniwiredComposer::new)
                             .build(gcr);
     }
 

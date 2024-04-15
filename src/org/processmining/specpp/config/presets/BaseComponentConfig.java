@@ -5,7 +5,7 @@ import org.processmining.specpp.componenting.evaluation.EvaluatorConfiguration;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.composition.composers.EventingPlaceComposerWithCIPR;
-import org.processmining.specpp.composition.composers.EventingPlaceFitnessFilter;
+import org.processmining.specpp.composition.composers.eventing.EventingAbsoluteFitnessFilter;
 import org.processmining.specpp.config.ComponentConfig;
 import org.processmining.specpp.config.components.*;
 import org.processmining.specpp.datastructures.petri.CollectionOfPlaces;
@@ -18,7 +18,7 @@ import org.processmining.specpp.datastructures.tree.heuristic.TreeNodeScore;
 import org.processmining.specpp.datastructures.tree.nodegen.MonotonousPlaceGenerationLogic;
 import org.processmining.specpp.datastructures.tree.nodegen.PlaceNode;
 import org.processmining.specpp.datastructures.tree.nodegen.PlaceState;
-import org.processmining.specpp.evaluation.fitness.AbsolutelyNoFrillsFitnessEvaluator;
+import org.processmining.specpp.evaluation.fitness.BaselineFitnessEvaluator;
 import org.processmining.specpp.evaluation.implicitness.LPBasedImplicitnessCalculator;
 import org.processmining.specpp.evaluation.markings.LogHistoryMaker;
 import org.processmining.specpp.postprocessing.PlaceExporter;
@@ -47,7 +47,7 @@ public class BaseComponentConfig implements ComponentConfig {
     public EvaluatorConfiguration getEvaluatorConfiguration(GlobalComponentRepository gcr) {
         return Configurators.evaluators()
                             .addEvaluatorProvider(LogHistoryMaker::new)
-                            .addEvaluatorProvider(new AbsolutelyNoFrillsFitnessEvaluator.Builder())
+                            .addEvaluatorProvider(new BaselineFitnessEvaluator.Builder())
                             .addEvaluatorProvider(new LPBasedImplicitnessCalculator.Builder())
                             .build(gcr);
     }
@@ -58,7 +58,7 @@ public class BaseComponentConfig implements ComponentConfig {
                             .proposer(new RestartablePlaceProposer.Builder())
                             .composition(StatefulPlaceComposition::new)
                             .terminalComposer(EventingPlaceComposerWithCIPR::new)
-                            .recursiveComposers(EventingPlaceFitnessFilter::new)
+                            .recursiveComposers(EventingAbsoluteFitnessFilter::new)
                             .build(gcr);
     }
 

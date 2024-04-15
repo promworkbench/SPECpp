@@ -10,8 +10,8 @@ import org.processmining.specpp.componenting.traits.ProvidesEvaluators;
 import org.processmining.specpp.config.components.ComponentInitializerBuilder;
 import org.processmining.specpp.config.components.Configuration;
 import org.processmining.specpp.config.components.SimpleBuilder;
-import org.processmining.specpp.evaluation.fitness.AbstractBasicFitnessEvaluator;
-import org.processmining.specpp.evaluation.fitness.InstrumentedBasicFitnessEvaluator;
+import org.processmining.specpp.evaluation.fitness.AbstractFullFitnessEvaluator;
+import org.processmining.specpp.evaluation.fitness.InstrumentedFullFitnessEvaluator;
 import org.processmining.specpp.util.Reflection;
 
 import java.util.LinkedList;
@@ -29,7 +29,7 @@ public class EvaluatorConfiguration extends Configuration {
 
     public ProvidesEvaluators createPossiblyInstrumented(SimpleBuilder<? extends ProvidesEvaluators> builder) {
         ProvidesEvaluators from = checkout(builder).build();
-        return (from instanceof AbstractBasicFitnessEvaluator && shouldBeInstrumented(from)) ? checkout(new InstrumentedBasicFitnessEvaluator((AbstractBasicFitnessEvaluator) from)) : checkout(from);
+        return (from instanceof AbstractFullFitnessEvaluator && shouldBeInstrumented(from)) ? checkout(new InstrumentedFullFitnessEvaluator((AbstractFullFitnessEvaluator) from)) : checkout(from);
     }
 
     public List<ProvidesEvaluators> createEvaluators() {

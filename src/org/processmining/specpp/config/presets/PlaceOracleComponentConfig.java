@@ -4,7 +4,7 @@ import org.processmining.specpp.base.AdvancedComposition;
 import org.processmining.specpp.componenting.system.GlobalComponentRepository;
 import org.processmining.specpp.composition.BasePlaceComposition;
 import org.processmining.specpp.composition.composers.PlaceAccepter;
-import org.processmining.specpp.composition.composers.PlaceFitnessFilter;
+import org.processmining.specpp.composition.composers.AbsoluteFitnessFilter;
 import org.processmining.specpp.config.components.Configurators;
 import org.processmining.specpp.config.components.PostProcessingConfiguration;
 import org.processmining.specpp.config.components.ProposerComposerConfiguration;
@@ -30,7 +30,7 @@ public class PlaceOracleComponentConfig extends LightweightComponentConfig {
                             .proposer(new ConstrainablePlaceProposer.Builder())
                             .composition(BasePlaceComposition::new)
                             .composer(PlaceAccepter::new)
-                            .recursiveComposers(PlaceFitnessFilter::new)
+                            .recursiveComposers(AbsoluteFitnessFilter::new)
                             .build(gcr);
     }
 

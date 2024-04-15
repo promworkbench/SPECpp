@@ -9,6 +9,10 @@ import org.processmining.specpp.composition.ConstrainingPlaceCollection;
 import org.processmining.specpp.composition.LightweightPlaceComposition;
 import org.processmining.specpp.composition.StatefulPlaceComposition;
 import org.processmining.specpp.composition.composers.*;
+import org.processmining.specpp.composition.composers.eventing.EventingAbsoluteFitnessFilter;
+import org.processmining.specpp.composition.composers.eventing.EventingAggregatedFitnessFilter;
+import org.processmining.specpp.composition.composers.eventing.EventingCombinedFitnessFilter;
+import org.processmining.specpp.composition.composers.eventing.EventingRelativeFitnessFilter;
 import org.processmining.specpp.config.ComponentConfigImpl;
 import org.processmining.specpp.config.ConfigFactory;
 import org.processmining.specpp.config.InputProcessingConfig;
@@ -95,7 +99,21 @@ public class ConfigurationController extends AbstractStageController {
             pcCfg.terminalComposer(PlaceAccepter::new);
         }
 
-        InitializingBuilder<? extends ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>, ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>> fitnessFilterBuilder = isSupervisingEvents ? EventingPlaceFitnessFilter::new : PlaceFitnessFilter::new;
+        InitializingBuilder<? extends ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>, ComposerComponent<Place, AdvancedComposition<Place>, CollectionOfPlaces>> fitnessFilterBuilder = null;
+        switch (pc.fitnessMetric) {
+            case AbsFitness:
+                fitnessFilterBuilder = isSupervisingEvents ? EventingAbsoluteFitnessFilter::new : AbsoluteFitnessFilter::new;
+                break;
+            case RelFitness:
+                fitnessFilterBuilder = isSupervisingEvents ? EventingRelativeFitnessFilter::new : RelativeFitnessFilter::new;
+                break;
+            case AggFitness:
+                fitnessFilterBuilder = isSupervisingEvents ? EventingAggregatedFitnessFilter::new : AggregatedFitnessFilter::new;
+                break;
+            case CombFitness:
+                fitnessFilterBuilder = isSupervisingEvents ? EventingCombinedFitnessFilter::new : CombinedFitnessFilter::new;
+                break;
+        }
         switch (pc.compositionStrategy) {
             case Standard:
                 pcCfg.recursiveComposers(fitnessFilterBuilder);
@@ -114,8 +132,9 @@ public class ConfigurationController extends AbstractStageController {
         evCfg.addEvaluatorProvider(new LPBasedImplicitnessCalculator.Builder());
         evCfg.addEvaluatorProvider(new DirectlyFollowsHeuristic.Builder());
         evCfg.addEvaluatorProvider(pc.concurrentReplay ? FrameworkBridge.BridgedEvaluators.ForkJoinFitness.getBridge()
-                                                                                                          .getBuilder() : FrameworkBridge.BridgedEvaluators.BaseFitness.getBridge()
-                                                                                                                                                                       .getBuilder());
+                                                                                                          .getBuilder() : FrameworkBridge.BridgedEvaluators.BaseFitness
+                .getBridge()
+                .getBuilder());
         if (pc.compositionStrategy == ProMConfig.CompositionStrategy.TauDelta)
             evCfg.addEvaluatorProvider(pc.deltaAdaptationFunction.getBuilder());
 
@@ -153,20 +172,22 @@ public class ConfigurationController extends AbstractStageController {
         ParameterProvider pp = new ParameterProvider() {
             @Override
             public void init() {
-                globalComponentSystem().provide(ParameterRequirements.EXTERNAL_INITIALIZATION.fulfilWithStatic(new ExternalInitializationParameters(pc.initiallyWireSelfLoops)))
-                                       .provide(ParameterRequirements.EXECUTION_PARAMETERS.fulfilWithStatic(exp))
-                                       .provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWithStatic(pc.supervisionSetting != ProMConfig.SupervisionSetting.Nothing ? SupervisionParameters.instrumentAll(false, logToFile) : SupervisionParameters.instrumentNone(false, logToFile)))
-                                       .provide(ParameterRequirements.TAU_FITNESS_THRESHOLDS.fulfilWithStatic(TauFitnessThresholds.tau(pc.tau)))
-                                       .provide(ParameterRequirements.REPLAY_COMPUTATION.fulfilWithStatic(ReplayComputationParameters.permitNegative(pc.permitNegativeMarkingsDuringReplay)))
-                                       .provide(ParameterRequirements.IMPLICITNESS_TESTING.fulfilWithStatic(new ImplicitnessTestingParameters(pc.ciprVariant.bridge(), pc.implicitnessReplaySubLogRestriction)))
-                                       .provide(ParameterRequirements.PLACE_GENERATOR_PARAMETERS.fulfilWithStatic(pgp))
-                                       .provide(ParameterRequirements.OUTPUT_PATH_PARAMETERS.fulfilWithStatic(OutputPathParameters.getDefault()));
+                globalComponentSystem()
+                        .provide(ParameterRequirements.EXTERNAL_INITIALIZATION.fulfilWithStatic(new ExternalInitializationParameters(pc.initiallyWireSelfLoops)))
+                        .provide(ParameterRequirements.EXECUTION_PARAMETERS.fulfilWithStatic(exp))
+                        .provide(ParameterRequirements.SUPERVISION_PARAMETERS.fulfilWithStatic(pc.supervisionSetting != ProMConfig.SupervisionSetting.Nothing ? SupervisionParameters.instrumentAll(false, logToFile) : SupervisionParameters.instrumentNone(false, logToFile)))
+                        .provide(ParameterRequirements.TAU_FITNESS_THRESHOLDS.fulfilWithStatic(TauFitnessThresholds.tau(pc.tau)))
+                        .provide(ParameterRequirements.REPLAY_COMPUTATION.fulfilWithStatic(ReplayComputationParameters.permitNegative(pc.permitNegativeMarkingsDuringReplay)))
+                        .provide(ParameterRequirements.IMPLICITNESS_TESTING.fulfilWithStatic(new ImplicitnessTestingParameters(pc.ciprVariant.bridge(), pc.implicitnessReplaySubLogRestriction)))
+                        .provide(ParameterRequirements.PLACE_GENERATOR_PARAMETERS.fulfilWithStatic(pgp))
+                        .provide(ParameterRequirements.OUTPUT_PATH_PARAMETERS.fulfilWithStatic(OutputPathParameters.getDefault()));
                 if (pc.useETCBasedComposer) {
                     globalComponentSystem().provide(ParameterRequirements.ETC_BASED_COMPOSER_PARAMETERS.fulfilWithStatic(new ETCBasedComposerParameters(pc.rho)));
                 }
                 if (pc.compositionStrategy == ProMConfig.CompositionStrategy.TauDelta) {
-                    globalComponentSystem().provide(ParameterRequirements.DELTA_PARAMETERS.fulfilWithStatic(new DeltaParameters(pc.delta, pc.steepness)))
-                                           .provide(ParameterRequirements.DELTA_COMPOSER_PARAMETERS.fulfilWithStatic(DeltaComposerParameters.getDefault()));
+                    globalComponentSystem()
+                            .provide(ParameterRequirements.DELTA_PARAMETERS.fulfilWithStatic(new DeltaParameters(pc.delta, pc.steepness)))
+                            .provide(ParameterRequirements.DELTA_COMPOSER_PARAMETERS.fulfilWithStatic(DeltaComposerParameters.getDefault()));
                 }
                 if (pc.enforceHeuristicThreshold)
                     globalComponentSystem().provide(ParameterRequirements.TREE_HEURISTIC_THRESHOLD.fulfilWithStatic(new TreeHeuristicThreshold(pc.heuristicThreshold, pc.heuristicThresholdRelation)));
