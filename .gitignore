@@ -4,8 +4,11 @@ bindist/
 .project
 .settings/
 bin/
+classes/
 report/
 dist/
 .idea/
+/src/org/processmining/specpp/util/PrivatePaths.java
+/src/org/processmining/specpp/headless/PrivatePlayground.java
 /eSTMiner/output/
 /dll/
