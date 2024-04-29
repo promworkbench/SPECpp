@@ -24,8 +24,7 @@
         <dependency org="prom" name="JAXB" rev="latest" changing="true" transitive="true"/>
 
         <dependency org="prom" name="ETConformance" rev="latest" changing="true" transitive="true"/>
-        <dependency org="prom" name="StochasticAwareConformanceChecking" rev="latest" changing="true"
-                    transitive="true"/>
+        <dependency org="prom" name="StochasticAwareConformanceChecking" rev="latest" changing="true" transitive="true"/>
 
         <!-- Third party libraries. These may span multiple lines. -->
         <!-- Please uncomment the second line in the resolve target in your build.xml file
