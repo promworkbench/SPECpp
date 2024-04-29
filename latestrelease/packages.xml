@@ -1,6 +1,6 @@
 
 				<packages>
-				<package name="SPECpp" version="6.14.6" os="all" url="SPECpp/SPECpp-6.14.6-all.zip" desc="SPECpp" org="RWTH Aachen" license="GPL" author="Leah Tacke Genannt Unterberg" auto="false" hasPlugins="true" logo="prom_subtitle_hat_300.png">
+				<package name="SPECpp" version="6.14.7" os="all" url="SPECpp/SPECpp-6.14.7-all.zip" desc="SPECpp" org="RWTH Aachen" license="GPL" author="Leah Tacke Genannt Unterberg" auto="false" hasPlugins="true" logo="prom_subtitle_hat_300.png">
 			        <dependency org="prom" name="ProM-Plugins" rev="latest" changing="true" transitive="true"/>
         <dependency org="prom" name="BasicUtils" rev="latest" changing="true" transitive="true"/>
         <dependency org="prom" name="Widgets" rev="latest" changing="true" transitive="true"/>
@@ -11,7 +11,7 @@
         <dependency org="prom" name="Log" rev="latest" changing="true" transitive="true"/>
         <dependency org="prom" name="JAXB" rev="latest" changing="true" transitive="true"/>
         <dependency org="prom" name="ETConformance" rev="latest" changing="true" transitive="true"/>
-        <dependency org="prom" name="StochasticAwareConformanceChecking" rev="latest" changing="true"
+        <dependency org="prom" name="StochasticAwareConformanceChecking" rev="latest" changing="true" transitive="true"/>
 
 				</package>
 				</packages>
